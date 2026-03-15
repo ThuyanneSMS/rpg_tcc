@@ -1,7 +1,7 @@
-# RPG Web Arena ⚔️
+# RPG Web Odisseia Arcana ⚔️
 
 Um jogo de RPG simples para navegador (Vanilla JS + HTML/CSS) alimentado por uma API REST robusta construída em Node.js e PostgreSQL. 
-Este projeto foi idealizado para simular a criação de conta, gestão de personagens, inventário, lojas mecânicas de nivelamento e batalhas em turnos. Formato comumente utilizado em projetos finais (TCC).
+Este projeto foi idealizado para simular a criação de conta, gestão de personagens, inventário, lojas mecânicas de nivelamento e batalhas em turnos.
 
 ---
 
@@ -98,6 +98,3 @@ A maior parte dos Endpoints exigem que você esteja autenticado, significando qu
 | **Mago**       | 80   | 18          | 5           | 8          |
 
 *As dinâmicas também possuem evolução progressiva de **LEVELS** (Sistema implementado em `gameLogic.js`).*
-
----
-**Desenvolvido com IA e paixão!** 🚀
