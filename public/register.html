@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Web - Cadastro</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>RPG Arena</h1>
+        <div class="auth-nav">
+            <a href="index.html">Login</a> | <a href="register.html">Criar Conta</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <h2>Registro de Herói</h2>
+        <div id="msg" class="error-msg"></div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="full_name">Nome Completo</label>
+                <input type="text" id="full_name" required>
+            </div>
+            <div class="form-group">
+                <label for="nickname">Apelido Único</label>
+                <input type="text" id="nickname" required>
+            </div>
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Senha (mínimo 8 caracteres)</label>
+                <input type="password" id="password" minlength="8" required>
+            </div>
+            <div class="form-group">
+                <label for="age">Idade</label>
+                <input type="number" id="age" required>
+            </div>
+            <div class="form-group">
+                <label for="gender">Sexo</label>
+                <select id="gender">
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="country">País</label>
+                <input type="text" id="country" required>
+            </div>
+            
+            <button type="submit" class="btn">Cadastrar</button>
+        </form>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const payload = {
+                full_name: document.getElementById('full_name').value,
+                nickname: document.getElementById('nickname').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                age: document.getElementById('age').value,
+                gender: document.getElementById('gender').value,
+                country: document.getElementById('country').value
+            };
+
+            const msgBox = document.getElementById('msg');
+
+            try {
+                const data = await apiFetch('/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                msgBox.className = 'success-msg';
+                msgBox.textContent = 'Cadastro realizado! Redirecionando para login...';
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+
+            } catch (error) {
+                msgBox.className = 'error-msg';
+                msgBox.textContent = error.message;
+            }
+        });
+    </script>
+</body>
+</html>

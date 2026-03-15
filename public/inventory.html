@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>RPG Web - Inventário</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .inv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .inv-item {
+            background-color: #34495e;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #7f8c8d;
+        }
+        .inv-item.equipped {
+            border-left-color: #2ecc71;
+            background-color: #27ae6033;
+        }
+        .item-info h4 { margin-bottom: 5px; }
+        .gold-display { text-align: right; color: gold; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Bolsa de Itens</h1>
+        <div class="auth-nav">
+            <a href="game.html">Voltar para a Guilda</a>
+        </div>
+    </header>
+
+    <div class="container" style="max-width: 800px;">
+        <div class="gold-display">💰 Ouro: <span id="playerGold">0</span></div>
+        <div id="msg"></div>
+
+        <div class="inv-grid" id="inventoryList">
+            <!-- Itens serão renderizados aqui -->
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        if (!isAuthenticated()) window.location.href = 'index.html';
+
+        async function loadInventory() {
+            try {
+                const data = await apiFetch('/inventory');
+                document.getElementById('playerGold').textContent = data.gold;
+                
+                const invDiv = document.getElementById('inventoryList');
+                invDiv.innerHTML = '';
+
+                if (data.items.length === 0) {
+                    invDiv.innerHTML = '<p class="text-center" style="width:100%; color:#bdc3c7;">Seu inventário está vazio.</p>';
+                    return;
+                }
+
+                data.items.forEach(item => {
+                    let actionBtn = '';
+                    
+                    if (item.item_type === 'potion') {
+                        actionBtn = `<button class="btn" style="width: auto; padding: 5px 15px; background-color: #e74c3c;" onclick="useItem(${item.id})">Usar</button>`;
+                    } else {
+                        if (item.is_equipped) {
+                            actionBtn = `<button class="btn" style="width: auto; padding: 5px 15px; background-color: #7f8c8d;" onclick="toggleEquip(${item.id}, false)">Desequipar</button>`;
+                        } else {
+                            actionBtn = `<button class="btn" style="width: auto; padding: 5px 15px; background-color: #2ecc71;" onclick="toggleEquip(${item.id}, true)">Equipar</button>`;
+                        }
+                    }
+
+                    invDiv.innerHTML += `
+                        <div class="inv-item ${item.is_equipped ? 'equipped' : ''}">
+                            <div class="item-info">
+                                <h4>${item.item_name} (x${item.quantity})</h4>
+                                <small style="color: #bdc3c7;">${item.is_equipped ? 'Equipado' : 'Na mochila'}</small>
+                            </div>
+                            <div class="item-actions">
+                                ${actionBtn}
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                alert('Erro ao carregar inventário: ' + error.message);
+            }
+        }
+
+        async function toggleEquip(inventoryId, equipStatus) {
+            try {
+                await apiFetch('/inventory/equip', {
+                    method: 'POST',
+                    body: JSON.stringify({ inventoryId, equip: equipStatus })
+                });
+                loadInventory();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        async function useItem(inventoryId) {
+            const msgBox = document.getElementById('msg');
+            try {
+                const res = await apiFetch('/inventory/use', {
+                    method: 'POST',
+                    body: JSON.stringify({ inventoryId })
+                });
+                msgBox.className = 'success-msg';
+                msgBox.textContent = res.message;
+                setTimeout(() => msgBox.textContent = '', 3000);
+                loadInventory();
+            } catch (error) {
+                msgBox.className = 'error-msg';
+                msgBox.textContent = error.message;
+                setTimeout(() => msgBox.textContent = '', 3000);
+            }
+        }
+
+        window.onload = loadInventory;
+    </script>
+</body>
+</html>

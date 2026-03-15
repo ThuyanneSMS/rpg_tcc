@@ -1,0 +1,110 @@
+/* Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+body {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #1a252f;
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+header h1 {
+    margin: 0;
+    color: #e74c3c;
+    text-transform: uppercase;
+}
+
+.auth-nav {
+    margin-top: 10px;
+}
+
+.auth-nav a {
+    color: #3498db;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.container {
+    background-color: #34495e;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    width: 100%;
+    max-width: 400px;
+    margin-top: 40px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    background-color: #ecf0f1;
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+.btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.btn:hover {
+    background-color: #c0392b;
+}
+
+.error-msg {
+    color: #ff7675;
+    text-align: center;
+    margin-bottom: 15px;
+    min-height: 20px;
+}
+
+.success-msg {
+    color: #55efc4;
+    text-align: center;
+    margin-bottom: 15px;
+    min-height: 20px;
+}
+
+/* Utils */
+.text-center {
+    text-align: center;
+}

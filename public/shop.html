@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>RPG Web - Loja</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .item-card {
+            background-color: #34495e;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #2c3e50;
+        }
+        .price { color: gold; font-weight: bold; margin: 10px 0; }
+        .gold-display { text-align: right; color: gold; font-size: 18px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Mercador Ambulante</h1>
+        <div class="auth-nav">
+            <a href="game.html">Voltar para a Guilda</a>
+        </div>
+    </header>
+
+    <div class="container" style="max-width: 800px;">
+        <div class="gold-display">💰 Ouro: <span id="playerGold">0</span></div>
+        <div id="msg"></div>
+
+        <div class="shop-grid" id="shopItems">
+            <!-- Itens injetados via JS -->
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        if (!isAuthenticated()) window.location.href = 'index.html';
+
+        async function loadShop() {
+            try {
+                // Ao carregar a loja, pegamos também o ouro atual do jogador para exibir
+                const invData = await apiFetch('/inventory');
+                document.getElementById('playerGold').textContent = invData.gold;
+
+                const data = await apiFetch('/shop/items');
+                const shopDiv = document.getElementById('shopItems');
+                shopDiv.innerHTML = '';
+
+                data.items.forEach(item => {
+                    const desc = item.type === 'potion' ? 'Recupera HP' : (item.type === 'sword' ? `+${item.bonus} ATK` : `+${item.bonus} DEF`);
+                    shopDiv.innerHTML += `
+                        <div class="item-card">
+                            <h3>${item.name}</h3>
+                            <p style="font-size:12px; color:#bdc3c7;">${desc}</p>
+                            <div class="price">${item.price} Ouro</div>
+                            <button class="btn" onclick="buyItem('${item.id}')">Comprar</button>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                alert('Erro ao carregar loja: ' + error.message);
+            }
+        }
+
+        async function buyItem(itemId) {
+            const msgBox = document.getElementById('msg');
+            try {
+                const data = await apiFetch('/shop/buy', {
+                    method: 'POST',
+                    body: JSON.stringify({ itemId })
+                });
+
+                msgBox.className = 'success-msg';
+                msgBox.textContent = data.message;
+                setTimeout(() => msgBox.textContent = '', 3000);
+                
+                loadShop(); // Recarrega para atualizar o ouro
+            } catch (error) {
+                msgBox.className = 'error-msg';
+                msgBox.textContent = error.message;
+                setTimeout(() => msgBox.textContent = '', 3000);
+            }
+        }
+
+        window.onload = loadShop;
+    </script>
+</body>
+</html>

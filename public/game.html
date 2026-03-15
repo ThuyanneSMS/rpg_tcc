@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>RPG Web - Aventura</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+            margin: 20px auto;
+        }
+        .panel {
+            background-color: #34495e;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .stats p {
+            margin: 5px 0;
+            border-bottom: 1px solid #2c3e50;
+            padding-bottom: 5px;
+        }
+        .menu-buttons button {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Alojamento da Guilda</h1>
+        <div class="auth-nav">
+            <a href="profile.html">Minha Conta</a> | <a href="#" onclick="logout()">Sair da Conta</a>
+        </div>
+    </header>
+
+    <div id="loading" class="text-center" style="margin-top: 50px;">Carregando personagem...</div>
+
+    <div class="dashboard-grid" id="dashboard" style="display: none;">
+        <!-- Painel de Status do Personagem -->
+        <div class="panel stats" id="characterStats">
+            <h3>Status do Herói</h3>
+            <hr><br>
+            <p><strong>Nome:</strong> <span id="cName"></span></p>
+            <p><strong>Classe:</strong> <span id="cClass"></span></p>
+            <p><strong>Nível:</strong> <span id="cLevel"></span></p>
+            <p><strong>HP:</strong> <span id="cHP"></span> / <span id="cMaxHP"></span></p>
+            <p><strong>Ataque:</strong> <span id="cAtk"></span></p>
+            <p><strong>Defesa:</strong> <span id="cDef"></span></p>
+            <p><strong>Velocidade:</strong> <span id="cSpd"></span></p>
+            <p><strong>EXP:</strong> <span id="cExp"></span></p>
+            <p><strong>Ouro:</strong> <span id="cGold" style="color: gold;"></span></p>
+            <p><strong>Pontos Livres:</strong> <span id="cPoints"></span></p>
+        </div>
+
+        <!-- Painel de Ações -->
+        <div class="panel menu-buttons">
+            <h3>O que deseja fazer?</h3>
+            <br>
+            <button class="btn" style="background-color: #e67e22;" onclick="window.location.href='battle.html'">Explorar e Lutar</button>
+            <button class="btn" style="background-color: #8e44ad;" onclick="window.location.href='inventory.html'">Inventário</button>
+            <button class="btn" style="background-color: #f1c40f; color: #2c3e50;" onclick="window.location.href='shop.html'">Visitar o Mercador</button>
+            <button class="btn" style="background-color: #27ae60;" onclick="heal()">Descansar na Estalagem (Cura tudo)</button>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        if (!isAuthenticated()) window.location.href = 'index.html';
+
+        function logout() {
+            removeToken();
+            window.location.href = 'index.html';
+        }
+
+        async function loadCharacter() {
+            try {
+                const data = await apiFetch('/character/');
+                const char = data.character;
+
+                // Preencher tela
+                document.getElementById('cName').textContent = char.name;
+                document.getElementById('cClass').textContent = char.class;
+                document.getElementById('cLevel').textContent = char.level;
+                document.getElementById('cHP').textContent = char.current_health;
+                document.getElementById('cMaxHP').textContent = char.base_health;
+                document.getElementById('cAtk').textContent = char.base_attack;
+                document.getElementById('cDef').textContent = char.base_defense;
+                document.getElementById('cSpd').textContent = char.base_speed;
+                document.getElementById('cExp').textContent = char.experience;
+                document.getElementById('cGold').textContent = char.gold;
+                document.getElementById('cPoints').textContent = char.unassigned_points;
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'grid';
+
+            } catch (error) {
+                // Se erro é 404 de não ter personagem, redireciona para criar
+                if (error.message.includes('Nenhum personagem')) {
+                    window.location.href = 'create-character.html';
+                } else {
+                    alert('Erro ao carregar herói: ' + error.message);
+                }
+            }
+        }
+
+        async function heal() {
+            alert('Ainda não implementado, mas aqui você recuperaria sua vida gastando um pouco de ouro!');
+        }
+
+        window.onload = loadCharacter;
+    </script>
+</body>
+</html>

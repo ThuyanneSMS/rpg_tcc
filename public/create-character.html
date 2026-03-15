@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Web - Criar Personagem</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .class-card {
+            background-color: #2c3e50;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .class-card:hover {
+            border-color: #3498db;
+        }
+        .class-card.selected {
+            border-color: #e74c3c;
+            background-color: #3b5066;
+        }
+        .class-desc {
+            font-size: 12px;
+            color: #bdc3c7;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>RPG Arena</h1>
+    </header>
+
+    <div class="container" style="max-width: 500px;">
+        <h2>Criação de Personagem</h2>
+        <div id="msg" class="error-msg"></div>
+
+        <form id="characterForm">
+            <div class="form-group">
+                <label for="charName">Nome do Personagem</label>
+                <input type="text" id="charName" required autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label>Escolha sua Classe:</label>
+                
+                <div class="class-card selected" onclick="selectClass('Guerreiro')">
+                    <strong>Guerreiro</strong>
+                    <div class="class-desc">Maior defesa e vida. Bate de perto.</div>
+                </div>
+
+                <div class="class-card" onclick="selectClass('Arqueiro')">
+                    <strong>Arqueiro</strong>
+                    <div class="class-desc">Maior velocidade e ataques rápidos. Letal de longe.</div>
+                </div>
+
+                <div class="class-card" onclick="selectClass('Mago')">
+                    <strong>Mago</strong>
+                    <div class="class-desc">Maior ataque mágico. Vida perigosamente baixa.</div>
+                </div>
+            </div>
+
+            <!-- Classe oculta guardando seleção -->
+            <input type="hidden" id="selectedClass" value="Guerreiro">
+
+            <button type="submit" class="btn">Despertar Herói</button>
+        </form>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        if (!isAuthenticated()) {
+            window.location.href = 'index.html';
+        }
+
+        function selectClass(className) {
+            document.getElementById('selectedClass').value = className;
+            
+            // Atualiza classe visual
+            const cards = document.querySelectorAll('.class-card');
+            cards.forEach(card => card.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+        }
+
+        document.getElementById('characterForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('charName').value;
+            const characterClass = document.getElementById('selectedClass').value;
+            const msgBox = document.getElementById('msg');
+
+            try {
+                const data = await apiFetch('/character/create', {
+                    method: 'POST',
+                    body: JSON.stringify({ name, characterClass })
+                });
+
+                msgBox.className = 'success-msg';
+                msgBox.textContent = 'Personagem criado! Entrando no mundo...';
+                
+                setTimeout(() => {
+                    window.location.href = 'game.html';
+                }, 1500);
+
+            } catch (error) {
+                msgBox.className = 'error-msg';
+                msgBox.textContent = error.message;
+            }
+        });
+    </script>
+</body>
+</html>

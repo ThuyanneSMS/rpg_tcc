@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Web - Minha Conta</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .profile-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .info-box {
+            background-color: #2c3e50;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .info-box p {
+            margin-bottom: 8px;
+            color: #bdc3c7;
+        }
+
+        .info-box strong {
+            color: #ecf0f1;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Ajustes de Conta</h1>
+        <div class="auth-nav">
+            <a href="game.html">Voltar para a Guilda</a>
+        </div>
+    </header>
+
+    <div class="container" style="max-width: 500px;">
+        <h2>Dados do Jogador</h2>
+        
+        <div class="profile-container">
+            <!-- Dados Fixos -->
+            <div class="info-box">
+                <p><strong>Apelido:</strong> <span id="display_nickname">Carregando...</span></p>
+                <p><strong>E-mail:</strong> <span id="display_email">Carregando...</span></p>
+                <p style="font-size: 12px; color: #7f8c8d; margin-top: 10px;">(Campos únicos. Não podem ser alterados)</p>
+            </div>
+
+            <!-- Formulário de Atualização -->
+            <div id="msg"></div>
+            <form id="profileForm" style="display: none;">
+                <h3 style="margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid #2c3e50; padding-bottom: 5px;">Atualizar Outras Informações</h3>
+                
+                <div class="form-group">
+                    <label for="full_name">Nome Completo</label>
+                    <input type="text" id="full_name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="age">Idade</label>
+                    <input type="number" id="age" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">Sexo</label>
+                    <select id="gender">
+                        <option value="Masculino">Masculino</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="country">País</label>
+                    <input type="text" id="country" required>
+                </div>
+                
+                <button type="submit" class="btn" style="background-color: #3498db;">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        if (!isAuthenticated()) {
+            window.location.href = 'index.html';
+        }
+
+        // Função para buscar os dados atuais ao abrir a página
+        async function loadProfile() {
+            try {
+                const data = await apiFetch('/auth/profile');
+                const user = data.user;
+
+                // Preencher a BOX Fixa
+                document.getElementById('display_nickname').textContent = user.nickname;
+                document.getElementById('display_email').textContent = user.email;
+
+                // Preencher o Formulário de Edição com os valores atuais
+                document.getElementById('full_name').value = user.full_name;
+                document.getElementById('age').value = user.age;
+                document.getElementById('gender').value = user.gender;
+                document.getElementById('country').value = user.country;
+
+                // Mostrar o formulário após carregar
+                document.getElementById('profileForm').style.display = 'block';
+
+            } catch (error) {
+                document.getElementById('msg').className = 'error-msg';
+                document.getElementById('msg').textContent = 'Erro ao carregar dados do perfil: ' + error.message;
+            }
+        }
+
+        // Evento de submit para salvar
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const payload = {
+                full_name: document.getElementById('full_name').value,
+                age: document.getElementById('age').value,
+                gender: document.getElementById('gender').value,
+                country: document.getElementById('country').value
+            };
+
+            const msgBox = document.getElementById('msg');
+
+            try {
+                const data = await apiFetch('/auth/profile', {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+
+                msgBox.className = 'success-msg';
+                msgBox.textContent = 'Dados atualizados com sucesso!';
+                setTimeout(() => msgBox.textContent = '', 3000);
+                
+            } catch (error) {
+                msgBox.className = 'error-msg';
+                msgBox.textContent = error.message || 'Erro ao atualizar dados.';
+            }
+        });
+
+        // Carrega as informações ao abrir a página
+        window.onload = loadProfile;
+    </script>
+</body>
+</html>
