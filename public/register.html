@@ -5,54 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPG Web - Cadastro</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .auth-nav { text-align: center; margin-bottom: 20px; font-family: 'Cinzel', serif;}
+        .auth-nav a { color: #f1c40f; text-decoration: none; margin: 0 10px; font-size: 1.1em;}
+        .auth-nav a:hover { text-shadow: 0 0 10px #f1c40f; }
+        .logo-title { text-align: center; font-size: 2.5em; margin-bottom: 5px; }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>RPG Arena</h1>
+    <div class="container fade-in" style="max-height: 90vh; overflow-y: auto;">
+        <h1 class="logo-title cinzel">Odisseia Arcana</h1>
         <div class="auth-nav">
-            <a href="index.html">Login</a> | <a href="register.html">Criar Conta</a>
+            <span style="color: #555;">[</span> <a href="index.html">Entrar</a> | <a href="register.html" style="text-decoration: underline;">Forjar Aliança</a> <span style="color: #555;">]</span>
         </div>
-    </header>
 
-    <div class="container">
-        <h2>Registro de Herói</h2>
+        <h2 style="font-size: 1.5em; color: #bdc3c7; border:none;">Registro do Aventureiro</h2>
         <div id="msg" class="error-msg"></div>
 
         <form id="registerForm">
             <div class="form-group">
-                <label for="full_name">Nome Completo</label>
+                <label for="full_name">Nome Verdadeiro</label>
                 <input type="text" id="full_name" required>
             </div>
             <div class="form-group">
-                <label for="nickname">Apelido Único</label>
+                <label for="nickname">Apelido (Alcunha)</label>
                 <input type="text" id="nickname" required>
             </div>
             <div class="form-group">
-                <label for="email">E-mail</label>
+                <label for="email">E-mail Mágico</label>
                 <input type="email" id="email" required>
             </div>
             <div class="form-group">
-                <label for="password">Senha (mínimo 8 caracteres)</label>
+                <label for="password">Senha (Pacto Secreto +8 carac.)</label>
                 <input type="password" id="password" minlength="8" required>
             </div>
-            <div class="form-group">
-                <label for="age">Idade</label>
-                <input type="number" id="age" required>
+            <div class="rpg-grid" style="margin-bottom: 20px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="age">Idade</label>
+                    <input type="number" id="age" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="gender">Gênero</label>
+                    <select id="gender">
+                        <option value="Masculino">Masculino</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
             </div>
             <div class="form-group">
-                <label for="gender">Sexo</label>
-                <select id="gender">
-                    <option value="Masculino">Masculino</option>
-                    <option value="Feminino">Feminino</option>
-                    <option value="Outro">Outro</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="country">País</label>
+                <label for="country">Reino / País</label>
                 <input type="text" id="country" required>
             </div>
             
-            <button type="submit" class="btn">Cadastrar</button>
+            <button type="submit" class="btn">Selar Destino</button>
         </form>
     </div>
 
@@ -80,7 +86,7 @@
                 });
 
                 msgBox.className = 'success-msg';
-                msgBox.textContent = 'Cadastro realizado! Redirecionando para login...';
+                msgBox.textContent = 'Aliança Forjada! Os portões se abrem...';
                 
                 setTimeout(() => {
                     window.location.href = 'index.html';

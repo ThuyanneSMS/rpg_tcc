@@ -2,69 +2,223 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPG Web - Aventura</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
+        .char-card {
+            background: linear-gradient(to right, #2c3e50, #1a252f);
+            border: 2px solid #b8860b;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
             gap: 20px;
-            width: 100%;
-            max-width: 900px;
-            margin: 20px auto;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
         }
-        .panel {
-            background-color: #34495e;
+
+        .char-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
+        }
+
+        .char-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid #7f8c8d;
+            background: #34495e url('https://api.dicebear.com/7.x/adventurer/svg?seed=Felix') center/cover;
+        }
+
+        .char-info {
+            flex-grow: 1;
+        }
+
+        .char-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+
+        .char-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8em;
+            color: #fff;
+            margin: 0;
+        }
+
+        .char-class {
+            color: #b8860b;
+            font-style: italic;
+        }
+
+        /* Bars */
+        .bar-container {
+            margin-bottom: 8px;
+        }
+        
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            margin-bottom: 3px;
+            font-weight: bold;
+        }
+
+        .bar-bg {
+            background: #2c3e50;
+            border: 1px solid #000;
+            border-radius: 4px;
+            height: 12px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .bar-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .hp-fill { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+        .mp-fill { background: linear-gradient(90deg, #2980b9, #3498db); }
+        .exp-fill { background: linear-gradient(90deg, #d35400, #e67e22); }
+        .status-icons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 1.2em;
+        }
+
+        /* Char Details Modal/View */
+        .char-details {
+            display: none;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #7f8c8d;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            margin-top: 20px;
         }
-        .stats p {
-            margin: 5px 0;
-            border-bottom: 1px solid #2c3e50;
-            padding-bottom: 5px;
+
+        .attributes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
         }
-        .menu-buttons button {
-            margin-bottom: 10px;
+
+        .attr-item {
+            background: #1c232c;
+            padding: 10px;
+            border: 1px solid #34495e;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .attr-value { color: #f1c40f; font-weight: bold; }
+
+        .gold-display {
+            color: gold;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .bottom-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Alojamento da Guilda</h1>
-        <div class="auth-nav">
-            <a href="profile.html">Minha Conta</a> | <a href="#" onclick="logout()">Sair da Conta</a>
-        </div>
-    </header>
 
-    <div id="loading" class="text-center" style="margin-top: 50px;">Carregando personagem...</div>
+    <div class="rpg-container" id="dashboard" style="display: none;">
+        
+        <!-- Sidebar Menu -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div>⚔️ Guilda Escarlate</div>
+            </div>
+            <ul class="menu-list">
+                <li class="menu-item active" onclick="showSection('status')">👤 Status</li>
+                <li class="menu-item" onclick="window.location.href='inventory.html'">🎒 Itens</li>
+                <li class="menu-item" onclick="window.location.href='inventory.html'">🛡️ Equipamentos</li>
+                <li class="menu-item" onclick="window.location.href='battle.html'">⚔️ Missões</li>
+                <li class="menu-item" onclick="window.location.href='shop.html'">🛒 Mercador</li>
+            </ul>
+            <div style="margin-top: auto">
+                <a class="rpg-btn" style="display: block; font-size: 0.8em; background: #c0392b; border-color: #e74c3c;" onclick="logout()">Sair</a>
+            </div>
+        </aside>
 
-    <div class="dashboard-grid" id="dashboard" style="display: none;">
-        <!-- Painel de Status do Personagem -->
-        <div class="panel stats" id="characterStats">
-            <h3>Status do Herói</h3>
-            <hr><br>
-            <p><strong>Nome:</strong> <span id="cName"></span></p>
-            <p><strong>Classe:</strong> <span id="cClass"></span></p>
-            <p><strong>Nível:</strong> <span id="cLevel"></span></p>
-            <p><strong>HP:</strong> <span id="cHP"></span> / <span id="cMaxHP"></span></p>
-            <p><strong>Ataque:</strong> <span id="cAtk"></span></p>
-            <p><strong>Defesa:</strong> <span id="cDef"></span></p>
-            <p><strong>Velocidade:</strong> <span id="cSpd"></span></p>
-            <p><strong>EXP:</strong> <span id="cExp"></span></p>
-            <p><strong>Ouro:</strong> <span id="cGold" style="color: gold;"></span></p>
-            <p><strong>Pontos Livres:</strong> <span id="cPoints"></span></p>
-        </div>
+        <!-- Main Panel -->
+        <main class="main-panel">
+            <h2 class="section-title">Personagens</h2>
+            
+            <!-- Character Card -->
+            <div class="char-card" onclick="toggleDetails()">
+                <div class="char-avatar" id="avatarImg"></div>
+                <div class="char-info">
+                    <div class="char-header">
+                        <h3 class="char-name" id="cName">Hero Name</h3>
+                        <span class="char-class">Lv. <span id="cLevel">1</span> <span id="cClass">Guerreiro</span></span>
+                    </div>
 
-        <!-- Painel de Ações -->
-        <div class="panel menu-buttons">
-            <h3>O que deseja fazer?</h3>
-            <br>
-            <button class="btn" style="background-color: #e67e22;" onclick="window.location.href='battle.html'">Explorar e Lutar</button>
-            <button class="btn" style="background-color: #8e44ad;" onclick="window.location.href='inventory.html'">Inventário</button>
-            <button class="btn" style="background-color: #f1c40f; color: #2c3e50;" onclick="window.location.href='shop.html'">Visitar o Mercador</button>
-            <button class="btn" style="background-color: #27ae60;" onclick="heal()">Descansar na Estalagem (Cura tudo)</button>
-        </div>
+                    <!-- HP Bar -->
+                    <div class="bar-container">
+                        <div class="bar-label"><span style="color: #2ecc71;">HP</span> <span id="hpText">100/100</span></div>
+                        <div class="bar-bg">
+                            <div class="bar-fill hp-fill" id="hpFill" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- MP Bar (Simulated / Optional for Mana) -->
+                    <div class="bar-container">
+                        <div class="bar-label"><span style="color: #3498db;">MP</span> <span>50/50</span></div>
+                        <div class="bar-bg">
+                            <div class="bar-fill mp-fill" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="status-icons">
+                        <span title="Bênção Ativa">✨</span>
+                        <span title="Fartura">🍖</span>
+                        <div style="margin-left: auto;" class="gold-display">💰 <span id="cGold">0</span> G</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Attributes (hidden by default) -->
+            <div class="char-details" id="charDetails">
+                <h3 style="font-family: 'Cinzel', serif; color: #b8860b;">Atributos de Combate</h3>
+                <div class="attributes-grid">
+                    <div class="attr-item"><span>Ataque Físico</span> <span class="attr-value" id="cAtk">10</span></div>
+                    <div class="attr-item"><span>Defesa</span> <span class="attr-value" id="cDef">10</span></div>
+                    <div class="attr-item"><span>Velocidade</span> <span class="attr-value" id="cSpd">5</span></div>
+                    <div class="attr-item"><span>Pontos Livres</span> <span class="attr-value" id="cPoints">0</span></div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <!-- EXP Bar -->
+                    <div class="bar-container">
+                        <div class="bar-label"><span style="color: #e67e22;">Experiência</span> <span id="expText">0/100</span></div>
+                        <div class="bar-bg">
+                            <div class="bar-fill exp-fill" id="expFill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bottom-actions">
+                    <button class="rpg-btn" onclick="window.location.href='battle.html'">Modo Batalha</button>
+                    <button class="rpg-btn" style="background: linear-gradient(#27ae60, #1e8449); border-color: #2ecc71;" onclick="heal()">Estalagem</button>
+                </div>
+            </div>
+
+        </main>
     </div>
 
     <script src="js/utils.js"></script>
@@ -76,29 +230,50 @@
             window.location.href = 'index.html';
         }
 
+        function toggleDetails() {
+            const details = document.getElementById('charDetails');
+            details.style.display = details.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function showSection(section) {
+            // Visual logic placeholder for switching Left Menu tabs
+        }
+
         async function loadCharacter() {
             try {
                 const data = await apiFetch('/character/');
                 const char = data.character;
 
-                // Preencher tela
-                document.getElementById('cName').textContent = char.name;
-                document.getElementById('cClass').textContent = char.class;
-                document.getElementById('cLevel').textContent = char.level;
-                document.getElementById('cHP').textContent = char.current_health;
-                document.getElementById('cMaxHP').textContent = char.base_health;
+                // Basic
+                document.getElementById('cName').innerHTML = char.name;
+                document.getElementById('cClass').innerHTML = char.class;
+                document.getElementById('cLevel').innerHTML = char.level;
+                document.getElementById('cGold').innerHTML = char.gold;
+
+                // Avatar Seed based on class
+                const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${char.name}`;
+                document.getElementById('avatarImg').style.backgroundImage = `url('${avatarUrl}')`;
+
+                // Bars Calculation
+                const hpPercent = (char.current_health / char.base_health) * 100;
+                document.getElementById('hpFill').style.width = `${hpPercent}%`;
+                document.getElementById('hpText').textContent = `${char.current_health} / ${char.base_health}`;
+
+                const expNext = char.level * 100; // Simulated req
+                const expPercent = (char.experience / expNext) * 100;
+                document.getElementById('expFill').style.width = `${Math.min(expPercent, 100)}%`;
+                document.getElementById('expText').textContent = `${char.experience} / ${expNext}`;
+
+                // Attributes
                 document.getElementById('cAtk').textContent = char.base_attack;
                 document.getElementById('cDef').textContent = char.base_defense;
                 document.getElementById('cSpd').textContent = char.base_speed;
-                document.getElementById('cExp').textContent = char.experience;
-                document.getElementById('cGold').textContent = char.gold;
-                document.getElementById('cPoints').textContent = char.unassigned_points;
+                document.getElementById('cPoints').textContent = char.unassigned_points || 0;
 
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'grid';
+                // Show UI
+                document.getElementById('dashboard').style.display = 'flex';
 
             } catch (error) {
-                // Se erro é 404 de não ter personagem, redireciona para criar
                 if (error.message.includes('Nenhum personagem')) {
                     window.location.href = 'create-character.html';
                 } else {
@@ -108,7 +283,7 @@
         }
 
         async function heal() {
-            alert('Ainda não implementado, mas aqui você recuperaria sua vida gastando um pouco de ouro!');
+            alert('Ainda não implementado, mas aqui você recuperaria sua vida e MP gastando um pouco de ouro!');
         }
 
         window.onload = loadCharacter;

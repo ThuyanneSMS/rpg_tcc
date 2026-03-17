@@ -2,94 +2,177 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>RPG Web - Loja</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Web - Mercador</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .shop-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 15px;
-            margin-top: 20px;
         }
-        .item-card {
-            background-color: #34495e;
+
+        .shop-item {
+            background-color: #1c232c;
+            border: 2px solid #555;
             padding: 15px;
             border-radius: 8px;
-            text-align: center;
-            border: 2px solid #2c3e50;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
-        .price { color: gold; font-weight: bold; margin: 10px 0; }
-        .gold-display { text-align: right; color: gold; font-size: 18px; margin-bottom: 10px; }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #34495e;
+            padding-bottom: 5px;
+        }
+
+        .item-name {
+            font-weight: bold;
+            color: #ecf0f1;
+            font-size: 1.1em;
+            color: #f1c40f;
+        }
+
+        .item-price {
+            color: gold;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .item-desc {
+            font-size: 0.9em;
+            color: #bdc3c7;
+            margin-bottom: 15px;
+            min-height: 40px;
+        }
+        
+        .gold-banner {
+            background: linear-gradient(90deg, #b8860b, #d35400);
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            border: 2px solid #f1c40f;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Mercador Ambulante</h1>
-        <div class="auth-nav">
-            <a href="game.html">Voltar para a Guilda</a>
-        </div>
-    </header>
+    
+    <div class="rpg-container fade-in">
+        
+        <!-- Sidebar Menu -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div>?? Bazar</div>
+            </div>
+            <ul class="menu-list">
+                <li class="menu-item"><a href="game.html">?? Status</a></li>
+                <li class="menu-item"><a href="inventory.html">?? Invent�rio</a></li>
+                <li class="menu-item active"><a href="shop.html">?? Mercador</a></li>
+                <li class="menu-item"><a href="profile.html">?? Minha Conta</a></li>
+            </ul>
+        </aside>
 
-    <div class="container" style="max-width: 800px;">
-        <div class="gold-display">💰 Ouro: <span id="playerGold">0</span></div>
-        <div id="msg"></div>
+        <!-- Main Panel -->
+        <main class="main-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #555; margin-bottom: 20px; padding-bottom: 10px;">
+                <h2 class="section-title" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">Mercador Ambulante</h2>
+                <a href="game.html" class="rpg-btn" style="width: auto; padding: 8px 15px; font-size: 0.8em;">Voltar</a>
+            </div>
 
-        <div class="shop-grid" id="shopItems">
-            <!-- Itens injetados via JS -->
-        </div>
+            <div class="gold-banner">
+                Seu Ouro Atual: ?? <span id="playerGold">...</span> G
+            </div>
+
+            <div id="msg"></div>
+
+            <div class="shop-grid" id="shopList">
+                <div class="text-center" style="grid-column: 1/-1;">Arrumando as prateleiras...</div>
+            </div>
+        </main>
     </div>
 
     <script src="js/utils.js"></script>
     <script>
         if (!isAuthenticated()) window.location.href = 'index.html';
 
-        async function loadShop() {
+        // Carrega ouro do caboclo
+        async function loadPlayerGold() {
             try {
-                // Ao carregar a loja, pegamos também o ouro atual do jogador para exibir
-                const invData = await apiFetch('/inventory');
-                document.getElementById('playerGold').textContent = invData.gold;
+                const data = await apiFetch('/character/');
+                document.getElementById('playerGold').textContent = data.character.gold;
+            } catch (err) {
+                document.getElementById('playerGold').textContent = 'Erro';
+            }
+        }
 
+        async function loadShop() {
+            const list = document.getElementById('shopList');
+            try {
                 const data = await apiFetch('/shop/items');
-                const shopDiv = document.getElementById('shopItems');
-                shopDiv.innerHTML = '';
-
+                list.innerHTML = '';
+                
                 data.items.forEach(item => {
-                    const desc = item.type === 'potion' ? 'Recupera HP' : (item.type === 'sword' ? `+${item.bonus} ATK` : `+${item.bonus} DEF`);
-                    shopDiv.innerHTML += `
-                        <div class="item-card">
-                            <h3>${item.name}</h3>
-                            <p style="font-size:12px; color:#bdc3c7;">${desc}</p>
-                            <div class="price">${item.price} Ouro</div>
-                            <button class="btn" onclick="buyItem('${item.id}')">Comprar</button>
+                    list.innerHTML += 
+                        <div class="shop-item">
+                            <div>
+                                <div class="item-header">
+                                    <span class="item-name">\</span>
+                                    <span class="item-price">?? \ G</span>
+                                </div>
+                                <div class="item-desc">
+                                    <p>Tipo: \</p>
+                                    <p style="margin-top: 5px;">\</p>
+                                </div>
+                            </div>
+                            <button class="btn success" onclick="buyItem( + item.id + )">Comprar</button>
                         </div>
-                    `;
+                    ;
                 });
             } catch (error) {
-                alert('Erro ao carregar loja: ' + error.message);
+                list.innerHTML = '<div class="error-msg">Ferrou! ' + error.message + '</div>';
             }
         }
 
         async function buyItem(itemId) {
             const msgBox = document.getElementById('msg');
+            msgBox.className = '';
+            msgBox.textContent = 'Negociando...';
+
             try {
-                const data = await apiFetch('/shop/buy', {
+                const response = await apiFetch('/shop/buy', {
                     method: 'POST',
                     body: JSON.stringify({ itemId })
                 });
 
                 msgBox.className = 'success-msg';
-                msgBox.textContent = data.message;
-                setTimeout(() => msgBox.textContent = '', 3000);
+                msgBox.textContent = response.message;
                 
-                loadShop(); // Recarrega para atualizar o ouro
+                // Recarrega ouro
+                loadPlayerGold();
+                setTimeout(() => msgBox.textContent = '', 3000);
+
             } catch (error) {
                 msgBox.className = 'error-msg';
                 msgBox.textContent = error.message;
-                setTimeout(() => msgBox.textContent = '', 3000);
             }
         }
 
-        window.onload = loadShop;
+        window.onload = () => {
+            loadPlayerGold();
+            loadShop();
+        };
     </script>
 </body>
 </html>

@@ -5,29 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPG Web - Login</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .auth-nav { text-align: center; margin-bottom: 20px; font-family: 'Cinzel', serif;}
+        .auth-nav a { color: #f1c40f; text-decoration: none; margin: 0 10px; font-size: 1.1em;}
+        .auth-nav a:hover { text-shadow: 0 0 10px #f1c40f; }
+        .logo-title { text-align: center; font-size: 3em; margin-bottom: 5px; }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>RPG Arena</h1>
+    <div class="container fade-in">
+        <h1 class="logo-title cinzel">Odisseia Arcana</h1>
         <div class="auth-nav">
-            <a href="index.html">Login</a> | <a href="register.html">Criar Conta</a>
+            <span style="color: #555;">[</span> <a href="index.html" style="text-decoration: underline;">Entrar</a> | <a href="register.html">Forjar Aliança</a> <span style="color: #555;">]</span>
         </div>
-    </header>
 
-    <div class="container">
-        <h2>Entrar no Jogo</h2>
+        <h2 style="font-size: 1.5em; color: #bdc3c7; border:none;">Os Portões da Guilda</h2>
         <div id="msg" class="error-msg"></div>
 
         <form id="loginForm">
             <div class="form-group">
-                <label for="email">E-mail</label>
+                <label for="email">E-mail do Aventureiro</label>
                 <input type="email" id="email" required>
             </div>
             <div class="form-group">
-                <label for="password">Senha</label>
+                <label for="password">Senha Mágica</label>
                 <input type="password" id="password" required>
             </div>
-            <button type="submit" class="btn">Acessar</button>
+            <button type="submit" class="btn">Adentrar a Taberna</button>
         </form>
     </div>
 

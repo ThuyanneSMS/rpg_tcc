@@ -6,17 +6,20 @@
     <title>RPG Web - Minha Conta</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .profile-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
+        .profile-wrapper {
+            margin: 0 auto;
+            max-width: 600px;
         }
 
         .info-box {
-            background-color: #2c3e50;
+            background-color: #1c232c;
             padding: 15px;
             border-radius: 8px;
             border-left: 4px solid #3498db;
+            margin-bottom: 20px;
+            border-right: 1px solid #34495e;
+            border-top: 1px solid #34495e;
+            border-bottom: 1px solid #34495e;
         }
 
         .info-box p {
@@ -30,93 +33,97 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>Ajustes de Conta</h1>
-        <div class="auth-nav">
-            <a href="game.html">Voltar para a Guilda</a>
-        </div>
-    </header>
-
-    <div class="container" style="max-width: 500px;">
-        <h2>Dados do Jogador</h2>
+    
+    <div class="rpg-container fade-in">
         
-        <div class="profile-container">
-            <!-- Dados Fixos -->
-            <div class="info-box">
-                <p><strong>Apelido:</strong> <span id="display_nickname">Carregando...</span></p>
-                <p><strong>E-mail:</strong> <span id="display_email">Carregando...</span></p>
-                <p style="font-size: 12px; color: #7f8c8d; margin-top: 10px;">(Campos √∫nicos. N√£o podem ser alterados)</p>
+        <!-- Sidebar Menu -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div>?? Ajustes</div>
             </div>
+            <ul class="menu-list">
+                <li class="menu-item"><a href="game.html">?? Status</a></li>
+                <li class="menu-item"><a href="inventory.html">?? Invent·rio</a></li>
+                <li class="menu-item active"><a href="profile.html">?? Minha Conta</a></li>
+            </ul>
+        </aside>
 
-            <!-- Formul√°rio de Atualiza√ß√£o -->
-            <div id="msg"></div>
-            <form id="profileForm" style="display: none;">
-                <h3 style="margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid #2c3e50; padding-bottom: 5px;">Atualizar Outras Informa√ß√µes</h3>
-                
-                <div class="form-group">
-                    <label for="full_name">Nome Completo</label>
-                    <input type="text" id="full_name" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="age">Idade</label>
-                    <input type="number" id="age" required>
-                </div>
+        <!-- Main Panel -->
+        <main class="main-panel">
+            <h2 class="section-title">Dados do Jogador</h2>
+            
+            <div class="profile-wrapper">
+                <div id="msg"></div>
 
-                <div class="form-group">
-                    <label for="gender">Sexo</label>
-                    <select id="gender">
-                        <option value="Masculino">Masculino</option>
-                        <option value="Feminino">Feminino</option>
-                        <option value="Outro">Outro</option>
-                    </select>
+                <!-- Dados Fixos -->
+                <div class="info-box">
+                    <p><strong>Apelido:</strong> <span id="display_nickname" style="color:#f1c40f;">Carregando...</span></p>
+                    <p><strong>E-mail:</strong> <span id="display_email">Carregando...</span></p>
+                    <p style="font-size: 12px; color: #7f8c8d; margin-top: 10px;">(Pactos M·gicos n„o permitem alteraÁ„o nestes campos)</p>
                 </div>
 
-                <div class="form-group">
-                    <label for="country">Pa√≠s</label>
-                    <input type="text" id="country" required>
-                </div>
-                
-                <button type="submit" class="btn" style="background-color: #3498db;">Salvar Altera√ß√µes</button>
-            </form>
-        </div>
+                <form id="profileForm" class="rpg-box">
+                    <h3 style="margin-bottom: 15px;" class="cinzel">Atualizar Ficha</h3>
+                    <div class="form-group">
+                        <label for="full_name">Nome Verdadeiro</label>
+                        <input type="text" id="full_name" required>
+                    </div>
+                    
+                    <div class="rpg-grid">
+                        <div class="form-group">
+                            <label for="age">Idade</label>
+                            <input type="number" id="age" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">GÍnero</label>
+                            <select id="gender">
+                                <option value="Masculino">Masculino</option>
+                                <option value="Feminino">Feminino</option>
+                                <option value="Outro">Outro</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="country">Reino / PaÌs</label>
+                        <input type="text" id="country" required>
+                    </div>
+
+                    <button type="submit" class="btn success" style="margin-top: 10px;">Salvar AlteraÁıes</button>
+                </form>
+            </div>
+        </main>
     </div>
 
     <script src="js/utils.js"></script>
     <script>
-        if (!isAuthenticated()) {
-            window.location.href = 'index.html';
-        }
+        if (!isAuthenticated()) window.location.href = 'index.html';
 
-        // Fun√ß√£o para buscar os dados atuais ao abrir a p√°gina
         async function loadProfile() {
             try {
                 const data = await apiFetch('/auth/profile');
-                const user = data.user;
+                
+                // Preenche dados visuais (fixos)
+                document.getElementById('display_nickname').textContent = data.nickname;
+                document.getElementById('display_email').textContent = data.email;
 
-                // Preencher a BOX Fixa
-                document.getElementById('display_nickname').textContent = user.nickname;
-                document.getElementById('display_email').textContent = user.email;
-
-                // Preencher o Formul√°rio de Edi√ß√£o com os valores atuais
-                document.getElementById('full_name').value = user.full_name;
-                document.getElementById('age').value = user.age;
-                document.getElementById('gender').value = user.gender;
-                document.getElementById('country').value = user.country;
-
-                // Mostrar o formul√°rio ap√≥s carregar
-                document.getElementById('profileForm').style.display = 'block';
-
+                // Preenche dados do formul·rio edit·vel
+                document.getElementById('full_name').value = data.full_name;
+                document.getElementById('age').value = data.age;
+                document.getElementById('gender').value = data.gender;
+                document.getElementById('country').value = data.country;
+                
             } catch (error) {
-                document.getElementById('msg').className = 'error-msg';
-                document.getElementById('msg').textContent = 'Erro ao carregar dados do perfil: ' + error.message;
+                alert('Erro ao carregar perfil: ' + error.message);
             }
         }
 
-        // Evento de submit para salvar
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+            const msgBox = document.getElementById('msg');
+            msgBox.className = '';
+            msgBox.textContent = 'FeitiÁo de escrita ativado...';
+
             const payload = {
                 full_name: document.getElementById('full_name').value,
                 age: document.getElementById('age').value,
@@ -124,25 +131,21 @@
                 country: document.getElementById('country').value
             };
 
-            const msgBox = document.getElementById('msg');
-
             try {
-                const data = await apiFetch('/auth/profile', {
+                const response = await apiFetch('/auth/profile', {
                     method: 'PUT',
                     body: JSON.stringify(payload)
                 });
 
                 msgBox.className = 'success-msg';
-                msgBox.textContent = 'Dados atualizados com sucesso!';
-                setTimeout(() => msgBox.textContent = '', 3000);
-                
+                msgBox.textContent = response.message || 'Perfil atualizado com sucesso!';
+                setTimeout(()=> msgBox.textContent = '', 3000);
             } catch (error) {
                 msgBox.className = 'error-msg';
-                msgBox.textContent = error.message || 'Erro ao atualizar dados.';
+                msgBox.textContent = error.message;
             }
         });
 
-        // Carrega as informa√ß√µes ao abrir a p√°gina
         window.onload = loadProfile;
     </script>
 </body>

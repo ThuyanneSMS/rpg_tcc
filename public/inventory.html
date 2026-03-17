@@ -2,47 +2,104 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>RPG Web - InventÃ¡rio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Web - Inventário</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .inv-grid {
+        .inventory-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 15px;
-            margin-top: 20px;
         }
-        .inv-item {
-            background-color: #34495e;
+
+        .item-card {
+            background-color: #1c232c;
+            border: 2px solid #555;
             padding: 15px;
             border-radius: 8px;
             display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .item-card.equipped {
+            border-color: #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+            background: linear-gradient(145deg, #1c232c, rgba(241, 196, 15, 0.1));
+        }
+
+        .item-header {
+            display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 5px solid #7f8c8d;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #34495e;
+            padding-bottom: 5px;
         }
-        .inv-item.equipped {
-            border-left-color: #2ecc71;
-            background-color: #27ae6033;
+
+        .item-name {
+            font-weight: bold;
+            color: #ecf0f1;
+            font-size: 1.1em;
         }
-        .item-info h4 { margin-bottom: 5px; }
-        .gold-display { text-align: right; color: gold; font-size: 18px; }
+
+        .item-quantity {
+            background-color: #34495e;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.9em;
+        }
+
+        .item-desc {
+            font-size: 0.9em;
+            color: #bdc3c7;
+            margin-bottom: 15px;
+            min-height: 40px;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .empty-inv {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 40px;
+            grid-column: 1 / -1;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Bolsa de Itens</h1>
-        <div class="auth-nav">
-            <a href="game.html">Voltar para a Guilda</a>
-        </div>
-    </header>
+    
+    <div class="rpg-container fade-in">
+        
+        <!-- Sidebar Menu -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div>?? Baú</div>
+            </div>
+            <ul class="menu-list">
+                <li class="menu-item"><a href="game.html">?? Status</a></li>
+                <li class="menu-item active"><a href="inventory.html">?? Inventário</a></li>
+                <li class="menu-item"><a href="shop.html">?? Mercador</a></li>
+                <li class="menu-item"><a href="profile.html">?? Minha Conta</a></li>
+            </ul>
+        </aside>
 
-    <div class="container" style="max-width: 800px;">
-        <div class="gold-display">ðŸ’° Ouro: <span id="playerGold">0</span></div>
-        <div id="msg"></div>
+        <!-- Main Panel -->
+        <main class="main-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #555; margin-bottom: 20px; padding-bottom: 10px;">
+                <h2 class="section-title" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">Seus Pertences</h2>
+                <a href="game.html" class="rpg-btn" style="width: auto; padding: 8px 15px; font-size: 0.8em;">Voltar</a>
+            </div>
 
-        <div class="inv-grid" id="inventoryList">
-            <!-- Itens serÃ£o renderizados aqui -->
-        </div>
+            <div id="msg"></div>
+
+            <div class="inventory-grid" id="inventoryList">
+                <div class="empty-inv">Carregando itens...</div>
+            </div>
+        </main>
     </div>
 
     <script src="js/utils.js"></script>
@@ -50,45 +107,57 @@
         if (!isAuthenticated()) window.location.href = 'index.html';
 
         async function loadInventory() {
-            try {
-                const data = await apiFetch('/inventory');
-                document.getElementById('playerGold').textContent = data.gold;
-                
-                const invDiv = document.getElementById('inventoryList');
-                invDiv.innerHTML = '';
+            const list = document.getElementById('inventoryList');
+            const msgBox = document.getElementById('msg');
+            msgBox.className = '';
+            msgBox.textContent = '';
 
-                if (data.items.length === 0) {
-                    invDiv.innerHTML = '<p class="text-center" style="width:100%; color:#bdc3c7;">Seu inventÃ¡rio estÃ¡ vazio.</p>';
+            try {
+                const data = await apiFetch('/inventory/');
+                
+                if (!data.inventory || data.inventory.length === 0) {
+                    list.innerHTML = '<div class="empty-inv">Sua mochila está vazia. Visite o mercador ou batalhe por espólios!</div>';
                     return;
                 }
 
-                data.items.forEach(item => {
+                list.innerHTML = '';
+                data.inventory.forEach(item => {
+                    const isEquipable = item.type === 'weapon' || item.type === 'armor';
+                    const isConsumable = item.type === 'potion';
+                    
                     let actionBtn = '';
                     
-                    if (item.item_type === 'potion') {
-                        actionBtn = `<button class="btn" style="width: auto; padding: 5px 15px; background-color: #e74c3c;" onclick="useItem(${item.id})">Usar</button>`;
-                    } else {
+                    if (isEquipable) {
                         if (item.is_equipped) {
-                            actionBtn = `<button class="btn" style="width: auto; padding: 5px 15px; background-color: #7f8c8d;" onclick="toggleEquip(${item.id}, false)">Desequipar</button>`;
+                            actionBtn = <button class="btn danger" onclick="toggleEquip( + item.inventory_id + , false)">Desequipar</button>;
                         } else {
-                            actionBtn = `<button class="btn" style="width: auto; padding: 5px 15px; background-color: #2ecc71;" onclick="toggleEquip(${item.id}, true)">Equipar</button>`;
+                            actionBtn = <button class="btn success" onclick="toggleEquip( + item.inventory_id + , true)">Equipar</button>;
                         }
+                    } else if (isConsumable) {
+                        actionBtn = <button class="btn success" onclick="useItem( + item.inventory_id + )">Usar Item</button>;
                     }
 
-                    invDiv.innerHTML += `
-                        <div class="inv-item ${item.is_equipped ? 'equipped' : ''}">
-                            <div class="item-info">
-                                <h4>${item.item_name} (x${item.quantity})</h4>
-                                <small style="color: #bdc3c7;">${item.is_equipped ? 'Equipado' : 'Na mochila'}</small>
+                    list.innerHTML += 
+                        <div class="item-card \">
+                            <div>
+                                <div class="item-header">
+                                    <span class="item-name">\</span>
+                                    <span class="item-quantity">x\</span>
+                                </div>
+                                <div class="item-desc">
+                                    <p>Tipo: \</p>
+                                    <p>\</p>
+                                </div>
                             </div>
                             <div class="item-actions">
-                                ${actionBtn}
+                                \
                             </div>
                         </div>
-                    `;
+                    ;
                 });
+
             } catch (error) {
-                alert('Erro ao carregar inventÃ¡rio: ' + error.message);
+                list.innerHTML = '<div class="error-msg">Falha ao carregar itens: ' + error.message + '</div>';
             }
         }
 
@@ -98,27 +167,22 @@
                     method: 'POST',
                     body: JSON.stringify({ inventoryId, equip: equipStatus })
                 });
-                loadInventory();
+                loadInventory(); // Recarrega para mostrar mudanças
             } catch (error) {
                 alert(error.message);
             }
         }
 
         async function useItem(inventoryId) {
-            const msgBox = document.getElementById('msg');
             try {
-                const res = await apiFetch('/inventory/use', {
+                const response = await apiFetch('/inventory/use', {
                     method: 'POST',
                     body: JSON.stringify({ inventoryId })
                 });
-                msgBox.className = 'success-msg';
-                msgBox.textContent = res.message;
-                setTimeout(() => msgBox.textContent = '', 3000);
+                alert(response.message);
                 loadInventory();
             } catch (error) {
-                msgBox.className = 'error-msg';
-                msgBox.textContent = error.message;
-                setTimeout(() => msgBox.textContent = '', 3000);
+                alert(error.message);
             }
         }
 
