@@ -96,24 +96,24 @@
 
             <!-- Arena Visual -->
             <div class="battle-arena" id="arena" style="display: none;">
-                <!-- InformaÁ„o do Jogador -->
+                <!-- Informacao do Jogador -->
                 <div class="fighter">
-                    <h3 id="playerName">HerÛi</h3>
+                    <h3 id="playerName">Heroi</h3>
                     <div class="hp-bar-container">
                         <div class="hp-bar player-hp" id="playerHpBar"></div>
                     </div>
-                    <small id="playerHpText" style="color:#f1c40f; font-weight:bold;">HP: ?/?</small>
+                    <small id="playerHpText" style="color:#f1c40f; font-weight:bold;">HP: -/-</small>
                 </div>
 
                 <div style="font-size: 32px; font-weight: bold; color: #e74c3c; font-family: 'Cinzel'; text-shadow: 0 0 10px #000;">VS</div>
 
-                <!-- InformaÁ„o do Monstro -->
+                <!-- Informacao do Monstro -->
                 <div class="fighter">
                     <h3 id="monsterName" style="color: #e67e22;">Monstro</h3>
                     <div class="hp-bar-container">
                         <div class="hp-bar" id="monsterHpBar"></div>
                     </div>
-                    <small id="monsterHpText" style="color:#f1c40f; font-weight:bold;">HP: ?/?</small>
+                    <small id="monsterHpText" style="color:#f1c40f; font-weight:bold;">HP: -/-</small>
                 </div>
             </div>
 
@@ -122,12 +122,12 @@
                 <p class="log-info">Adentrando as profundezas...</p>
             </div>
 
-            <!-- AÁıes -->
+            <!-- Acoes -->
             <div class="battle-actions" id="actions" style="display: none;">
-                <button class="btn danger" onclick="turnAction('attack')">?? Atacar</button>
-                <button class="btn" style="background: linear-gradient(#3498db, #2980b9); border-color: #3498db;" onclick="turnAction('defend')">??? Defender</button>
-                <button class="btn success" onclick="turnAction('potion')">?? Usar PoÁ„o</button>
-                <button class="btn" style="background: linear-gradient(#95a5a6, #7f8c8d); border-color: #bdc3c7;" onclick="turnAction('flee')">?? Fugir (Retirar-se)</button>
+                <button class="btn danger" onclick="turnAction('attack')">&#x2694;&#xFE0F; Atacar</button>
+                <button class="btn" style="background: linear-gradient(#3498db, #2980b9); border-color: #3498db;" onclick="turnAction('defend')">&#x1F6E1;&#xFE0F; Defender</button>
+                <button class="btn success" onclick="turnAction('potion')">&#x2697;&#xFE0F; Usar Pocao</button>
+                <button class="btn" style="background: linear-gradient(#95a5a6, #7f8c8d); border-color: #bdc3c7;" onclick="turnAction('flee')">&#x1F3C3; Fugir (Retirar-se)</button>
             </div>
             
             <div class="text-center" style="margin-top: 20px;">
@@ -138,9 +138,9 @@
 
     <!-- Tela de Result -->
     <div class="overlay" id="resultOverlay">
-        <h1 id="resTitle" class="cinzel">VitÛria!</h1>
-        <div class="dim" id="resDesc">VocÍ ganhou X EXP e Y de Ouro.</div>
-        <button class="btn success" style="width: 200px;" onclick="window.location.href='game.html'">Voltar ‡ Guilda</button>
+        <h1 id="resTitle" class="cinzel">Vitoria!</h1>
+        <div class="dim" id="resDesc">Voce ganhou X EXP e Y de Ouro.</div>
+        <button class="btn success" style="width: 200px;" onclick="window.location.href='game.html'">Voltar a Guilda</button>
     </div>
 
     <script src="js/utils.js"></script>
@@ -152,39 +152,39 @@
 
         function updateLog(msg, typeClass = '') {
             const logPanel = document.getElementById('battleLog');
-            logPanel.innerHTML += <p class="\">> \</p>;
+            logPanel.innerHTML += `<p class="${typeClass}">> ${msg}</p>`;
             logPanel.scrollTop = logPanel.scrollHeight;
         }
 
         function updateBars(p_hp, m_hp) {
-            document.getElementById('playerHpText').textContent = HP: \/\;
+            document.getElementById('playerHpText').textContent = `HP: ${p_hp}/${playerMaxHp}`;
             let pPercent = (p_hp / playerMaxHp) * 100;
-            document.getElementById('playerHpBar').style.width = \%;
+            document.getElementById('playerHpBar').style.width = `${pPercent}%`;
 
-            document.getElementById('monsterHpText').textContent = HP: \/\;
+            document.getElementById('monsterHpText').textContent = `HP: ${m_hp}/${monsterMaxHp}`;
             let mPercent = (m_hp / monsterMaxHp) * 100;
-            document.getElementById('monsterHpBar').style.width = \%;
+            document.getElementById('monsterHpBar').style.width = `${mPercent}%`;
         }
 
         async function startBattle() {
             try {
                 document.getElementById('btnStart').style.display = 'none';
-                
+
                 const data = await apiFetch('/battle/start', { method: 'POST' });
-                
+
                 playerMaxHp = data.player.max_hp;
                 monsterMaxHp = data.monster.max_hp;
 
                 document.getElementById('playerName').textContent = data.player.name;
                 document.getElementById('monsterName').textContent = data.monster.name;
-                
+
                 updateBars(data.player.hp, data.monster.hp);
 
                 document.getElementById('arena').style.display = 'flex';
                 document.getElementById('actions').style.display = 'grid';
-                
+
                 document.getElementById('battleLog').innerHTML = '';
-                updateLog(Um \ apareceu! Prepare-se para lutar., 'log-info');
+                updateLog(`Um ${data.monster.name} apareceu! Prepare-se para lutar.`, 'log-info');
 
             } catch (error) {
                 alert(error.message);
@@ -193,7 +193,7 @@
         }
 
         async function turnAction(actionType) {
-            // Desabilita botoes pra nao spammar
+            // Desabilita botoes para nao spammar
             const btns = document.querySelectorAll('#actions button');
             btns.forEach(b => b.disabled = true);
 
@@ -207,8 +207,8 @@
                 if (data.log && data.log.length > 0) {
                     data.log.forEach(linha => {
                         let c = '';
-                        if(linha.includes('dano')) c = 'log-dano';
-                        if(linha.includes('recuperou')) c = 'log-cura';
+                        if (linha.includes('dano')) c = 'log-dano';
+                        if (linha.includes('recuperou')) c = 'log-cura';
                         updateLog(linha, c);
                     });
                 }
@@ -230,12 +230,15 @@
                 btns.forEach(b => b.disabled = false);
             }
         }
-        
+
         async function flee() {
             try {
                 await apiFetch('/battle/action', { method: 'POST', body: JSON.stringify({ action: 'flee' }) });
+            } catch (e) {
+                // ignora erro de fuga (batalha pode nao estar ativa)
+            } finally {
                 window.location.href = 'game.html';
-            } catch(e) { window.location.href = 'game.html'; }
+            }
         }
 
         function finishBattle(data) {
@@ -246,21 +249,21 @@
             overlay.style.display = 'flex';
 
             if (data.status === 'won') {
-                tit.textContent = 'VIT”RIA!';
+                tit.textContent = 'VIT√ìRIA!';
                 tit.style.color = '#f1c40f';
-                desc.innerHTML = O inimigo caiu!<br><br>Ganhos:<br>? \ EXP<br>?? \ Ouro;
-                
-                if (data.rewards.leveledUp) {
-                    desc.innerHTML += <br><br><span style="color:#2ecc71; font-weight:bold;">LEVEL UP! VocÍ È agora nÌvel \!</span>;
+                desc.innerHTML = `O inimigo caiu!<br><br>Ganhos:<br>‚≠ê ${data.rewards.exp} EXP<br>üí∞ ${data.rewards.gold} Ouro`;
+
+                if (data.rewards && data.rewards.leveledUp) {
+                    desc.innerHTML += `<br><br><span style="color:#2ecc71; font-weight:bold;">LEVEL UP! Voc√™ √© agora n√≠vel ${data.rewards.newLevel}!</span>`;
                 }
             } else if (data.status === 'lost') {
                 tit.textContent = 'DERROTA';
                 tit.style.color = '#e74c3c';
-                desc.textContent = 'VocÍ sucumbiu aos ferimentos... O mundo escureceu.';
+                desc.textContent = 'Voc√™ sucumbiu aos ferimentos... O mundo escureceu.';
             } else if (data.status === 'fled') {
                 tit.textContent = 'FUGA';
                 tit.style.color = '#bdc3c7';
-                desc.textContent = 'VocÍ fugiu da batalha com seguranÁa... covarde.';
+                desc.textContent = 'Voc√™ fugiu da batalha com seguran√ßa... covarde.';
             }
         }
     </script>

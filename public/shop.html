@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +11,6 @@
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 15px;
         }
-
         .shop-item {
             background-color: #1c232c;
             border: 2px solid #555;
@@ -21,7 +20,6 @@
             flex-direction: column;
             justify-content: space-between;
         }
-
         .item-header {
             display: flex;
             justify-content: space-between;
@@ -30,29 +28,9 @@
             border-bottom: 1px solid #34495e;
             padding-bottom: 5px;
         }
-
-        .item-name {
-            font-weight: bold;
-            color: #ecf0f1;
-            font-size: 1.1em;
-            color: #f1c40f;
-        }
-
-        .item-price {
-            color: gold;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .item-desc {
-            font-size: 0.9em;
-            color: #bdc3c7;
-            margin-bottom: 15px;
-            min-height: 40px;
-        }
-        
+        .item-name { font-weight: bold; font-size: 1.1em; color: #f1c40f; }
+        .item-price { color: gold; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        .item-desc { font-size: 0.9em; color: #bdc3c7; margin-bottom: 15px; min-height: 40px; }
         .gold-banner {
             background: linear-gradient(90deg, #b8860b, #d35400);
             padding: 10px 20px;
@@ -68,35 +46,27 @@
     </style>
 </head>
 <body>
-    
     <div class="rpg-container fade-in">
-        
-        <!-- Sidebar Menu -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <div>?? Bazar</div>
+                <div>&#x1F6D2; Bazar</div>
             </div>
             <ul class="menu-list">
-                <li class="menu-item"><a href="game.html">?? Status</a></li>
-                <li class="menu-item"><a href="inventory.html">?? Inventário</a></li>
-                <li class="menu-item active"><a href="shop.html">?? Mercador</a></li>
-                <li class="menu-item"><a href="profile.html">?? Minha Conta</a></li>
+                <li class="menu-item"><a href="game.html">&#x1F464; Status</a></li>
+                <li class="menu-item"><a href="inventory.html">&#x1F3BA; Inventario</a></li>
+                <li class="menu-item active"><a href="shop.html">&#x1F6D2; Mercador</a></li>
+                <li class="menu-item"><a href="profile.html">&#x1F464; Minha Conta</a></li>
             </ul>
         </aside>
-
-        <!-- Main Panel -->
         <main class="main-panel">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #555; margin-bottom: 20px; padding-bottom: 10px;">
                 <h2 class="section-title" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">Mercador Ambulante</h2>
                 <a href="game.html" class="rpg-btn" style="width: auto; padding: 8px 15px; font-size: 0.8em;">Voltar</a>
             </div>
-
             <div class="gold-banner">
-                Seu Ouro Atual: ?? <span id="playerGold">...</span> G
+                Seu Ouro Atual: &#x1F4B0; <span id="playerGold">...</span> G
             </div>
-
             <div id="msg"></div>
-
             <div class="shop-grid" id="shopList">
                 <div class="text-center" style="grid-column: 1/-1;">Arrumando as prateleiras...</div>
             </div>
@@ -107,7 +77,6 @@
     <script>
         if (!isAuthenticated()) window.location.href = 'index.html';
 
-        // Carrega ouro do caboclo
         async function loadPlayerGold() {
             try {
                 const data = await apiFetch('/character/');
@@ -122,23 +91,22 @@
             try {
                 const data = await apiFetch('/shop/items');
                 list.innerHTML = '';
-                
+
                 data.items.forEach(item => {
-                    list.innerHTML += 
+                    list.innerHTML += `
                         <div class="shop-item">
                             <div>
                                 <div class="item-header">
-                                    <span class="item-name">\</span>
-                                    <span class="item-price">?? \ G</span>
+                                    <span class="item-name">${item.name}</span>
+                                    <span class="item-price">&#x1F4B0; ${item.price} G</span>
                                 </div>
                                 <div class="item-desc">
-                                    <p>Tipo: \</p>
-                                    <p style="margin-top: 5px;">\</p>
+                                    <p>Tipo: ${item.type}</p>
+                                    <p style="margin-top: 5px;">Bonus: +${item.bonus}</p>
                                 </div>
                             </div>
-                            <button class="btn success" onclick="buyItem( + item.id + )">Comprar</button>
-                        </div>
-                    ;
+                            <button class="btn success" onclick="buyItem('${item.id}')">Comprar</button>
+                        </div>`;
                 });
             } catch (error) {
                 list.innerHTML = '<div class="error-msg">Ferrou! ' + error.message + '</div>';
@@ -149,20 +117,15 @@
             const msgBox = document.getElementById('msg');
             msgBox.className = '';
             msgBox.textContent = 'Negociando...';
-
             try {
                 const response = await apiFetch('/shop/buy', {
                     method: 'POST',
                     body: JSON.stringify({ itemId })
                 });
-
                 msgBox.className = 'success-msg';
                 msgBox.textContent = response.message;
-                
-                // Recarrega ouro
                 loadPlayerGold();
                 setTimeout(() => msgBox.textContent = '', 3000);
-
             } catch (error) {
                 msgBox.className = 'error-msg';
                 msgBox.textContent = error.message;

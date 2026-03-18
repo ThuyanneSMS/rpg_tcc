@@ -22,7 +22,12 @@ exports.startBattle = async (req, res) => {
         // Verifica se já existe uma batalha
         const activeBattle = await db.query('SELECT * FROM active_battles WHERE character_id = $1', [character.id]);
         if (activeBattle.rows.length > 0) {
-            return res.json({ message: 'Você já está em batalha!', battle: activeBattle.rows[0] });
+            const b = activeBattle.rows[0];
+            return res.json({
+                message: 'Você já está em batalha!',
+                player: { name: character.name, hp: character.current_health, max_hp: character.base_health },
+                monster: { name: b.monster_name, hp: b.monster_hp, max_hp: b.monster_max_hp }
+            });
         }
 
         // Escolhe o monstro
@@ -36,7 +41,11 @@ exports.startBattle = async (req, res) => {
             [character.id, randomMonster.name, randomMonster.hp, randomMonster.max_hp, randomMonster.attack, randomMonster.defense, randomMonster.gold, randomMonster.xp]
         );
 
-        res.json({ message: 'Um monstro apareceu!', monster: randomMonster });
+        res.json({
+            message: 'Um monstro apareceu!',
+            player: { name: character.name, hp: character.current_health, max_hp: character.base_health },
+            monster: randomMonster
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Erro ao iniciar batalha.' });
@@ -74,7 +83,7 @@ exports.battleAction = async (req, res) => {
         // Trata FUGIR
         if (action === 'flee') {
             await db.query('DELETE FROM active_battles WHERE character_id = $1', [character.id]);
-            return res.json({ message: 'Você fugiu da batalha com sucesso!', log: ['Você escapou em segurança.'] });
+            return res.json({ status: 'fled', log: ['Você escapou em segurança.'] });
         }
 
         // O monstro SEMPRE vai agir depois da sua ação (exceto se você curou ou matou)
@@ -136,7 +145,16 @@ exports.battleAction = async (req, res) => {
                 [character.experience, character.gold, character.level, character.base_attack, character.base_defense, character.base_health, character.unassigned_points, character.current_health, character.id]
             );
 
-            return res.json({ message: 'Vitória!', log: roundLog, character, battleStatus: 'ended' });
+            return res.json({
+                status: 'won',
+                log: roundLog,
+                rewards: {
+                    exp: battle.monster_xp,
+                    gold: battle.monster_gold,
+                    leveledUp: levelUp.leveledUp,
+                    newLevel: character.level
+                }
+            });
         }
 
         // Se ainda tá vivo, Monstro ATACA
@@ -159,7 +177,7 @@ exports.battleAction = async (req, res) => {
             await db.query('UPDATE characters SET current_health = 10, experience = GREATEST(0, experience - 10) WHERE id = $1', [character.id]);
             roundLog.push(`Você foi derrotado pelo ${battle.monster_name}... Perdeu 10 XP.`);
 
-            return res.json({ message: 'Derrota!', log: roundLog, battleStatus: 'ended_defeat' });
+            return res.json({ status: 'lost', log: roundLog });
         }
 
         // Se o combate ainda continua, salva HP de ambos
@@ -167,11 +185,12 @@ exports.battleAction = async (req, res) => {
         await db.query('UPDATE characters SET current_health = $1 WHERE id = $2', [character.current_health, character.id]);
 
         return res.json({
-            message: 'Rodada concluída.',
+            status: 'ongoing',
             log: roundLog,
-            battleStatus: 'ongoing',
-            playerHealth: character.current_health,
-            monsterHealth: battle.monster_hp
+            state: {
+                playerHp: character.current_health,
+                monsterHp: battle.monster_hp
+            }
         });
 
     } catch (err) {

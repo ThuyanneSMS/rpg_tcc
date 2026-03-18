@@ -1,16 +1,16 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG Web - Criar Herói</title>
+    <title>RPG Web - Criar Heroi</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="container fade-in">
-        <h2 style="margin-bottom: 5px;">Salão de Criação</h2>
+        <h2 style="margin-bottom: 5px;">Salao de Criacao</h2>
         <p class="text-center" style="color: #bdc3c7; margin-bottom: 20px; font-style: italic;">Forje aqui o seu destino...</p>
-        
+
         <div id="msg" class="error-msg"></div>
 
         <form id="createCharForm">
@@ -21,9 +21,9 @@
             <div class="form-group">
                 <label for="charClass">Classe</label>
                 <select id="charClass">
-                    <option value="Guerreiro">?? Guerreiro (Forte e Resistente)</option>
-                    <option value="Arqueiro">?? Arqueiro (Rápido e Preciso)</option>
-                    <option value="Mago">?? Mago (Poderoso Destruidor)</option>
+                    <option value="Guerreiro">&#x2694;&#xFE0F; Guerreiro (Forte e Resistente)</option>
+                    <option value="Arqueiro">&#x1F3F9; Arqueiro (Rapido e Preciso)</option>
+                    <option value="Mago">&#x1F9D9; Mago (Poderoso Destruidor)</option>
                 </select>
             </div>
             <button type="submit" class="btn">Iniciar Jornada</button>
@@ -41,7 +41,7 @@
                 characterClass: document.getElementById('charClass').value
             };
             const msgBox = document.getElementById('msg');
-            
+
             try {
                 await apiFetch('/character/create', {
                     method: 'POST',
@@ -49,10 +49,9 @@
                 });
 
                 msgBox.className = 'success-msg';
-                // Redireciona de volta p o dashboard
-                msgBox.textContent = 'Personagem crido! Entrando no mundo...';
+                msgBox.textContent = 'Personagem criado! Entrando no mundo...';
                 setTimeout(() => {
-                   window.location.href = 'game.html'; 
+                    window.location.href = 'game.html';
                 }, 1500);
 
             } catch (error) {
