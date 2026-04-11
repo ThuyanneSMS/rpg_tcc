@@ -10,3 +10,12 @@ CREATE TABLE IF NOT EXISTS active_battles (
     monster_xp INT,
     is_defending BOOLEAN DEFAULT false
 );
+
+-- Adicionar coluna de slot de equipamento ao inventário
+ALTER TABLE inventory ADD COLUMN IF NOT EXISTS equipment_slot VARCHAR(20) DEFAULT NULL;
+-- Slots possíveis: helmet, chest, gloves, boots, weapon, shield, ring, necklace
+-- NULL = item consumível (poção, etc.)
+
+-- Adicionar coluna de gênero/aparência ao personagem
+ALTER TABLE characters ADD COLUMN IF NOT EXISTS gender VARCHAR(10) DEFAULT 'Masculino';
+-- Valores: 'Masculino' ou 'Feminino'

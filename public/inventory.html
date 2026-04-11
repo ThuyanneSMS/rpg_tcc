@@ -6,9 +6,38 @@
     <title>RPG Web - Inventario</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
+        /* Abas de navegação */
+        .inv-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .inv-tab {
+            padding: 10px 20px;
+            background: #1c232c;
+            border: 2px solid #34495e;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            color: #bdc3c7;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-size: 1em;
+            transition: all 0.2s;
+        }
+        .inv-tab:hover { background: #2c3e50; color: #fff; }
+        .inv-tab.active {
+            background: #2c3e50;
+            border-color: #f1c40f;
+            color: #f1c40f;
+            font-weight: bold;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Grid de itens consumíveis */
         .inventory-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 15px;
         }
         .item-card {
@@ -20,11 +49,6 @@
             flex-direction: column;
             justify-content: space-between;
         }
-        .item-card.equipped {
-            border-color: #f1c40f;
-            box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
-            background: linear-gradient(145deg, #1c232c, rgba(241, 196, 15, 0.1));
-        }
         .item-header {
             display: flex;
             justify-content: space-between;
@@ -33,24 +57,107 @@
             border-bottom: 1px solid #34495e;
             padding-bottom: 5px;
         }
-        .item-name { font-weight: bold; color: #ecf0f1; font-size: 1.1em; }
+        .item-name { font-weight: bold; color: #ecf0f1; font-size: 1.05em; }
         .item-quantity { background-color: #34495e; padding: 2px 8px; border-radius: 12px; font-size: 0.9em; }
-        .item-desc { font-size: 0.9em; color: #bdc3c7; margin-bottom: 15px; min-height: 40px; }
+        .item-desc { font-size: 0.85em; color: #bdc3c7; margin-bottom: 15px; min-height: 36px; }
         .item-actions { display: flex; gap: 10px; }
         .empty-inv { text-align: center; color: #7f8c8d; font-style: italic; padding: 40px; grid-column: 1 / -1; }
+
+        /* === Layout de Equipamentos (Paper Doll) === */
+        .equip-layout {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        /* Boneco de equipamentos */
+        .equip-doll {
+            display: grid;
+            grid-template-columns: 100px 100px 100px;
+            grid-template-rows: repeat(4, 100px);
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .equip-slot {
+            background: #1c232c;
+            border: 2px dashed #34495e;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 0.75em;
+            color: #7f8c8d;
+            cursor: default;
+            transition: all 0.2s;
+            padding: 5px;
+        }
+        .equip-slot .slot-icon { font-size: 1.8em; margin-bottom: 4px; }
+        .equip-slot .slot-label { font-size: 0.85em; color: #555; }
+        .equip-slot.filled {
+            border-style: solid;
+            border-color: #f1c40f;
+            background: linear-gradient(145deg, #1c232c, rgba(241, 196, 15, 0.1));
+            color: #ecf0f1;
+        }
+        .equip-slot.filled .slot-label { color: #f1c40f; font-weight: bold; }
+
+        /* Posições no grid do boneco */
+        .slot-necklace  { grid-column: 1; grid-row: 1; }
+        .slot-helmet    { grid-column: 2; grid-row: 1; }
+        .slot-ring      { grid-column: 3; grid-row: 1; }
+        .slot-weapon    { grid-column: 1; grid-row: 2; }
+        .slot-chest     { grid-column: 2; grid-row: 2; }
+        .slot-shield    { grid-column: 3; grid-row: 2; }
+        .slot-gloves    { grid-column: 1; grid-row: 3; }
+        .slot-boots     { grid-column: 2; grid-row: 3; }
+
+        /* Lista de equipamentos no inventário */
+        .equip-list {
+            flex: 1;
+            min-width: 260px;
+        }
+        .equip-list h3 {
+            font-family: 'Cinzel', serif;
+            color: #b8860b;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #34495e;
+            padding-bottom: 8px;
+        }
+        .equip-item {
+            background: #1c232c;
+            border: 1px solid #34495e;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .equip-item.equipped {
+            border-color: #f1c40f;
+            background: linear-gradient(90deg, #1c232c, rgba(241, 196, 15, 0.08));
+        }
+        .equip-item-info { flex: 1; }
+        .equip-item-name { font-weight: bold; color: #ecf0f1; font-size: 0.95em; }
+        .equip-item-stat { font-size: 0.8em; color: #3498db; }
+        .equip-item-slot { font-size: 0.75em; color: #7f8c8d; text-transform: capitalize; }
     </style>
 </head>
 <body>
     <div class="rpg-container fade-in">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <div>&#x1F3BA; Bau</div>
+                <div>⚔️ Guilda Escarlate</div>
             </div>
             <ul class="menu-list">
                 <li class="menu-item"><a href="game.html">&#x1F464; Status</a></li>
-                <li class="menu-item active"><a href="inventory.html">&#x1F3BA; Inventario</a></li>
+                <li class="menu-item active"><a href="inventory.html">&#x1F392; Inventario</a></li>
                 <li class="menu-item"><a href="shop.html">&#x1F6D2; Mercador</a></li>
-                <li class="menu-item"><a href="profile.html">&#x1F464; Minha Conta</a></li>
+                <li class="menu-item"><a href="battle.html">&#x2694;&#xFE0F; Missões</a></li>
+                <li class="menu-item"><a href="profile.html">&#x1F4CB; Meus Dados</a></li>
             </ul>
         </aside>
         <main class="main-panel">
@@ -58,10 +165,71 @@
                 <h2 class="section-title" style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">Seus Pertences</h2>
                 <a href="game.html" class="rpg-btn" style="width: auto; padding: 8px 15px; font-size: 0.8em;">Voltar</a>
             </div>
+
             <div id="msg"></div>
-            <div class="inventory-grid" id="inventoryList">
-                <div class="empty-inv">Carregando itens...</div>
+
+            <!-- Abas -->
+            <div class="inv-tabs">
+                <div class="inv-tab active" onclick="switchTab('items')">🧪 Itens</div>
+                <div class="inv-tab" onclick="switchTab('equipment')">🛡️ Equipamentos</div>
             </div>
+
+            <!-- Aba: Itens Consumíveis -->
+            <div class="tab-content active" id="tab-items">
+                <div class="inventory-grid" id="itemsList">
+                    <div class="empty-inv">Carregando itens...</div>
+                </div>
+            </div>
+
+            <!-- Aba: Equipamentos -->
+            <div class="tab-content" id="tab-equipment">
+                <div class="equip-layout">
+                    <!-- Paper Doll -->
+                    <div class="equip-doll" id="equipDoll">
+                        <div class="equip-slot slot-necklace" id="doll-necklace">
+                            <span class="slot-icon">📿</span>
+                            <span class="slot-label">Colar</span>
+                        </div>
+                        <div class="equip-slot slot-helmet" id="doll-helmet">
+                            <span class="slot-icon">⛑️</span>
+                            <span class="slot-label">Capacete</span>
+                        </div>
+                        <div class="equip-slot slot-ring" id="doll-ring">
+                            <span class="slot-icon">💍</span>
+                            <span class="slot-label">Anel</span>
+                        </div>
+                        <div class="equip-slot slot-weapon" id="doll-weapon">
+                            <span class="slot-icon">⚔️</span>
+                            <span class="slot-label">Arma</span>
+                        </div>
+                        <div class="equip-slot slot-chest" id="doll-chest">
+                            <span class="slot-icon">🛡️</span>
+                            <span class="slot-label">Peitoral</span>
+                        </div>
+                        <div class="equip-slot slot-shield" id="doll-shield">
+                            <span class="slot-icon">🔰</span>
+                            <span class="slot-label">Escudo</span>
+                        </div>
+                        <div class="equip-slot slot-gloves" id="doll-gloves">
+                            <span class="slot-icon">🧤</span>
+                            <span class="slot-label">Luvas</span>
+                        </div>
+                        <div class="equip-slot slot-boots" id="doll-boots">
+                            <span class="slot-icon">👢</span>
+                            <span class="slot-label">Botas</span>
+                        </div>
+                    </div>
+
+                    <!-- Lista de equipamentos -->
+                    <div class="equip-list">
+                        <h3>Equipamentos no Inventário</h3>
+                        <div id="equipList">
+                            <div class="empty-inv">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -69,67 +237,115 @@
     <script>
         if (!isAuthenticated()) window.location.href = 'index.html';
 
+        const SLOT_NAMES = {
+            helmet: 'Capacete', chest: 'Peitoral', gloves: 'Luvas', boots: 'Botas',
+            weapon: 'Arma', shield: 'Escudo', ring: 'Anel', necklace: 'Colar'
+        };
+
+        function switchTab(tab) {
+            document.querySelectorAll('.inv-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            if (tab === 'items') {
+                document.querySelectorAll('.inv-tab')[0].classList.add('active');
+                document.getElementById('tab-items').classList.add('active');
+            } else {
+                document.querySelectorAll('.inv-tab')[1].classList.add('active');
+                document.getElementById('tab-equipment').classList.add('active');
+            }
+        }
+
         async function loadInventory() {
-            const list = document.getElementById('inventoryList');
+            const itemsList = document.getElementById('itemsList');
+            const equipList = document.getElementById('equipList');
             const msgBox = document.getElementById('msg');
             msgBox.className = '';
             msgBox.textContent = '';
 
             try {
                 const data = await apiFetch('/inventory/');
+                renderItems(data.items || [], itemsList);
+                renderEquipment(data.equipment || [], equipList);
+            } catch (error) {
+                itemsList.innerHTML = '<div class="empty-inv">Falha ao carregar: ' + error.message + '</div>';
+                equipList.innerHTML = '<div class="empty-inv">Falha ao carregar.</div>';
+            }
+        }
 
-                if (!data.items || data.items.length === 0) {
-                    list.innerHTML = '<div class="empty-inv">Sua mochila esta vazia. Visite o mercador ou batalhe por espolios!</div>';
-                    return;
+        function renderItems(items, container) {
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-inv">Nenhum item consumível. Visite o mercador!</div>';
+                return;
+            }
+            container.innerHTML = '';
+            items.forEach(item => {
+                const bonusText = item.stat_bonus ? `Efeito: +${item.stat_bonus} HP` : '';
+                container.innerHTML += `
+                    <div class="item-card">
+                        <div>
+                            <div class="item-header">
+                                <span class="item-name">🧪 ${item.item_name}</span>
+                                <span class="item-quantity">x${item.quantity}</span>
+                            </div>
+                            <div class="item-desc">${bonusText}</div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn success" onclick="useItem(${item.id})">Usar</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function renderEquipment(equipment, container) {
+            // Resetar doll
+            Object.keys(SLOT_NAMES).forEach(slot => {
+                const el = document.getElementById('doll-' + slot);
+                el.classList.remove('filled');
+                el.querySelector('.slot-label').textContent = SLOT_NAMES[slot];
+            });
+
+            if (equipment.length === 0) {
+                container.innerHTML = '<div class="empty-inv">Nenhum equipamento. Visite o mercador!</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            equipment.forEach(eq => {
+                // Atualizar doll se equipado
+                if (eq.is_equipped && eq.equipment_slot) {
+                    const dollSlot = document.getElementById('doll-' + eq.equipment_slot);
+                    if (dollSlot) {
+                        dollSlot.classList.add('filled');
+                        dollSlot.querySelector('.slot-label').textContent = eq.item_name;
+                    }
                 }
 
-                list.innerHTML = '';
-                data.items.forEach(item => {
-                    const isEquipable = item.item_type === 'sword' || item.item_type === 'shield';
-                    const isConsumable = item.item_type === 'potion';
+                const slotLabel = SLOT_NAMES[eq.equipment_slot] || eq.equipment_slot;
+                const equipBtn = eq.is_equipped
+                    ? `<button class="btn danger" style="font-size:0.8em;padding:5px 10px;" onclick="toggleEquip(${eq.id}, false)">Desequipar</button>`
+                    : `<button class="btn success" style="font-size:0.8em;padding:5px 10px;" onclick="toggleEquip(${eq.id}, true)">Equipar</button>`;
 
-                    let actionBtn = '';
-                    if (isEquipable) {
-                        if (item.is_equipped) {
-                            actionBtn = `<button class="btn danger" onclick="toggleEquip(${item.id}, false)">Desequipar</button>`;
-                        } else {
-                            actionBtn = `<button class="btn success" onclick="toggleEquip(${item.id}, true)">Equipar</button>`;
-                        }
-                    } else if (isConsumable) {
-                        actionBtn = `<button class="btn success" onclick="useItem(${item.id})">Usar Item</button>`;
-                    }
-
-                    const bonusText = item.stat_bonus ? `+${item.stat_bonus} de Bonus` : '';
-                    list.innerHTML += `
-                        <div class="item-card ${item.is_equipped ? 'equipped' : ''}">
-                            <div>
-                                <div class="item-header">
-                                    <span class="item-name">${item.item_name}</span>
-                                    <span class="item-quantity">x${item.quantity}</span>
-                                </div>
-                                <div class="item-desc">
-                                    <p>Tipo: ${item.item_type}</p>
-                                    <p>${bonusText}</p>
-                                </div>
-                            </div>
-                            <div class="item-actions">${actionBtn}</div>
-                        </div>`;
-                });
-
-            } catch (error) {
-                list.innerHTML = '<div class="error-msg">Falha ao carregar itens: ' + error.message + '</div>';
-            }
+                container.innerHTML += `
+                    <div class="equip-item ${eq.is_equipped ? 'equipped' : ''}">
+                        <div class="equip-item-info">
+                            <div class="equip-item-name">${eq.item_name}</div>
+                            <div class="equip-item-slot">${slotLabel}</div>
+                            <div class="equip-item-stat">+${eq.stat_bonus} bônus</div>
+                        </div>
+                        ${equipBtn}
+                    </div>`;
+            });
         }
 
         async function toggleEquip(inventoryId, equipStatus) {
             try {
-                await apiFetch('/inventory/equip', {
+                const resp = await apiFetch('/inventory/equip', {
                     method: 'POST',
                     body: JSON.stringify({ inventoryId, equip: equipStatus })
                 });
+                showMsg(resp.message, 'success');
                 loadInventory();
             } catch (error) {
-                alert(error.message);
+                showMsg(error.message, 'error');
             }
         }
 
@@ -139,11 +355,18 @@
                     method: 'POST',
                     body: JSON.stringify({ inventoryId })
                 });
-                alert(response.message);
+                showMsg(response.message, 'success');
                 loadInventory();
             } catch (error) {
-                alert(error.message);
+                showMsg(error.message, 'error');
             }
+        }
+
+        function showMsg(text, type) {
+            const msgBox = document.getElementById('msg');
+            msgBox.className = type === 'success' ? 'success-msg' : 'error-msg';
+            msgBox.textContent = text;
+            setTimeout(() => { msgBox.textContent = ''; msgBox.className = ''; }, 3000);
         }
 
         window.onload = loadInventory;

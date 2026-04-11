@@ -8,7 +8,7 @@
     <style>
         .shop-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 15px;
         }
         .shop-item {
@@ -20,6 +20,7 @@
             flex-direction: column;
             justify-content: space-between;
         }
+        .shop-item.free-item { border-color: #27ae60; }
         .item-header {
             display: flex;
             justify-content: space-between;
@@ -28,9 +29,10 @@
             border-bottom: 1px solid #34495e;
             padding-bottom: 5px;
         }
-        .item-name { font-weight: bold; font-size: 1.1em; color: #f1c40f; }
+        .item-name { font-weight: bold; font-size: 1.05em; color: #f1c40f; }
         .item-price { color: gold; font-weight: bold; display: flex; align-items: center; gap: 5px; }
-        .item-desc { font-size: 0.9em; color: #bdc3c7; margin-bottom: 15px; min-height: 40px; }
+        .item-price.free { color: #2ecc71; }
+        .item-desc { font-size: 0.85em; color: #bdc3c7; margin-bottom: 15px; min-height: 36px; }
         .gold-banner {
             background: linear-gradient(90deg, #b8860b, #d35400);
             padding: 10px 20px;
@@ -43,19 +45,46 @@
             color: #fff;
             text-shadow: 1px 1px 2px #000;
         }
+        /* Abas de categoria */
+        .shop-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .shop-tab {
+            padding: 8px 16px;
+            background: #1c232c;
+            border: 2px solid #34495e;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            color: #bdc3c7;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        .shop-tab:hover { background: #2c3e50; color: #fff; }
+        .shop-tab.active {
+            background: #2c3e50;
+            border-color: #f1c40f;
+            color: #f1c40f;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="rpg-container fade-in">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <div>&#x1F6D2; Bazar</div>
+                <div>⚔️ Guilda Escarlate</div>
             </div>
             <ul class="menu-list">
                 <li class="menu-item"><a href="game.html">&#x1F464; Status</a></li>
-                <li class="menu-item"><a href="inventory.html">&#x1F3BA; Inventario</a></li>
+                <li class="menu-item"><a href="inventory.html">&#x1F392; Inventario</a></li>
                 <li class="menu-item active"><a href="shop.html">&#x1F6D2; Mercador</a></li>
-                <li class="menu-item"><a href="profile.html">&#x1F464; Minha Conta</a></li>
+                <li class="menu-item"><a href="battle.html">&#x2694;&#xFE0F; Missões</a></li>
+                <li class="menu-item"><a href="profile.html">&#x1F4CB; Meus Dados</a></li>
             </ul>
         </aside>
         <main class="main-panel">
@@ -67,6 +96,10 @@
                 Seu Ouro Atual: &#x1F4B0; <span id="playerGold">...</span> G
             </div>
             <div id="msg"></div>
+
+            <!-- Abas de categorias -->
+            <div class="shop-tabs" id="shopTabs"></div>
+
             <div class="shop-grid" id="shopList">
                 <div class="text-center" style="grid-column: 1/-1;">Arrumando as prateleiras...</div>
             </div>
@@ -77,6 +110,22 @@
     <script>
         if (!isAuthenticated()) window.location.href = 'index.html';
 
+        let allShopItems = [];
+        let activeCategory = 'all';
+
+        const CATEGORY_LABELS = {
+            all: '🏪 Todos',
+            item: '🧪 Poções',
+            helmet: '⛑️ Capacetes',
+            chest: '🛡️ Armaduras',
+            gloves: '🧤 Luvas',
+            boots: '👢 Botas',
+            weapon: '⚔️ Armas',
+            shield: '🔰 Escudos',
+            ring: '💍 Anéis',
+            necklace: '📿 Colares'
+        };
+
         async function loadPlayerGold() {
             try {
                 const data = await apiFetch('/character/');
@@ -86,28 +135,66 @@
             }
         }
 
+        function renderTabs() {
+            const tabsContainer = document.getElementById('shopTabs');
+            // Descobrir categorias dos itens
+            const types = ['all', ...new Set(allShopItems.map(i => i.type))];
+            tabsContainer.innerHTML = '';
+            types.forEach(type => {
+                const label = CATEGORY_LABELS[type] || type;
+                const isActive = type === activeCategory ? 'active' : '';
+                tabsContainer.innerHTML += `<div class="shop-tab ${isActive}" onclick="filterCategory('${type}')">${label}</div>`;
+            });
+        }
+
+        function filterCategory(category) {
+            activeCategory = category;
+            renderTabs();
+            renderShop();
+        }
+
+        function renderShop() {
+            const list = document.getElementById('shopList');
+            const filtered = activeCategory === 'all'
+                ? allShopItems
+                : allShopItems.filter(i => i.type === activeCategory);
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#7f8c8d;padding:30px;">Nenhum item nesta categoria.</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            filtered.forEach(item => {
+                const isFree = item.price === 0;
+                const priceLabel = isFree
+                    ? '<span class="item-price free">GRÁTIS</span>'
+                    : `<span class="item-price">💰 ${item.price} G</span>`;
+
+                list.innerHTML += `
+                    <div class="shop-item ${isFree ? 'free-item' : ''}">
+                        <div>
+                            <div class="item-header">
+                                <span class="item-name">${item.name}</span>
+                                ${priceLabel}
+                            </div>
+                            <div class="item-desc">
+                                <p>${item.description || ''}</p>
+                                <p style="margin-top:5px;color:#3498db;">Bônus: +${item.bonus}</p>
+                            </div>
+                        </div>
+                        <button class="btn ${isFree ? 'success' : ''}" onclick="buyItem('${item.id}')">${isFree ? 'Pegar Grátis' : 'Comprar'}</button>
+                    </div>`;
+            });
+        }
+
         async function loadShop() {
             const list = document.getElementById('shopList');
             try {
                 const data = await apiFetch('/shop/items');
-                list.innerHTML = '';
-
-                data.items.forEach(item => {
-                    list.innerHTML += `
-                        <div class="shop-item">
-                            <div>
-                                <div class="item-header">
-                                    <span class="item-name">${item.name}</span>
-                                    <span class="item-price">&#x1F4B0; ${item.price} G</span>
-                                </div>
-                                <div class="item-desc">
-                                    <p>Tipo: ${item.type}</p>
-                                    <p style="margin-top: 5px;">Bonus: +${item.bonus}</p>
-                                </div>
-                            </div>
-                            <button class="btn success" onclick="buyItem('${item.id}')">Comprar</button>
-                        </div>`;
-                });
+                allShopItems = data.items;
+                renderTabs();
+                renderShop();
             } catch (error) {
                 list.innerHTML = '<div class="error-msg">Ferrou! ' + error.message + '</div>';
             }
@@ -125,10 +212,11 @@
                 msgBox.className = 'success-msg';
                 msgBox.textContent = response.message;
                 loadPlayerGold();
-                setTimeout(() => msgBox.textContent = '', 3000);
+                setTimeout(() => { msgBox.textContent = ''; msgBox.className = ''; }, 3000);
             } catch (error) {
                 msgBox.className = 'error-msg';
                 msgBox.textContent = error.message;
+                setTimeout(() => { msgBox.textContent = ''; msgBox.className = ''; }, 3000);
             }
         }
 

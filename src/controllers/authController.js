@@ -52,7 +52,7 @@ exports.login = async (req, res) => {
         // Verificar senha
         const validPassword = await bcrypt.compare(password, user.password_hash);
         if (!validPassword) {
-            return res.status(401).json({ error: 'E-mail ou senha inválidos.' });
+            return res.status(401).json({ error: 'Senha incorreta. Tente novamente.' });
         }
 
         // Gerar Token JWT

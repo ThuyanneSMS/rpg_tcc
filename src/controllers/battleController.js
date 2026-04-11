@@ -67,14 +67,22 @@ exports.battleAction = async (req, res) => {
         let battle = battleRes.rows[0];
 
         // --- Atributos Dinâmicos Baseados no Inventário ---
-        // Calcula ataque e defesa adicionando bônus dos itens equipados
-        const equippedItems = await db.query('SELECT item_type, stat_bonus FROM inventory WHERE character_id = $1 AND is_equipped = true', [character.id]);
+        // Calcula ataque, defesa e velocidade adicionando bônus dos itens equipados
+        const equippedItems = await db.query(
+            'SELECT equipment_slot, stat_bonus FROM inventory WHERE character_id = $1 AND is_equipped = true AND equipment_slot IS NOT NULL',
+            [character.id]
+        );
         let totalAttack = character.base_attack;
         let totalDefense = character.base_defense;
 
         for (let item of equippedItems.rows) {
-            if (item.item_type === 'sword') totalAttack += item.stat_bonus; // Espada = +Ataque
-            else if (item.item_type === 'shield') totalDefense += item.stat_bonus; // Escudo = +Defesa
+            const slot = item.equipment_slot;
+            const bonus = item.stat_bonus || 0;
+            if (slot === 'weapon' || slot === 'gloves' || slot === 'ring') {
+                totalAttack += bonus;
+            } else if (slot === 'helmet' || slot === 'chest' || slot === 'shield' || slot === 'necklace') {
+                totalDefense += bonus;
+            }
         }
 
         // Resposta base da rodada

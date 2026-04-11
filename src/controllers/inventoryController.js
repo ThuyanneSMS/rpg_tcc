@@ -1,5 +1,8 @@
 const db = require('../config/db');
 
+// Slots de equipamento válidos
+const EQUIPMENT_SLOTS = ['helmet', 'chest', 'gloves', 'boots', 'weapon', 'shield', 'ring', 'necklace'];
+
 // Listar todo o inventário e ouro do personagem
 exports.getInventory = async (req, res) => {
     try {
@@ -9,20 +12,24 @@ exports.getInventory = async (req, res) => {
         if (charRes.rows.length === 0) return res.status(404).json({ error: 'Personagem não encontrado.' });
         const character = charRes.rows[0];
 
-        const invRes = await db.query('SELECT * FROM inventory WHERE character_id = $1', [character.id]);
+        const invRes = await db.query('SELECT * FROM inventory WHERE character_id = $1 ORDER BY equipment_slot ASC, item_name ASC', [character.id]);
         
-        res.json({ gold: character.gold, items: invRes.rows });
+        // Separar itens de equipamentos
+        const items = invRes.rows.filter(i => !i.equipment_slot);
+        const equipment = invRes.rows.filter(i => !!i.equipment_slot);
+
+        res.json({ gold: character.gold, items, equipment });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Erro ao buscar inventário do personagem.' });
     }
 };
 
-// Equipar ou Desequipar um item (Espada, Escudo)
+// Equipar ou Desequipar um item
 exports.toggleEquip = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { inventoryId, equip } = req.body; // equip: boolean (true = equipar, false = desequipar)
+        const { inventoryId, equip } = req.body;
 
         const charRes = await db.query('SELECT id FROM characters WHERE user_id = $1', [userId]);
         if (charRes.rows.length === 0) return res.status(404).json({ error: 'Personagem não encontrado.' });
@@ -32,13 +39,14 @@ exports.toggleEquip = async (req, res) => {
         if (itemRes.rows.length === 0) return res.status(404).json({ error: 'Item não encontrado no inventário.' });
         const item = itemRes.rows[0];
 
-        if (item.item_type === 'potion') {
-            return res.status(400).json({ error: 'Você não pode equipar poções.' });
+        // Só pode equipar itens que possuem slot
+        if (!item.equipment_slot) {
+            return res.status(400).json({ error: 'Este item não pode ser equipado.' });
         }
 
         if (equip) {
-            // Desequipar itens do mesmo tipo primeiro (só 1 espada e 1 escudo)
-            await db.query('UPDATE inventory SET is_equipped = false WHERE character_id = $1 AND item_type = $2', [character.id, item.item_type]);
+            // Desequipar item do mesmo slot primeiro (só 1 por slot)
+            await db.query('UPDATE inventory SET is_equipped = false WHERE character_id = $1 AND equipment_slot = $2', [character.id, item.equipment_slot]);
             // Equipar o item solicitado
             await db.query('UPDATE inventory SET is_equipped = true WHERE id = $1', [item.id]);
             res.json({ message: `Você equipou ${item.item_name}.` });

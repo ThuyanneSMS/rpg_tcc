@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" style="stop-color:#4a6741"/>
+      <stop offset="100%" style="stop-color:#2c3e1f"/>
+    </radialGradient>
+  </defs>
+  <!-- Background -->
+  <circle cx="100" cy="100" r="100" fill="url(#bg)"/>
+  <!-- Hood -->
+  <path d="M40,90 Q45,30 100,20 Q155,30 160,90 L155,130 Q140,135 100,138 Q60,135 45,130 Z" fill="#4a7a3a" stroke="#3a6a2a" stroke-width="2"/>
+  <!-- Face -->
+  <ellipse cx="100" cy="105" rx="38" ry="42" fill="#f5d6b8"/>
+  <!-- Hair -->
+  <path d="M65,85 Q70,65 100,60 Q130,65 135,85" fill="#d4a017" stroke="none"/>
+  <path d="M62,90 Q60,75 68,68" fill="#d4a017" stroke="none"/>
+  <path d="M138,90 Q140,75 132,68" fill="#d4a017" stroke="none"/>
+  <!-- Eyes -->
+  <ellipse cx="85" cy="100" rx="5" ry="5.5" fill="#2ecc71"/>
+  <ellipse cx="115" cy="100" rx="5" ry="5.5" fill="#2ecc71"/>
+  <circle cx="86" cy="99" r="2" fill="#1a1a1a"/>
+  <circle cx="116" cy="99" r="2" fill="#1a1a1a"/>
+  <circle cx="87" cy="98" r="1" fill="#fff"/>
+  <circle cx="117" cy="98" r="1" fill="#fff"/>
+  <!-- Eyebrows -->
+  <path d="M78,92 Q85,88 92,91" fill="none" stroke="#b8860b" stroke-width="2" stroke-linecap="round"/>
+  <path d="M108,91 Q115,88 122,92" fill="none" stroke="#b8860b" stroke-width="2" stroke-linecap="round"/>
+  <!-- Nose -->
+  <path d="M100,105 L97,112 L103,112" fill="none" stroke="#d4a58a" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Smile -->
+  <path d="M90,120 Q100,128 110,120" fill="none" stroke="#c0755a" stroke-width="2" stroke-linecap="round"/>
+  <!-- Hood shadow -->
+  <path d="M45,90 Q50,85 100,78 Q150,85 155,90" fill="none" stroke="#3a6a2a" stroke-width="3" opacity="0.5"/>
+  <!-- Clasp -->
+  <circle cx="100" cy="140" r="6" fill="#b8860b" stroke="#8b6914" stroke-width="1.5"/>
+  <circle cx="100" cy="140" r="3" fill="#2ecc71"/>
+  <!-- Quiver hint -->
+  <rect x="130" y="50" width="12" height="40" rx="3" fill="#8B4513" transform="rotate(10,136,70)"/>
+  <line x1="133" y1="48" x2="131" y2="38" stroke="#c0a070" stroke-width="1.5"/>
+  <line x1="137" y1="47" x2="136" y2="36" stroke="#c0a070" stroke-width="1.5"/>
+  <line x1="141" y1="48" x2="141" y2="37" stroke="#c0a070" stroke-width="1.5"/>
+</svg>

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" style="stop-color:#5a2a3a"/>
+      <stop offset="100%" style="stop-color:#3a1520"/>
+    </radialGradient>
+  </defs>
+  <!-- Background -->
+  <circle cx="100" cy="100" r="100" fill="url(#bg)"/>
+  <!-- Hood -->
+  <path d="M38,90 Q43,28 100,18 Q157,28 162,90 L157,132 Q140,137 100,140 Q60,137 43,132 Z" fill="#8b1a2b" stroke="#6b1020" stroke-width="2"/>
+  <!-- Face -->
+  <ellipse cx="100" cy="105" rx="37" ry="41" fill="#fce0cc"/>
+  <!-- Hair -->
+  <path d="M63,90 Q65,60 100,52 Q135,60 137,90" fill="#e6b422"/>
+  <!-- Braid -->
+  <path d="M132,85 Q140,100 138,120 Q136,135 130,150" fill="none" stroke="#d4a017" stroke-width="8" stroke-linecap="round"/>
+  <path d="M132,85 Q140,100 138,120 Q136,135 130,150" fill="none" stroke="#e6b422" stroke-width="5" stroke-linecap="round" stroke-dasharray="8,8"/>
+  <!-- Ears (pointed elf ears) -->
+  <path d="M58,100 L42,82 L62,95" fill="#fce0cc" stroke="#e8c8a8" stroke-width="1"/>
+  <path d="M142,100 L158,82 L138,95" fill="#fce0cc" stroke="#e8c8a8" stroke-width="1"/>
+  <!-- Eyes -->
+  <ellipse cx="85" cy="100" rx="5.5" ry="6" fill="#2ecc71"/>
+  <ellipse cx="115" cy="100" rx="5.5" ry="6" fill="#2ecc71"/>
+  <circle cx="86" cy="99" r="2.2" fill="#1a1a1a"/>
+  <circle cx="116" cy="99" r="2.2" fill="#1a1a1a"/>
+  <circle cx="87" cy="98" r="1" fill="#fff"/>
+  <circle cx="117" cy="98" r="1" fill="#fff"/>
+  <!-- Eyelashes -->
+  <path d="M79,95 Q82,93 85,94" fill="none" stroke="#333" stroke-width="1.2"/>
+  <path d="M115,94 Q118,93 121,95" fill="none" stroke="#333" stroke-width="1.2"/>
+  <!-- Eyebrows (thinner, arched) -->
+  <path d="M78,91 Q85,87 92,90" fill="none" stroke="#c49a22" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M108,90 Q115,87 122,91" fill="none" stroke="#c49a22" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Nose -->
+  <path d="M100,105 L97,112 L103,112" fill="none" stroke="#e0b89a" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Lips -->
+  <path d="M91,120 Q96,126 100,126 Q104,126 109,120" fill="#c44040" opacity="0.7"/>
+  <path d="M91,120 Q100,118 109,120" fill="none" stroke="#c44040" stroke-width="1" opacity="0.5"/>
+  <!-- Hood shadow -->
+  <path d="M43,90 Q48,84 100,76 Q152,84 157,90" fill="none" stroke="#6b1020" stroke-width="3" opacity="0.5"/>
+  <!-- Clasp/Brooch -->
+  <circle cx="100" cy="142" r="7" fill="#b8860b" stroke="#8b6914" stroke-width="1.5"/>
+  <circle cx="100" cy="142" r="3.5" fill="#2ecc71"/>
+  <!-- Quiver hint -->
+  <rect x="128" y="48" width="12" height="38" rx="3" fill="#8B4513" transform="rotate(8,134,67)"/>
+  <line x1="131" y1="46" x2="129" y2="35" stroke="#c0a070" stroke-width="1.5"/>
+  <line x1="135" y1="45" x2="134" y2="33" stroke="#c0a070" stroke-width="1.5"/>
+  <line x1="139" y1="46" x2="139" y2="34" stroke="#c0a070" stroke-width="1.5"/>
+  <!-- Feather in quiver -->
+  <path d="M140,34 Q145,28 142,22" fill="none" stroke="#ddd" stroke-width="1.2"/>
+</svg>

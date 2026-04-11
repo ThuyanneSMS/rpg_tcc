@@ -6,5 +6,6 @@ const authenticateToken = require('../middleware/auth');
 // Rotas privadas (exigem token JWT)
 router.post('/create', authenticateToken, characterController.createCharacter);
 router.get('/', authenticateToken, characterController.getCharacter);
+router.put('/gender', authenticateToken, characterController.updateGender);
 
 module.exports = router;

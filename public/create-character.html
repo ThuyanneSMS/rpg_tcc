@@ -5,6 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPG Web - Criar Heroi</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .gender-selector {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .gender-option {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            border: 3px solid #34495e;
+            border-radius: 10px;
+            transition: all 0.3s;
+            width: 140px;
+        }
+        .gender-option:hover {
+            border-color: #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+        }
+        .gender-option.selected {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, 0.1);
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.4);
+        }
+        .gender-option img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #555;
+            margin-bottom: 8px;
+        }
+        .gender-option.selected img {
+            border-color: #f1c40f;
+        }
+        .gender-label {
+            font-weight: bold;
+            color: #ecf0f1;
+            font-size: 0.95em;
+        }
+    </style>
 </head>
 <body>
     <div class="container fade-in">
@@ -14,6 +56,20 @@
         <div id="msg" class="error-msg"></div>
 
         <form id="createCharForm">
+            <div class="form-group">
+                <label>Aparência do Herói</label>
+                <div class="gender-selector">
+                    <div class="gender-option selected" id="opt-Masculino" onclick="selectGender('Masculino')">
+                        <img src="img/avatar-male.svg" alt="Masculino">
+                        <div class="gender-label">Masculino</div>
+                    </div>
+                    <div class="gender-option" id="opt-Feminino" onclick="selectGender('Feminino')">
+                        <img src="img/avatar-female.svg" alt="Feminino">
+                        <div class="gender-label">Feminino</div>
+                    </div>
+                </div>
+                <input type="hidden" id="gender" value="Masculino">
+            </div>
             <div class="form-group">
                 <label for="name">Nome do Personagem</label>
                 <input type="text" id="name" required>
@@ -34,11 +90,18 @@
     <script>
         if (!isAuthenticated()) window.location.href = 'index.html';
 
+        function selectGender(g) {
+            document.getElementById('gender').value = g;
+            document.getElementById('opt-Masculino').classList.toggle('selected', g === 'Masculino');
+            document.getElementById('opt-Feminino').classList.toggle('selected', g === 'Feminino');
+        }
+
         document.getElementById('createCharForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const payload = {
                 name: document.getElementById('name').value,
-                characterClass: document.getElementById('charClass').value
+                characterClass: document.getElementById('charClass').value,
+                gender: document.getElementById('gender').value
             };
             const msgBox = document.getElementById('msg');
 

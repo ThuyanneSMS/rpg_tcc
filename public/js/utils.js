@@ -40,6 +40,13 @@ async function apiFetch(endpoint, options = {}) {
         const data = await response.json();
         
         if (!response.ok) {
+            // Se o token for inválido ou expirado (mas não em rotas de login/registro)
+            const isAuthRoute = endpoint.startsWith('/auth/login') || endpoint.startsWith('/auth/register');
+            if (!isAuthRoute && (response.status === 401 || response.status === 403)) {
+                removeToken();
+                window.location.href = 'index.html';
+                return;
+            }
             throw new Error(data.error || 'Erro na requisição');
         }
         

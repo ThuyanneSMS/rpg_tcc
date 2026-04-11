@@ -28,7 +28,14 @@
             height: 100px;
             border-radius: 50%;
             border: 3px solid #7f8c8d;
-            background: #34495e url('https://api.dicebear.com/7.x/adventurer/svg?seed=Felix') center/cover;
+            background: #34495e center/cover;
+            object-fit: cover;
+            overflow: hidden;
+        }
+        .char-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .char-info {
@@ -144,12 +151,11 @@
                 <div>⚔️ Guilda Escarlate</div>
             </div>
             <ul class="menu-list">
-                <li class="menu-item active" onclick="showSection('status')">👤 Status</li>
-                <li class="menu-item" onclick="window.location.href='inventory.html'">🎒 Itens</li>
-                <li class="menu-item" onclick="window.location.href='inventory.html'">🛡️ Equipamentos</li>
-                <li class="menu-item" onclick="window.location.href='battle.html'">⚔️ Missões</li>
-                <li class="menu-item" onclick="window.location.href='shop.html'">🛒 Mercador</li>
-                <li class="menu-item" onclick="window.location.href='profile.html'">📋 Meus Dados</li>
+                <li class="menu-item active"><a href="game.html">&#x1F464; Status</a></li>
+                <li class="menu-item"><a href="inventory.html">&#x1F392; Inventario</a></li>
+                <li class="menu-item"><a href="shop.html">&#x1F6D2; Mercador</a></li>
+                <li class="menu-item"><a href="battle.html">&#x2694;&#xFE0F; Missões</a></li>
+                <li class="menu-item"><a href="profile.html">&#x1F4CB; Meus Dados</a></li>
             </ul>
             <div style="margin-top: auto">
                 <a class="rpg-btn" style="display: block; font-size: 0.8em; background: #c0392b; border-color: #e74c3c;" onclick="logout()">Sair</a>
@@ -162,7 +168,9 @@
             
             <!-- Character Card -->
             <div class="char-card" onclick="toggleDetails()">
-                <div class="char-avatar" id="avatarImg"></div>
+                <div class="char-avatar" id="avatarImg">
+                    <img id="avatarImage" src="img/avatar-male.svg" alt="Avatar">
+                </div>
                 <div class="char-info">
                     <div class="char-header">
                         <h3 class="char-name" id="cName">Hero Name</h3>
@@ -216,6 +224,7 @@
                 <div class="bottom-actions">
                     <button class="rpg-btn" onclick="window.location.href='battle.html'">Modo Batalha</button>
                     <button class="rpg-btn" style="background: linear-gradient(#27ae60, #1e8449); border-color: #2ecc71;" onclick="heal()">Estalagem</button>
+                    <button class="rpg-btn" style="background: linear-gradient(#8e44ad, #6c3483); border-color: #9b59b6;" onclick="changeAppearance()">Trocar Aparência</button>
                 </div>
             </div>
 
@@ -251,9 +260,9 @@
                 document.getElementById('cLevel').innerHTML = char.level;
                 document.getElementById('cGold').innerHTML = char.gold;
 
-                // Avatar Seed based on class
-                const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${char.name}`;
-                document.getElementById('avatarImg').style.backgroundImage = `url('${avatarUrl}')`;
+                // Avatar baseado no gênero do personagem
+                const avatarSrc = char.gender === 'Feminino' ? 'img/avatar-female.svg' : 'img/avatar-male.svg';
+                document.getElementById('avatarImage').src = avatarSrc;
 
                 // Bars Calculation
                 const hpPercent = (char.current_health / char.base_health) * 100;
@@ -265,10 +274,13 @@
                 document.getElementById('expFill').style.width = `${Math.min(expPercent, 100)}%`;
                 document.getElementById('expText').textContent = `${char.experience} / ${expNext}`;
 
-                // Attributes
-                document.getElementById('cAtk').textContent = char.base_attack;
-                document.getElementById('cDef').textContent = char.base_defense;
-                document.getElementById('cSpd').textContent = char.base_speed;
+                // Attributes (base + bonus de equipamento)
+                const atkBonus = char.bonus_attack ? ` (+${char.bonus_attack})` : '';
+                const defBonus = char.bonus_defense ? ` (+${char.bonus_defense})` : '';
+                const spdBonus = char.bonus_speed ? ` (+${char.bonus_speed})` : '';
+                document.getElementById('cAtk').textContent = char.total_attack + atkBonus;
+                document.getElementById('cDef').textContent = char.total_defense + defBonus;
+                document.getElementById('cSpd').textContent = char.total_speed + spdBonus;
                 document.getElementById('cPoints').textContent = char.unassigned_points || 0;
 
                 // Show UI
@@ -285,6 +297,22 @@
 
         async function heal() {
             alert('Ainda não implementado, mas aqui você recuperaria sua vida e MP gastando um pouco de ouro!');
+        }
+
+        async function changeAppearance() {
+            const currentSrc = document.getElementById('avatarImage').src;
+            const isFemale = currentSrc.includes('female');
+            const newGender = isFemale ? 'Masculino' : 'Feminino';
+
+            try {
+                await apiFetch('/character/gender', {
+                    method: 'PUT',
+                    body: JSON.stringify({ gender: newGender })
+                });
+                loadCharacter();
+            } catch (error) {
+                alert('Erro ao trocar aparência: ' + error.message);
+            }
         }
 
         window.onload = loadCharacter;
