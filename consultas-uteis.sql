@@ -66,3 +66,123 @@ JOIN characters c ON a.character_id = c.id;
 
 -- 8. [OPCIONAL / CHEAT] Subir Level Forçado de um Personagem Específico
 -- UPDATE characters SET level = 50, experience = 99999 WHERE name = 'NOME_DO_HEROI';
+
+
+-- ==========================================
+-- CONSULTAS ADICIONAIS (Sistema de Equipamentos, Gênero e Inventário Expandido)
+-- ==========================================
+
+-- 9. Ver todos os Equipamentos equipados de um Personagem (Paper Doll)
+SELECT 
+    i.equipment_slot AS slot,
+    i.item_name,
+    i.stat_bonus AS bonus,
+    CASE 
+        WHEN i.equipment_slot IN ('weapon', 'gloves', 'ring') THEN 'Ataque'
+        WHEN i.equipment_slot IN ('helmet', 'chest', 'shield', 'necklace') THEN 'Defesa'
+        WHEN i.equipment_slot = 'boots' THEN 'Velocidade'
+    END AS tipo_bonus
+FROM inventory i
+JOIN characters c ON i.character_id = c.id
+WHERE c.name = 'NOME_DO_PERSONAGEM'
+  AND i.is_equipped = true
+  AND i.equipment_slot IS NOT NULL
+ORDER BY i.equipment_slot;
+
+
+-- 10. Ver Inventário completo separado por tipo (Consumíveis vs Equipamentos)
+SELECT 
+    c.name AS personagem,
+    i.item_name,
+    i.item_type,
+    i.quantity,
+    i.is_equipped,
+    i.stat_bonus,
+    COALESCE(i.equipment_slot, 'consumível') AS categoria
+FROM inventory i
+JOIN characters c ON i.character_id = c.id
+WHERE c.name = 'NOME_DO_PERSONAGEM'
+ORDER BY i.equipment_slot IS NULL, i.equipment_slot, i.item_name;
+
+
+-- 11. Calcular os Bônus Totais de Equipamento de cada Personagem
+SELECT 
+    c.name AS personagem,
+    c.class AS classe,
+    c.base_attack AS ataque_base,
+    c.base_defense AS defesa_base,
+    c.base_speed AS velocidade_base,
+    COALESCE(SUM(CASE WHEN i.equipment_slot IN ('weapon', 'gloves', 'ring') THEN i.stat_bonus ELSE 0 END), 0) AS bonus_ataque,
+    COALESCE(SUM(CASE WHEN i.equipment_slot IN ('helmet', 'chest', 'shield', 'necklace') THEN i.stat_bonus ELSE 0 END), 0) AS bonus_defesa,
+    COALESCE(SUM(CASE WHEN i.equipment_slot = 'boots' THEN i.stat_bonus ELSE 0 END), 0) AS bonus_velocidade,
+    c.base_attack + COALESCE(SUM(CASE WHEN i.equipment_slot IN ('weapon', 'gloves', 'ring') THEN i.stat_bonus ELSE 0 END), 0) AS ataque_total,
+    c.base_defense + COALESCE(SUM(CASE WHEN i.equipment_slot IN ('helmet', 'chest', 'shield', 'necklace') THEN i.stat_bonus ELSE 0 END), 0) AS defesa_total,
+    c.base_speed + COALESCE(SUM(CASE WHEN i.equipment_slot = 'boots' THEN i.stat_bonus ELSE 0 END), 0) AS velocidade_total
+FROM characters c
+LEFT JOIN inventory i ON i.character_id = c.id AND i.is_equipped = true AND i.equipment_slot IS NOT NULL
+GROUP BY c.id, c.name, c.class, c.base_attack, c.base_defense, c.base_speed
+ORDER BY c.name;
+
+
+-- 12. Ver Aparência (Gênero) de todos os Personagens
+SELECT 
+    c.name AS personagem,
+    c.class AS classe,
+    c.gender AS aparencia,
+    c.level,
+    u.nickname AS jogador
+FROM characters c
+JOIN users u ON c.user_id = u.id
+ORDER BY c.name;
+
+
+-- 13. Contar quantos Itens e Equipamentos cada Jogador possui
+SELECT 
+    u.nickname AS jogador,
+    c.name AS personagem,
+    COUNT(CASE WHEN i.equipment_slot IS NULL THEN 1 END) AS total_consumiveis,
+    COUNT(CASE WHEN i.equipment_slot IS NOT NULL THEN 1 END) AS total_equipamentos,
+    COUNT(CASE WHEN i.is_equipped = true THEN 1 END) AS itens_equipados,
+    COUNT(*) AS total_itens
+FROM users u
+JOIN characters c ON c.user_id = u.id
+LEFT JOIN inventory i ON i.character_id = c.id
+GROUP BY u.nickname, c.name
+ORDER BY total_itens DESC;
+
+
+-- 14. Ver quais Slots de Equipamento estão vazios para um Personagem
+SELECT slot_name AS slot_vazio
+FROM (VALUES ('helmet'), ('chest'), ('gloves'), ('boots'), ('weapon'), ('shield'), ('ring'), ('necklace')) AS slots(slot_name)
+WHERE slot_name NOT IN (
+    SELECT equipment_slot 
+    FROM inventory 
+    WHERE character_id = (SELECT id FROM characters WHERE name = 'NOME_DO_PERSONAGEM')
+      AND is_equipped = true
+      AND equipment_slot IS NOT NULL
+);
+
+
+-- 15. Ranking de Personagens por Poder Total (ataque + defesa + velocidade com equipamentos)
+SELECT 
+    c.name AS personagem,
+    c.class AS classe,
+    c.level,
+    c.base_attack + c.base_defense + c.base_speed AS poder_base,
+    COALESCE(SUM(i.stat_bonus), 0) AS bonus_total_equip,
+    c.base_attack + c.base_defense + c.base_speed + COALESCE(SUM(i.stat_bonus), 0) AS poder_total
+FROM characters c
+LEFT JOIN inventory i ON i.character_id = c.id AND i.is_equipped = true AND i.equipment_slot IS NOT NULL
+GROUP BY c.id, c.name, c.class, c.level, c.base_attack, c.base_defense, c.base_speed
+ORDER BY poder_total DESC;
+
+
+-- 16. [OPCIONAL / CHEAT] Dar um Equipamento específico a um Personagem
+-- INSERT INTO inventory (character_id, item_type, item_name, quantity, is_equipped, stat_bonus, equipment_slot)
+-- VALUES ((SELECT id FROM characters WHERE name = 'NOME_DO_HEROI'), 'weapon', 'Espada de Aço', 1, false, 20, 'weapon');
+
+-- 17. [OPCIONAL / CHEAT] Equipar todos os itens de um Personagem de uma vez
+-- UPDATE inventory SET is_equipped = true WHERE character_id = (SELECT id FROM characters WHERE name = 'NOME_DO_HEROI') AND equipment_slot IS NOT NULL;
+
+-- 18. [OPCIONAL / CHEAT] Trocar aparência de um Personagem
+-- UPDATE characters SET gender = 'Feminino' WHERE name = 'NOME_DO_HEROI';
