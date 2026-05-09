@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Web - Ranking</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Tabs */
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #34495e;
+        }
+
+        .tab-btn {
+            padding: 9px 18px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: #7f8c8d;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-size: 0.88em;
+            transition: all 0.2s;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: #f1c40f;
+            border-bottom-color: #f1c40f;
+        }
+
+        .tab-btn:hover:not(.active) { color: #bdc3c7; }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Season info */
+        .season-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(241,196,15,0.1);
+            border: 1px solid #b8860b;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 0.82em;
+            color: #f1c40f;
+            margin-bottom: 18px;
+        }
+
+        /* Ranking table */
+        .rank-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        .rank-table th {
+            text-align: left;
+            padding: 10px 12px;
+            font-family: 'Cinzel', serif;
+            color: #b8860b;
+            border-bottom: 2px solid #34495e;
+            font-size: 0.82em;
+            font-weight: normal;
+        }
+
+        .rank-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #2c3e50;
+            color: #bdc3c7;
+            vertical-align: middle;
+        }
+
+        .rank-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+        .pos-badge {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .pos-1 { background: #d4ac0d; color: #000; }
+        .pos-2 { background: #95a5a6; color: #000; }
+        .pos-3 { background: #a04000; color: #fff; }
+        .pos-other { background: #2c3e50; color: #aaa; }
+
+        .char-name-cell { font-weight: bold; color: #ecf0f1; }
+        .class-tag {
+            font-size: 0.75em;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: #2c3e50;
+            color: #7f8c8d;
+        }
+
+        .wins-cell { color: #e74c3c; font-weight: bold; }
+        .level-cell { color: #2ecc71; font-weight: bold; }
+        .gold-cell  { color: #f1c40f; }
+
+        /* Hall of Fame */
+        .hof-season-group { margin-bottom: 28px; }
+
+        .hof-season-title {
+            font-family: 'Cinzel', serif;
+            color: #b8860b;
+            font-size: 0.92em;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .hof-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: #1c232c;
+            border: 1px solid #2c3e50;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+        }
+
+        .hof-card .hof-pos { font-size: 1.6em; width: 36px; text-align: center; }
+        .hof-card .hof-info { flex: 1; }
+        .hof-card .hof-name { font-weight: bold; color: #ecf0f1; font-size: 0.95em; }
+        .hof-card .hof-sub  { font-size: 0.78em; color: #7f8c8d; margin-top: 2px; }
+        .hof-card .hof-wins { color: #e74c3c; font-weight: bold; font-size: 0.9em; }
+
+        .empty-state {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 40px 0;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="rpg-container fade-in">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div>⚔️ Guilda Escarlate</div>
+            </div>
+            <ul class="menu-list">
+                <li class="menu-item"><a href="game.html">&#x1F464; Status</a></li>
+                <li class="menu-item"><a href="inventory.html">&#x1F392; Inventario</a></li>
+                <li class="menu-item"><a href="shop.html">&#x1F6D2; Mercador</a></li>
+                <li class="menu-item"><a href="battle.html">&#x2694;&#xFE0F; Missões</a></li>
+                <li class="menu-item active"><a href="ranking.html">&#x1F3C6; Ranking</a></li>
+                <li class="menu-item"><a href="profile.html">&#x1F4CB; Meus Dados</a></li>
+            </ul>
+            <div style="margin-top: auto">
+                <a class="rpg-btn" style="display: block; font-size: 0.8em; background: #c0392b; border-color: #e74c3c;" onclick="logout()">Sair</a>
+            </div>
+        </aside>
+
+        <main class="main-panel">
+            <h2 class="section-title">🏆 Ranking & Hall of Fame</h2>
+
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('ranking')">⚔️ Temporada Atual</button>
+                <button class="tab-btn"        onclick="switchTab('hof')">🌟 Hall of Fame</button>
+            </div>
+
+            <!-- Ranking atual -->
+            <div class="tab-panel active" id="tab-ranking">
+                <div id="seasonBadge" class="season-badge">🗓️ Carregando temporada...</div>
+
+                <div id="rankingContainer">
+                    <div class="empty-state">Carregando ranking...</div>
+                </div>
+            </div>
+
+            <!-- Hall of Fame -->
+            <div class="tab-panel" id="tab-hof">
+                <p style="color:#7f8c8d; font-size:0.85em; margin-bottom:18px;">
+                    Os top-3 de cada temporada encerrada ficam imoralizados aqui para sempre.
+                </p>
+                <div id="hofContainer">
+                    <div class="empty-state">Carregando Hall of Fame...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        if (!isAuthenticated()) window.location.href = 'index.html';
+
+        function logout() { removeToken(); window.location.href = 'index.html'; }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach((b, i) => {
+                b.classList.toggle('active', (i === 0 && tab === 'ranking') || (i === 1 && tab === 'hof'));
+            });
+            document.getElementById('tab-ranking').classList.toggle('active', tab === 'ranking');
+            document.getElementById('tab-hof').classList.toggle('active', tab === 'hof');
+        }
+
+        function posBadge(pos) {
+            const cls = pos <= 3 ? `pos-${pos}` : 'pos-other';
+            const label = pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : pos;
+            return `<span class="pos-badge ${cls}">${label}</span>`;
+        }
+
+        async function loadRanking() {
+            try {
+                const data = await apiFetch('/ranking/current');
+
+                // Season badge
+                const badge = document.getElementById('seasonBadge');
+                if (data.season) {
+                    const start = new Date(data.season.started_at).toLocaleDateString('pt-BR');
+                    badge.textContent = `🗓️ ${data.season.name} — iniciada em ${start}`;
+                } else {
+                    badge.textContent = '🗓️ Nenhuma temporada ativa';
+                }
+
+                const container = document.getElementById('rankingContainer');
+                if (data.ranking.length === 0) {
+                    container.innerHTML = '<div class="empty-state">Nenhum herói no ranking ainda. Vença batalhas!</div>';
+                    return;
+                }
+
+                let html = `
+                    <table class="rank-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Herói</th>
+                                <th>Classe</th>
+                                <th>Nível</th>
+                                <th>Vitórias</th>
+                                <th>Ouro</th>
+                                <th>Jogador</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                for (const row of data.ranking) {
+                    html += `
+                        <tr>
+                            <td>${posBadge(Number(row.position))}</td>
+                            <td class="char-name-cell">${row.character_name}</td>
+                            <td><span class="class-tag">${row.character_class}</span></td>
+                            <td class="level-cell">${row.level}</td>
+                            <td class="wins-cell">${row.total_wins} ⚔️</td>
+                            <td class="gold-cell">${Number(row.gold).toLocaleString('pt-BR')} 💰</td>
+                            <td>${row.user_nickname}</td>
+                        </tr>
+                    `;
+                }
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (err) {
+                document.getElementById('rankingContainer').innerHTML =
+                    `<div class="empty-state">Erro ao carregar ranking: ${err.message}</div>`;
+            }
+        }
+
+        async function loadHallOfFame() {
+            try {
+                const data = await apiFetch('/ranking/hall-of-fame');
+                const container = document.getElementById('hofContainer');
+
+                if (data.hall.length === 0) {
+                    container.innerHTML = '<div class="empty-state">O Hall of Fame está vazio. Ao fim da primeira temporada os campeões serão imortalizados aqui!</div>';
+                    return;
+                }
+
+                // Agrupar por temporada
+                const grouped = {};
+                for (const entry of data.hall) {
+                    if (!grouped[entry.season_name]) grouped[entry.season_name] = [];
+                    grouped[entry.season_name].push(entry);
+                }
+
+                const posEmoji = { 1: '🥇', 2: '🥈', 3: '🥉' };
+                let html = '';
+
+                for (const [season, entries] of Object.entries(grouped)) {
+                    html += `<div class="hof-season-group">
+                        <div class="hof-season-title">🏆 ${season}</div>`;
+                    for (const e of entries) {
+                        html += `
+                            <div class="hof-card">
+                                <div class="hof-pos">${posEmoji[e.position] || e.position}</div>
+                                <div class="hof-info">
+                                    <div class="hof-name">${e.character_name}</div>
+                                    <div class="hof-sub">${e.character_class} • Lv.${e.level} • ${e.user_nickname}</div>
+                                </div>
+                                <div class="hof-wins">${e.total_wins} vitórias</div>
+                            </div>`;
+                    }
+                    html += '</div>';
+                }
+
+                container.innerHTML = html;
+            } catch (err) {
+                document.getElementById('hofContainer').innerHTML =
+                    `<div class="empty-state">Erro: ${err.message}</div>`;
+            }
+        }
+
+        window.onload = () => {
+            loadRanking();
+            loadHallOfFame();
+        };
+    </script>
+</body>
+</html>

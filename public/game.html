@@ -139,6 +139,152 @@
             display: flex;
             gap: 15px;
         }
+
+        /* Card Pontos Livres com toggle */
+        .attr-item-points {
+            grid-column: span 2;
+            cursor: pointer;
+            user-select: none;
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: 0;
+        }
+
+        .points-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .points-chevron {
+            font-size: 0.7em;
+            color: #b8860b;
+            transition: transform 0.25s ease;
+        }
+
+        .points-chevron.open { transform: rotate(180deg); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .distribute-inner {
+            display: none;
+            margin-top: 12px;
+            border-top: 1px solid #34495e;
+            padding-top: 12px;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .distribute-inner.open { display: block; }
+
+        .distribute-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .distribute-stat {
+            background: #111820;
+            border: 1px solid #2c3e50;
+            border-radius: 6px;
+            padding: 8px 10px;
+        }
+
+        .distribute-stat span {
+            display: block;
+            font-size: 0.78em;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+
+        .distribute-stat strong {
+            color: #f1c40f;
+            font-size: 0.8em;
+        }
+
+        .distribute-stat .btn-row {
+            display: flex;
+            gap: 5px;
+            margin-top: 7px;
+        }
+
+        .btn-dist {
+            flex: 1;
+            padding: 4px 3px;
+            font-size: 0.72em;
+            background: linear-gradient(#b8860b, #8b6508);
+            border: 1px solid #d4ac0d;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: opacity 0.2s;
+        }
+
+        .btn-dist:hover { opacity: 0.82; }
+
+        /* Modal da Estalagem */
+        .inn-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .inn-overlay.open { display: flex; }
+
+        .inn-modal {
+            background: linear-gradient(160deg, #1c2a1c, #0f1a0f);
+            border: 2px solid #27ae60;
+            border-radius: 12px;
+            padding: 28px 32px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(39,174,96,0.3);
+            animation: fadeIn 0.25s ease;
+        }
+
+        .inn-modal h3 {
+            font-family: 'Cinzel', serif;
+            color: #2ecc71;
+            margin: 0 0 6px 0;
+            font-size: 1.2em;
+        }
+
+        .inn-modal p { color: #ccc; font-size: 0.9em; margin: 6px 0; }
+
+        .inn-cost {
+            margin: 16px 0;
+            background: rgba(39,174,96,0.1);
+            border: 1px solid #27ae60;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .inn-cost .stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.88em;
+            margin: 4px 0;
+        }
+
+        .inn-cost .stat-row span:last-child { color: #f1c40f; font-weight: bold; }
+
+        .inn-buttons { display: flex; gap: 10px; margin-top: 18px; }
+
+        .inn-buttons button { flex: 1; padding: 9px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.9em; border: 1px solid; }
+
+        .btn-inn-confirm { background: linear-gradient(#27ae60, #1e8449); border-color: #2ecc71; color: #fff; }
+        .btn-inn-confirm:hover { opacity: 0.88; }
+        .btn-inn-cancel  { background: linear-gradient(#2c3e50, #1a252f); border-color: #7f8c8d; color: #aaa; }
+        .btn-inn-cancel:hover  { opacity: 0.88; }
     </style>
 </head>
 <body>
@@ -155,12 +301,33 @@
                 <li class="menu-item"><a href="inventory.html">&#x1F392; Inventario</a></li>
                 <li class="menu-item"><a href="shop.html">&#x1F6D2; Mercador</a></li>
                 <li class="menu-item"><a href="battle.html">&#x2694;&#xFE0F; Missões</a></li>
+                <li class="menu-item"><a href="ranking.html">&#x1F3C6; Ranking</a></li>
                 <li class="menu-item"><a href="profile.html">&#x1F4CB; Meus Dados</a></li>
             </ul>
             <div style="margin-top: auto">
                 <a class="rpg-btn" style="display: block; font-size: 0.8em; background: #c0392b; border-color: #e74c3c;" onclick="logout()">Sair</a>
             </div>
         </aside>
+
+        <!-- Modal Estalagem -->
+        <div class="inn-overlay" id="innOverlay">
+            <div class="inn-modal">
+                <h3>🏡 Estalagem</h3>
+                <p>Descanse e recupere toda a sua vida.</p>
+                <div class="inn-cost" id="innCostBox">
+                    <div class="stat-row"><span>HP atual</span><span id="innHpCurrent">-</span></div>
+                    <div class="stat-row"><span>HP máximo</span><span id="innHpMax">-</span></div>
+                    <div class="stat-row"><span>HP a recuperar</span><span id="innHpMissing">-</span></div>
+                    <div class="stat-row" style="margin-top:8px; border-top:1px solid #27ae60; padding-top:8px">
+                        <span>Custo</span><span id="innCost">- ouro</span>
+                    </div>
+                </div>
+                <div class="inn-buttons">
+                    <button class="btn-inn-confirm" onclick="confirmHeal()">Descansar</button>
+                    <button class="btn-inn-cancel"  onclick="closeInn()">Cancelar</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Main Panel -->
         <main class="main-panel">
@@ -208,7 +375,52 @@
                     <div class="attr-item"><span>Ataque Físico</span> <span class="attr-value" id="cAtk">10</span></div>
                     <div class="attr-item"><span>Defesa</span> <span class="attr-value" id="cDef">10</span></div>
                     <div class="attr-item"><span>Velocidade</span> <span class="attr-value" id="cSpd">5</span></div>
-                    <div class="attr-item"><span>Pontos Livres</span> <span class="attr-value" id="cPoints">0</span></div>
+                    <div class="attr-item attr-item-points" id="pointsBadge" onclick="toggleDistribute(event)">
+                        <div class="points-header">
+                            <span>⭐ Pontos Livres</span>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span class="attr-value" id="cPoints">0</span>
+                                <span class="points-chevron" id="pointsChevron">&#9660;</span>
+                            </div>
+                        </div>
+                        <!-- Painel de distribuição (toggle) -->
+                        <div class="distribute-inner" id="distributePanel">
+                            <div class="distribute-grid">
+                                <div class="distribute-stat">
+                                    <span>⚔️ Ataque</span>
+                                    <strong>+2 por ponto</strong>
+                                    <div class="btn-row">
+                                        <button class="btn-dist" onclick="spendPoint('attack', 1)">+1 ponto</button>
+                                        <button class="btn-dist" onclick="spendPoint('attack', 3)">+3 pontos</button>
+                                    </div>
+                                </div>
+                                <div class="distribute-stat">
+                                    <span>🛡️ Defesa</span>
+                                    <strong>+2 por ponto</strong>
+                                    <div class="btn-row">
+                                        <button class="btn-dist" onclick="spendPoint('defense', 1)">+1 ponto</button>
+                                        <button class="btn-dist" onclick="spendPoint('defense', 3)">+3 pontos</button>
+                                    </div>
+                                </div>
+                                <div class="distribute-stat">
+                                    <span>💨 Velocidade</span>
+                                    <strong>+1 por ponto</strong>
+                                    <div class="btn-row">
+                                        <button class="btn-dist" onclick="spendPoint('speed', 1)">+1 ponto</button>
+                                        <button class="btn-dist" onclick="spendPoint('speed', 3)">+3 pontos</button>
+                                    </div>
+                                </div>
+                                <div class="distribute-stat">
+                                    <span>❤️ Vida Máxima</span>
+                                    <strong>+5 por ponto</strong>
+                                    <div class="btn-row">
+                                        <button class="btn-dist" onclick="spendPoint('health', 1)">+1 ponto</button>
+                                        <button class="btn-dist" onclick="spendPoint('health', 3)">+3 pontos</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div style="margin-top: 20px;">
@@ -281,7 +493,23 @@
                 document.getElementById('cAtk').textContent = char.total_attack + atkBonus;
                 document.getElementById('cDef').textContent = char.total_defense + defBonus;
                 document.getElementById('cSpd').textContent = char.total_speed + spdBonus;
-                document.getElementById('cPoints').textContent = char.unassigned_points || 0;
+                const freePoints = char.unassigned_points || 0;
+                document.getElementById('cPoints').textContent = freePoints;
+
+                // Destacar o card se houver pontos disponíveis
+                const badge = document.getElementById('pointsBadge');
+                if (freePoints > 0) {
+                    badge.style.border = '1px solid #b8860b';
+                    badge.style.boxShadow = '0 0 8px rgba(184,134,11,0.5)';
+                    badge.title = 'Clique para distribuir seus pontos livres';
+                } else {
+                    badge.style.border = '';
+                    badge.style.boxShadow = '';
+                    badge.title = '';
+                    // Fechar painel se não há mais pontos
+                    document.getElementById('distributePanel').classList.remove('open');
+                    document.getElementById('pointsChevron').classList.remove('open');
+                }
 
                 // Show UI
                 document.getElementById('dashboard').style.display = 'flex';
@@ -295,8 +523,80 @@
             }
         }
 
+        function toggleDistribute(e) {
+            // Impedir que cliques nos botões de gastar pontos fechem o painel
+            if (e.target.classList.contains('btn-dist')) return;
+
+            const freePoints = parseInt(document.getElementById('cPoints').textContent) || 0;
+            if (freePoints === 0) return; // Não abre se não houver pontos
+
+            const panel = document.getElementById('distributePanel');
+            const chevron = document.getElementById('pointsChevron');
+            panel.classList.toggle('open');
+            chevron.classList.toggle('open');
+        }
+
+        async function spendPoint(stat, points) {
+            const freePoints = parseInt(document.getElementById('cPoints').textContent) || 0;
+            if (freePoints < points) {
+                alert(`Você não tem pontos suficientes! Disponíveis: ${freePoints}`);
+                return;
+            }
+
+            const statLabels = { attack: 'Ataque', defense: 'Defesa', speed: 'Velocidade', health: 'Vida' };
+            if (!confirm(`Investir ${points} ponto(s) em ${statLabels[stat]}?`)) return;
+
+            try {
+                const data = await apiFetch('/character/distribute-points', {
+                    method: 'PUT',
+                    body: JSON.stringify({ stat, points })
+                });
+                alert(data.message);
+                loadCharacter(); // Recarregar tudo após distribuir
+            } catch (error) {
+                alert('Erro ao distribuir pontos: ' + error.message);
+            }
+        }
+
         async function heal() {
-            alert('Ainda não implementado, mas aqui você recuperaria sua vida e MP gastando um pouco de ouro!');
+            // Buscar estado atual do personagem para exibir custo correto
+            try {
+                const data = await apiFetch('/character/');
+                const char = data.character;
+                const missingHp = char.base_health - char.current_health;
+
+                if (missingHp <= 0) {
+                    alert('\u2764\ufe0f Seu heroi já está com a vida cheia!');
+                    return;
+                }
+
+                const cost = Math.max(2, Math.ceil(missingHp * 0.05 + char.level));
+
+                document.getElementById('innHpCurrent').textContent  = char.current_health;
+                document.getElementById('innHpMax').textContent      = char.base_health;
+                document.getElementById('innHpMissing').textContent  = missingHp;
+                document.getElementById('innCost').textContent       = `${cost} 💰`;
+
+                document.getElementById('innOverlay').classList.add('open');
+            } catch (err) {
+                alert('Erro ao consultar a Estalagem: ' + err.message);
+            }
+        }
+
+        function closeInn() {
+            document.getElementById('innOverlay').classList.remove('open');
+        }
+
+        async function confirmHeal() {
+            try {
+                const data = await apiFetch('/character/heal', { method: 'POST' });
+                closeInn();
+                alert(data.message);
+                loadCharacter();
+            } catch (err) {
+                closeInn();
+                alert(err.message);
+            }
         }
 
         async function changeAppearance() {

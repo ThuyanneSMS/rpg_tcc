@@ -256,6 +256,11 @@
                 if (data.rewards && data.rewards.leveledUp) {
                     desc.innerHTML += `<br><br><span style="color:#2ecc71; font-weight:bold;">LEVEL UP! Você é agora nível ${data.rewards.newLevel}!</span>`;
                 }
+
+                if (data.newAchievements && data.newAchievements.length > 0) {
+                    const badges = data.newAchievements.map(a => `${a.icon} <b>${a.name}</b>`).join('<br>');
+                    desc.innerHTML += `<br><br><span style="color:#f1c40f;">🏅 Conquista desbloqueada!</span><br>${badges}`;
+                }
             } else if (data.status === 'lost') {
                 tit.textContent = 'DERROTA';
                 tit.style.color = '#e74c3c';

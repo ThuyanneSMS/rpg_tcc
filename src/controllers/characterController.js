@@ -102,6 +102,148 @@ exports.getCharacter = async (req, res) => {
     }
 };
 
+// Estalagem: recuperar HP completo gastando ouro
+exports.healAtInn = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const charResult = await db.query(
+            'SELECT id, level, current_health, base_health, gold FROM characters WHERE user_id = $1',
+            [userId]
+        );
+
+        if (charResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Personagem não encontrado.' });
+        }
+
+        const char = charResult.rows[0];
+        const missingHp = char.base_health - char.current_health;
+
+        if (missingHp <= 0) {
+            return res.status(400).json({ error: 'Seu personagem já está com a vida cheia!' });
+        }
+
+        // Custo: 0.05 de ouro por HP faltando + nível (mínimo 2 de ouro)
+        const cost = Math.max(2, Math.ceil(missingHp * 0.05 + char.level));
+
+        if (char.gold < cost) {
+            return res.status(400).json({
+                error: `Ouro insuficiente! A estalagem cobra ${cost} de ouro para curar ${missingHp} HP. Você possui apenas ${char.gold} de ouro.`
+            });
+        }
+
+        const result = await db.query(
+            `UPDATE characters
+             SET current_health = base_health, gold = gold - $1
+             WHERE user_id = $2
+             RETURNING current_health, base_health, gold`,
+            [cost, userId]
+        );
+
+        const updated = result.rows[0];
+
+        res.json({
+            message: `❤️ Você descansou na Estalagem e recuperou ${missingHp} HP por ${cost} de ouro!`,
+            currentHealth: updated.current_health,
+            maxHealth: updated.base_health,
+            gold: updated.gold,
+            cost,
+            healed: missingHp
+        });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Erro ao usar a Estalagem.' });
+    }
+};
+
+// Distribuir pontos livres nos atributos do personagem
+exports.distributePoints = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { stat, points } = req.body;
+
+        const validStats = ['attack', 'defense', 'speed', 'health'];
+        if (!validStats.includes(stat)) {
+            return res.status(400).json({ error: 'Atributo inválido. Escolha: attack, defense, speed ou health.' });
+        }
+
+        const amount = parseInt(points);
+        if (!amount || amount < 1 || amount > 10) {
+            return res.status(400).json({ error: 'Quantidade de pontos inválida (mínimo 1, máximo 10 por vez).' });
+        }
+
+        // Buscar personagem e verificar se tem pontos suficientes
+        const charResult = await db.query(
+            'SELECT id, unassigned_points FROM characters WHERE user_id = $1',
+            [userId]
+        );
+
+        if (charResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Personagem não encontrado.' });
+        }
+
+        const char = charResult.rows[0];
+
+        if (char.unassigned_points < amount) {
+            return res.status(400).json({ error: `Pontos insuficientes. Você possui apenas ${char.unassigned_points} ponto(s) livre(s).` });
+        }
+
+        // Mapeamento de stat para coluna do banco
+        const statColumnMap = {
+            attack: 'base_attack',
+            defense: 'base_defense',
+            speed: 'base_speed',
+            health: 'base_health',
+        };
+
+        // Valor adicionado por ponto investido
+        const statGainMap = {
+            attack: 2,
+            defense: 2,
+            speed: 1,
+            health: 5,
+        };
+
+        const column = statColumnMap[stat];
+        const gain = statGainMap[stat] * amount;
+
+        // Atualizar atributo e descontar pontos; se for health, também atualiza current_health
+        let updateQuery;
+        if (stat === 'health') {
+            updateQuery = await db.query(
+                `UPDATE characters 
+                 SET ${column} = ${column} + $1, 
+                     current_health = current_health + $1,
+                     unassigned_points = unassigned_points - $2
+                 WHERE user_id = $3
+                 RETURNING base_attack, base_defense, base_speed, base_health, current_health, unassigned_points`,
+                [gain, amount, userId]
+            );
+        } else {
+            updateQuery = await db.query(
+                `UPDATE characters 
+                 SET ${column} = ${column} + $1, 
+                     unassigned_points = unassigned_points - $2
+                 WHERE user_id = $3
+                 RETURNING base_attack, base_defense, base_speed, base_health, current_health, unassigned_points`,
+                [gain, amount, userId]
+            );
+        }
+
+        const statLabels = { attack: 'Ataque', defense: 'Defesa', speed: 'Velocidade', health: 'Vida' };
+
+        res.json({
+            message: `+${gain} em ${statLabels[stat]}! ${amount} ponto(s) utilizado(s).`,
+            character: updateQuery.rows[0]
+        });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Erro ao distribuir pontos.' });
+    }
+};
+
 // Trocar gênero/aparência do personagem
 exports.updateGender = async (req, res) => {
     try {

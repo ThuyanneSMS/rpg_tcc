@@ -1,13 +1,60 @@
 const db = require('../config/db');
-const { checkLevelUp } = require('../utils/gameLogic');
+const { checkLevelUp, calcDamage } = require('../utils/gameLogic');
+const { checkAndUnlockAchievements } = require('../utils/achievements');
 
-// Lista de monstros disponíveis
-const monsters = [
-    { name: 'Lobo', hp: 30, max_hp: 30, attack: 8, defense: 2, gold: 5, xp: 20 },
-    { name: 'Esqueleto', hp: 50, max_hp: 50, attack: 12, defense: 5, gold: 10, xp: 40 },
-    { name: 'Zumbi', hp: 70, max_hp: 70, attack: 10, defense: 8, gold: 15, xp: 50 },
-    { name: 'Mini Dragão', hp: 150, max_hp: 150, attack: 25, defense: 15, gold: 50, xp: 120 }
+// =============================================================
+// POOL DE MONSTROS POR TIER (calibrados para os stats dos heróis)
+// Heróis começam com: Guerreiro atk=10/def=15/hp=120
+//                      Arqueiro atk=12/def=8/hp=90
+//                      Mago     atk=18/def=5/hp=80
+// Fórmula de dano: attack * (100 / (100 + defense)) ±15%
+// =============================================================
+const monsterTiers = [
+    // Tier 1 — Nível 1-2 (fácil, ~4-6 hits para matar e ser morto)
+    [
+        { name: 'Rato de Caverna', hp: 28,  max_hp: 28,  attack: 7,  defense: 1,  gold: 3,  xp: 18  },
+        { name: 'Lobo',            hp: 42,  max_hp: 42,  attack: 10, defense: 3,  gold: 6,  xp: 28  },
+        { name: 'Goblin',          hp: 38,  max_hp: 38,  attack: 9,  defense: 2,  gold: 8,  xp: 22  },
+    ],
+    // Tier 2 — Nível 2-3 (moderado)
+    [
+        { name: 'Esqueleto',       hp: 65,  max_hp: 65,  attack: 14, defense: 6,  gold: 12, xp: 48  },
+        { name: 'Zumbi',           hp: 85,  max_hp: 85,  attack: 12, defense: 10, gold: 15, xp: 55  },
+        { name: 'Bandido',         hp: 58,  max_hp: 58,  attack: 16, defense: 4,  gold: 20, xp: 60  },
+    ],
+    // Tier 3 — Nível 3-4 (desafiador)
+    [
+        { name: 'Orc Guerreiro',   hp: 110, max_hp: 110, attack: 20, defense: 13, gold: 28, xp: 90  },
+        { name: 'Lobisomem',       hp: 95,  max_hp: 95,  attack: 24, defense: 8,  gold: 32, xp: 100 },
+        { name: 'Espectro',        hp: 80,  max_hp: 80,  attack: 22, defense: 6,  gold: 35, xp: 95  },
+    ],
+    // Tier 4 — Nível 4-5 (difícil)
+    [
+        { name: 'Troll',           hp: 140, max_hp: 140, attack: 26, defense: 20, gold: 45, xp: 135 },
+        { name: 'Vampiro',         hp: 115, max_hp: 115, attack: 30, defense: 13, gold: 50, xp: 145 },
+        { name: 'Golem de Barro',  hp: 160, max_hp: 160, attack: 22, defense: 25, gold: 40, xp: 125 },
+    ],
+    // Tier 5 — Nível 5+ (boss-like)
+    [
+        { name: 'Mini Dragão',     hp: 185, max_hp: 185, attack: 36, defense: 22, gold: 85, xp: 210 },
+        { name: 'Golem de Pedra',  hp: 230, max_hp: 230, attack: 28, defense: 32, gold: 75, xp: 190 },
+        { name: 'Necromante',      hp: 155, max_hp: 155, attack: 42, defense: 14, gold: 100, xp: 230 },
+    ],
 ];
+
+/**
+ * Seleciona monstros compatíveis com o nível do herói.
+ * Níveis 1-2 → tier 0 | 2-3 → tiers 0-1 | 3-4 → tiers 1-2
+ * 4-5 → tiers 2-3 | 5-7 → tiers 3-4 | 7+ → tier 4
+ */
+function getMonsterPool(heroLevel) {
+    if (heroLevel <= 1) return monsterTiers[0];
+    if (heroLevel === 2) return [...monsterTiers[0], ...monsterTiers[1]];
+    if (heroLevel === 3) return [...monsterTiers[1], ...monsterTiers[2]];
+    if (heroLevel === 4) return [...monsterTiers[2], ...monsterTiers[3]];
+    if (heroLevel <= 6)  return [...monsterTiers[3], ...monsterTiers[4]];
+    return monsterTiers[4];
+}
 
 // Iniciar uma batalha aleatória
 exports.startBattle = async (req, res) => {
@@ -30,21 +77,24 @@ exports.startBattle = async (req, res) => {
             });
         }
 
-        // Escolhe o monstro
-        const randomMonster = monsters[Math.floor(Math.random() * monsters.length)];
+        // Escolhe o monstro compatível com o nível do herói
+        const pool = getMonsterPool(character.level);
+        const randomMonster = pool[Math.floor(Math.random() * pool.length)];
+        // Clonar para não mutar o objeto original
+        const monster = { ...randomMonster };
 
         // Insere a batalha ativa
         await db.query(
             `INSERT INTO active_battles 
             (character_id, monster_name, monster_hp, monster_max_hp, monster_attack, monster_defense, monster_gold, monster_xp) 
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-            [character.id, randomMonster.name, randomMonster.hp, randomMonster.max_hp, randomMonster.attack, randomMonster.defense, randomMonster.gold, randomMonster.xp]
+            [character.id, monster.name, monster.hp, monster.max_hp, monster.attack, monster.defense, monster.gold, monster.xp]
         );
 
         res.json({
             message: 'Um monstro apareceu!',
             player: { name: character.name, hp: character.current_health, max_hp: character.base_health },
-            monster: randomMonster
+            monster
         });
     } catch (err) {
         console.error(err);
@@ -99,9 +149,7 @@ exports.battleAction = async (req, res) => {
         let isDefendingTemporarily = false;
 
         if (action === 'attack') {
-            playerDamageDealt = totalAttack - battle.monster_defense;
-            if (playerDamageDealt < 1) playerDamageDealt = 1;
-
+            playerDamageDealt = calcDamage(totalAttack, battle.monster_defense);
             battle.monster_hp -= playerDamageDealt;
             roundLog.push(`Você atacou o ${battle.monster_name} causando ${playerDamageDealt} de dano!`);
 
@@ -147,11 +195,18 @@ exports.battleAction = async (req, res) => {
                 roundLog.push(`PARABÉNS! Você subiu para o Nível ${character.level}! Recebeu atributos extras e pontos para distribuir.`);
             }
 
+            // Incrementar total de vitórias
+            character.total_wins = (character.total_wins || 0) + 1;
+            character.last_monster = battle.monster_name;
+
             // Atualiza Char no banco
             await db.query(
-                'UPDATE characters SET experience = $1, gold = $2, level = $3, base_attack = $4, base_defense = $5, base_health = $6, unassigned_points = $7, current_health = $8 WHERE id = $9',
-                [character.experience, character.gold, character.level, character.base_attack, character.base_defense, character.base_health, character.unassigned_points, character.current_health, character.id]
+                'UPDATE characters SET experience = $1, gold = $2, level = $3, base_attack = $4, base_defense = $5, base_health = $6, unassigned_points = $7, current_health = $8, total_wins = $9 WHERE id = $10',
+                [character.experience, character.gold, character.level, character.base_attack, character.base_defense, character.base_health, character.unassigned_points, character.current_health, character.total_wins, character.id]
             );
+
+            // Verificar conquistas desbloqueadas
+            const unlockedAchievements = await checkAndUnlockAchievements(character);
 
             return res.json({
                 status: 'won',
@@ -161,19 +216,13 @@ exports.battleAction = async (req, res) => {
                     gold: battle.monster_gold,
                     leveledUp: levelUp.leveledUp,
                     newLevel: character.level
-                }
+                },
+                newAchievements: unlockedAchievements
             });
         }
 
         // Se ainda tá vivo, Monstro ATACA
-        let defenseValue = totalDefense;
-        if (isDefendingTemporarily) {
-            defenseValue *= 2; // Dobra a defesa ao defender
-        }
-
-        let monsterDamage = battle.monster_attack - defenseValue;
-        if (monsterDamage < 1) monsterDamage = 1;
-
+        let monsterDamage = calcDamage(battle.monster_attack, isDefendingTemporarily ? totalDefense * 2 : totalDefense);
         character.current_health -= monsterDamage;
         roundLog.push(`O ${battle.monster_name} atacou! Você recebeu ${monsterDamage} de dano.`);
 
