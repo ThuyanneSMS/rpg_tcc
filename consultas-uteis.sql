@@ -186,3 +186,123 @@ ORDER BY poder_total DESC;
 
 -- 18. [OPCIONAL / CHEAT] Trocar aparência de um Personagem
 -- UPDATE characters SET gender = 'Feminino' WHERE name = 'NOME_DO_HEROI';
+
+
+-- ==========================================
+-- CONSULTAS DE CONQUISTAS (Achievements)
+-- ==========================================
+
+-- 19. Ver todas as Conquistas cadastradas na tabela achievements
+SELECT id, key, name, description, badge_icon
+FROM achievements
+ORDER BY id;
+
+
+-- 20. Ver todas as Conquistas desbloqueadas por todos os Personagens
+SELECT
+    c.name          AS personagem,
+    u.nickname      AS jogador,
+    a.key           AS conquista_key,
+    a.name          AS conquista_nome,
+    a.description   AS descricao,
+    a.badge_icon    AS icone,
+    ca.unlocked_at  AS desbloqueada_em
+FROM character_achievements ca
+JOIN characters c  ON ca.character_id  = c.id
+JOIN users u       ON c.user_id        = u.id
+JOIN achievements a ON ca.achievement_id = a.id
+ORDER BY ca.unlocked_at DESC;
+
+
+-- 21. Ver Conquistas de um Personagem Específico (Mude o nome)
+SELECT
+    a.key           AS conquista_key,
+    a.name          AS conquista_nome,
+    a.description   AS descricao,
+    a.badge_icon    AS icone,
+    ca.unlocked_at  AS desbloqueada_em
+FROM character_achievements ca
+JOIN achievements a  ON ca.achievement_id = a.id
+JOIN characters c    ON ca.character_id   = c.id
+WHERE c.name = 'NOME_DO_PERSONAGEM'
+ORDER BY ca.unlocked_at DESC;
+
+
+-- 22. Contar quantas Conquistas cada Personagem possui (Ranking de Conquistas)
+SELECT
+    c.name      AS personagem,
+    u.nickname  AS jogador,
+    c.level,
+    COUNT(ca.achievement_id) AS total_conquistas
+FROM characters c
+JOIN users u ON c.user_id = u.id
+LEFT JOIN character_achievements ca ON ca.character_id = c.id
+GROUP BY c.id, c.name, u.nickname, c.level
+ORDER BY total_conquistas DESC, c.level DESC;
+
+
+-- 23. Ver quais Conquistas ainda NÃO foram desbloqueadas por um Personagem
+SELECT
+    a.key          AS conquista_key,
+    a.name         AS conquista_nome,
+    a.description  AS descricao
+FROM achievements a
+WHERE a.id NOT IN (
+    SELECT achievement_id
+    FROM character_achievements
+    WHERE character_id = (SELECT id FROM characters WHERE name = 'NOME_DO_PERSONAGEM')
+)
+ORDER BY a.id;
+
+
+-- 24. Verificar se uma Conquista Específica foi registrada para um Personagem
+SELECT
+    c.name      AS personagem,
+    a.key       AS conquista_key,
+    a.name      AS conquista_nome,
+    CASE
+        WHEN ca.id IS NOT NULL THEN 'SIM - Desbloqueada'
+        ELSE 'NÃO - Bloqueada'
+    END AS status,
+    ca.unlocked_at AS desbloqueada_em
+FROM characters c
+CROSS JOIN achievements a
+LEFT JOIN character_achievements ca
+    ON ca.character_id  = c.id
+    AND ca.achievement_id = a.id
+WHERE c.name = 'NOME_DO_PERSONAGEM'
+ORDER BY a.id;
+
+
+-- 25. Ver a Conquista mais recente desbloqueada por cada Personagem
+SELECT DISTINCT ON (c.id)
+    c.name          AS personagem,
+    u.nickname      AS jogador,
+    a.name          AS ultima_conquista,
+    ca.unlocked_at  AS desbloqueada_em
+FROM character_achievements ca
+JOIN characters c   ON ca.character_id   = c.id
+JOIN users u        ON c.user_id         = u.id
+JOIN achievements a ON ca.achievement_id = a.id
+ORDER BY c.id, ca.unlocked_at DESC;
+
+
+-- 26. Verificar se a tabela character_achievements possui registros (diagnóstico rápido)
+SELECT
+    COUNT(*) AS total_registros,
+    MIN(unlocked_at) AS primeiro_registro,
+    MAX(unlocked_at) AS ultimo_registro
+FROM character_achievements;
+
+
+-- 27. [OPCIONAL / CHEAT] Desbloquear manualmente uma Conquista para um Personagem
+-- INSERT INTO character_achievements (character_id, achievement_id)
+-- VALUES (
+--     (SELECT id FROM characters WHERE name = 'NOME_DO_HEROI'),
+--     (SELECT id FROM achievements WHERE key = 'CHAVE_DA_CONQUISTA')
+-- ) ON CONFLICT DO NOTHING;
+
+-- 28. [OPCIONAL / CHEAT] Remover uma Conquista de um Personagem (para reteste)
+-- DELETE FROM character_achievements
+-- WHERE character_id  = (SELECT id FROM characters WHERE name = 'NOME_DO_HEROI')
+--   AND achievement_id = (SELECT id FROM achievements WHERE key = 'CHAVE_DA_CONQUISTA');
