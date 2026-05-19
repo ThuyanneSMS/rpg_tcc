@@ -1,0 +1,1004 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Web - Mapa do Mundo</title>
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/map.css">
+</head>
+<body>
+
+    <div class="rpg-container fade-in">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div>⚔️ Guilda Escarlate</div>
+            </div>
+            <ul class="menu-list">
+                <li class="menu-item"><a href="game.html">👤 Status</a></li>
+                <li class="menu-item"><a href="inventory.html">🎒 Inventário</a></li>
+                <li class="menu-item"><a href="shop.html">🛒 Mercador</a></li>
+                <li class="menu-item"><a href="battle.html">⚔️ Missões</a></li>
+                <li class="menu-item active"><a href="map.html">🗺️ Mapa</a></li>
+                <li class="menu-item"><a href="ranking.html">🏆 Ranking</a></li>
+                <li class="menu-item"><a href="profile.html">📋 Meus Dados</a></li>
+            </ul>
+            <div style="margin-top:auto">
+                <a class="rpg-btn btn-logout" onclick="logout()">Sair</a>
+            </div>
+        </aside>
+
+        <!-- Main map area -->
+        <main class="map-panel">
+
+            <!-- Top bar -->
+            <div class="map-topbar">
+                <span class="map-topbar-title">🗺️ Mapa do Mundo — Terras de Ardenmoor</span>
+                <div class="map-legend">
+                    <div class="legend-item"><div class="legend-dot easy"></div> Fácil</div>
+                    <div class="legend-item"><div class="legend-dot medium"></div> Médio</div>
+                    <div class="legend-item"><div class="legend-dot hard"></div> Difícil</div>
+                    <div class="legend-item"><div class="legend-dot elite"></div> Elite</div>
+                </div>
+                <div class="map-player-badge">⚔️ Nível <span id="player-level">...</span></div>
+            </div>
+
+            <!-- Tooltip -->
+            <div id="map-tooltip">
+                <div class="tt-header">
+                    <span class="tt-icon" id="tt-icon">🏠</span>
+                    <div>
+                        <div class="tt-name" id="tt-name">Região</div>
+                        <div class="tt-level" id="tt-level">Nível recomendado: 1</div>
+                    </div>
+                </div>
+                <div class="tt-desc" id="tt-desc">Descrição</div>
+                <span class="tt-diff" id="tt-diff">Fácil</span>
+                <div class="tt-locked-note" id="tt-locked-note" style="display:none;">🔒 Desbloqueie no nível requerido</div>
+            </div>
+
+            <!-- Map viewport -->
+            <div class="map-viewport" id="map-viewport">
+                <div id="map-scene">
+
+                    <!-- ═══════════════════════ SVG WORLD MAP ═══════════════════════ -->
+                    <svg id="map-svg" viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <!-- Subtle noise / grain filter for aged-paper feel -->
+                            <filter id="f-grain" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+                                <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+                                <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
+                                <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="blend"/>
+                                <feComponentTransfer in="blend">
+                                    <feFuncA type="linear" slope="1"/>
+                                </feComponentTransfer>
+                            </filter>
+                            <!-- Soft glow for region labels -->
+                            <filter id="f-label-glow" x="-20%" y="-40%" width="140%" height="180%">
+                                <feGaussianBlur stdDeviation="2" result="blur"/>
+                                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                            </filter>
+                        </defs>
+
+                        <!-- ─── Parchment base fill (warm faded ivory) ─── -->
+                        <rect x="0" y="0" width="1400" height="900" fill="#d4b87a" opacity="0.18"/>
+
+                        <!-- ─── Water / ocean areas ─── -->
+                        <ellipse cx="1340" cy="460" rx="145" ry="390" fill="#4a8fd4" opacity="0.16"/>
+                        <ellipse cx="1340" cy="460" rx="100" ry="280" fill="#5a9fe0" opacity="0.10"/>
+                        <ellipse cx="75"  cy="845" rx="190" ry="110" fill="#4a8fd4" opacity="0.14"/>
+
+                        <!-- ─── ORNATE DOUBLE BORDER FRAME ─── -->
+                        <!-- Outer dark frame -->
+                        <rect x="8"  y="8"  width="1384" height="884" rx="16" class="map-border-outer"/>
+                        <!-- Mid frame -->
+                        <rect x="16" y="16" width="1368" height="868" rx="12" fill="none" stroke="#8b6020" stroke-width="3" opacity="0.30"/>
+                        <!-- Inner thin frame -->
+                        <rect x="24" y="24" width="1352" height="852" rx="9"  class="map-border-inner"/>
+                        <!-- Innermost decorative line -->
+                        <rect x="30" y="30" width="1340" height="840" rx="6"  fill="none" stroke="#a07830" stroke-width="1" opacity="0.18"/>
+
+                        <!-- ─── CORNER ORNAMENTS (rune-style SVG paths) ─── -->
+                        <!-- Top-left -->
+                        <g transform="translate(20,20)">
+                            <circle cx="22" cy="22" r="14" fill="#7a4810" opacity="0.28" stroke="#a06820" stroke-width="1.5"/>
+                            <line x1="8"  y1="22" x2="36" y2="22" stroke="#a06820" stroke-width="1.5" opacity="0.5"/>
+                            <line x1="22" y1="8"  x2="22" y2="36" stroke="#a06820" stroke-width="1.5" opacity="0.5"/>
+                            <line x1="12" y1="12" x2="32" y2="32" stroke="#a06820" stroke-width="1"   opacity="0.35"/>
+                            <line x1="32" y1="12" x2="12" y2="32" stroke="#a06820" stroke-width="1"   opacity="0.35"/>
+                            <circle cx="22" cy="22" r="4" fill="#c8a040" opacity="0.60"/>
+                        </g>
+                        <!-- Top-right -->
+                        <g transform="translate(1358,20)">
+                            <circle cx="22" cy="22" r="14" fill="#7a4810" opacity="0.28" stroke="#a06820" stroke-width="1.5"/>
+                            <line x1="8"  y1="22" x2="36" y2="22" stroke="#a06820" stroke-width="1.5" opacity="0.5"/>
+                            <line x1="22" y1="8"  x2="22" y2="36" stroke="#a06820" stroke-width="1.5" opacity="0.5"/>
+                            <line x1="12" y1="12" x2="32" y2="32" stroke="#a06820" stroke-width="1"   opacity="0.35"/>
+                            <line x1="32" y1="12" x2="12" y2="32" stroke="#a06820" stroke-width="1"   opacity="0.35"/>
+                            <circle cx="22" cy="22" r="4" fill="#c8a040" opacity="0.60"/>
+                        </g>
+                        <!-- Bottom-left -->
+                        <g transform="translate(20,858)">
+                            <circle cx="22" cy="22" r="14" fill="#7a4810" opacity="0.28" stroke="#a06820" stroke-width="1.5"/>
+                            <line x1="8"  y1="22" x2="36" y2="22" stroke="#a06820" stroke-width="1.5" opacity="0.5"/>
+                            <line x1="22" y1="8"  x2="22" y2="36" stroke="#a06820" stroke-width="1.5" opacity="0.5"/>
+                            <line x1="12" y1="12" x2="32" y2="32" stroke="#a06820" stroke-width="1"   opacity="0.35"/>
+                            <line x1="32" y1="12" x2="12" y2="32" stroke="#a06820" stroke-width="1"   opacity="0.35"/>
+                            <circle cx="22" cy="22" r="4" fill="#c8a040" opacity="0.60"/>
+                        </g>
+                        <!-- Bottom-right -->
+                        <g transform="translate(1358,858)">
+                            <circle cx="22" cy="22" r="14" fill="#7a4810" opacity="0.28" stroke="#a06820" stroke-width="1.5"/>
+                            <line x1="8"  y1="22" x2="36" y2="22" stroke="#a06820" stroke-width="1.5" opacity="0.5"/>
+                            <line x1="22" y1="8"  x2="22" y2="36" stroke="#a06820" stroke-width="1.5" opacity="0.5"/>
+                            <line x1="12" y1="12" x2="32" y2="32" stroke="#a06820" stroke-width="1"   opacity="0.35"/>
+                            <line x1="32" y1="12" x2="12" y2="32" stroke="#a06820" stroke-width="1"   opacity="0.35"/>
+                            <circle cx="22" cy="22" r="4" fill="#c8a040" opacity="0.60"/>
+                        </g>
+
+                        <!-- ─── MOUNTAIN RANGES (classic painted-map style) ─── -->
+                        <!-- Northern range — layered triangle peaks with shadow + peak snow -->
+                        <!-- Shadows (back layer) -->
+                        <polygon points="805,75  840,148 770,148" class="map-mountain-shadow"/>
+                        <polygon points="852,62  892,145 812,145" class="map-mountain-shadow"/>
+                        <polygon points="900,72  944,148 856,148" class="map-mountain-shadow"/>
+                        <polygon points="950,58  994,140 906,140" class="map-mountain-shadow"/>
+                        <polygon points="1000,68 1048,148 952,148" class="map-mountain-shadow"/>
+                        <polygon points="1050,55 1098,140 1002,140" class="map-mountain-shadow"/>
+                        <!-- Main bodies -->
+                        <polygon points="815,72  848,142 782,142" class="map-mountain-body"/>
+                        <polygon points="860,60  898,140 822,140" class="map-mountain-body"/>
+                        <polygon points="908,68  950,142 866,142" class="map-mountain-body"/>
+                        <polygon points="958,55  1000,136 916,136" class="map-mountain-body"/>
+                        <polygon points="1008,65 1052,144 964,144" class="map-mountain-body"/>
+                        <polygon points="1058,52 1104,136 1012,136" class="map-mountain-body"/>
+                        <!-- Snow peaks -->
+                        <polygon points="815,72  838,105 792,105" class="map-mountain-peak"/>
+                        <polygon points="860,60  882,96  838,96"  class="map-mountain-peak"/>
+                        <polygon points="908,68  930,102 886,102" class="map-mountain-peak"/>
+                        <polygon points="958,55  980,90  936,90"  class="map-mountain-peak"/>
+                        <polygon points="1008,65 1030,99 986,99"  class="map-mountain-peak"/>
+                        <polygon points="1058,52 1082,88 1034,88" class="map-mountain-peak"/>
+                        <!-- Western hills -->
+                        <polygon points="190,108 226,178 154,178" class="map-mountain-shadow"/>
+                        <polygon points="238,96  278,180 198,180" class="map-mountain-shadow"/>
+                        <polygon points="198,104 232,172 164,172" class="map-mountain-body"/>
+                        <polygon points="244,92  282,174 206,174" class="map-mountain-body"/>
+                        <polygon points="198,104 218,135 178,135" class="map-mountain-peak"/>
+                        <polygon points="244,92  264,122 224,122" class="map-mountain-peak"/>
+
+                        <!-- ─── FOREST PATCHES (classic RPG tree symbols) ─── -->
+                        <!-- Each tree: triangle crown + rectangle trunk -->
+                        <!-- Floresta das Sombras cluster -->
+                        <g opacity="0.65">
+                            <!-- Tree 1 --> <polygon points="490,445 510,415 530,445" class="map-forest-tree"/> <rect x="506" y="445" width="8" height="10" class="map-forest-tree"/>
+                            <!-- Tree 2 --> <polygon points="528,455 548,425 568,455" class="map-forest-tree"/> <rect x="544" y="455" width="8" height="10" class="map-forest-tree"/>
+                            <!-- Tree 3 --> <polygon points="460,465 480,435 500,465" class="map-forest-tree"/> <rect x="476" y="465" width="8" height="10" class="map-forest-tree"/>
+                            <!-- Tree 4 --> <polygon points="505,478 525,448 545,478" class="map-forest-tree"/> <rect x="521" y="478" width="8" height="10" class="map-forest-tree"/>
+                            <!-- Tree 5 --> <polygon points="470,488 490,458 510,488" class="map-forest-tree"/> <rect x="486" y="488" width="8" height="10" class="map-forest-tree"/>
+                            <!-- Tree 6 --> <polygon points="540,470 560,440 580,470" class="map-forest-tree"/> <rect x="556" y="470" width="8" height="10" class="map-forest-tree"/>
+                        </g>
+                        <!-- NW grove near ruins -->
+                        <g opacity="0.55">
+                            <polygon points="300,265 318,240 336,265" class="map-forest-tree"/> <rect x="314" y="265" width="8" height="9" class="map-forest-tree"/>
+                            <polygon points="322,278 340,253 358,278" class="map-forest-tree"/> <rect x="336" y="278" width="8" height="9" class="map-forest-tree"/>
+                            <polygon points="278,280 296,255 314,280" class="map-forest-tree"/> <rect x="292" y="280" width="8" height="9" class="map-forest-tree"/>
+                        </g>
+                        <!-- SE grove near port -->
+                        <g opacity="0.50">
+                            <polygon points="1130,595 1148,570 1166,595" class="map-forest-tree"/> <rect x="1144" y="595" width="8" height="9" class="map-forest-tree"/>
+                            <polygon points="1150,610 1168,585 1186,610" class="map-forest-tree"/> <rect x="1164" y="610" width="8" height="9" class="map-forest-tree"/>
+                            <polygon points="1110,610 1128,585 1146,610" class="map-forest-tree"/> <rect x="1124" y="610" width="8" height="9" class="map-forest-tree"/>
+                        </g>
+
+                        <!-- ─── RIVERS ─── -->
+                        <!-- Main river (double-stroke effect) -->
+                        <path d="M 680 135 Q 655 225 605 310 Q 568 378 548 455 Q 528 532 500 618 Q 472 703 412 762" class="map-river"/>
+                        <path d="M 680 135 Q 655 225 605 310 Q 568 378 548 455 Q 528 532 500 618 Q 472 703 412 762" class="map-river-inner"/>
+                        <!-- Tributary east -->
+                        <path d="M 1280 200 Q 1240 310 1220 420 Q 1210 500 1240 620" class="map-river" style="stroke-width:3;opacity:0.40"/>
+                        <path d="M 1280 200 Q 1240 310 1220 420 Q 1210 500 1240 620" class="map-river-inner" style="stroke-width:1.2;opacity:0.28"/>
+
+                        <!-- ─── ROADS (antique dashed paths) ─── -->
+                        <path d="M 175 660 Q 280 600 420 575 Q 530 550 622 455 Q 700 374 770 385" class="map-road"/>
+                        <path d="M 420 575 Q 382 505 352 382 Q 330 300 282 222" class="map-road"/>
+                        <path d="M 770 385 Q 800 262 682 192" class="map-road"/>
+                        <path d="M 770 385 Q 900 368 1042 445 Q 1108 490 1200 582" class="map-road"/>
+                        <path d="M 1042 445 Q 1060 325 1082 200" class="map-road"/>
+                        <path d="M 175 660 Q 168 550 158 450" class="map-road"/>
+                        <path d="M 420 575 Q 490 580 560 560" class="map-road" style="stroke-dasharray:7 5; opacity:0.38"/>
+
+                        <!-- ─── COMPASS ROSE (bottom-right area, above minimap) ─── -->
+                        <g transform="translate(1270,800)" opacity="0.82">
+                            <!-- Cardinal arms -->
+                            <polygon points="0,-36  6,-10  0,-4  -6,-10" class="compass-arm-major"/><!-- N -->
+                            <polygon points="0,36  -6,10  0,4   6,10"  class="compass-arm-major"/><!-- S -->
+                            <polygon points="-36,0 -10,-6 -4,0 -10,6"  class="compass-arm-major"/><!-- W -->
+                            <polygon points="36,0   10,6   4,0  10,-6" class="compass-arm-major"/><!-- E -->
+                            <!-- Intercardinal arms -->
+                            <polygon points="22,-22  8,-4   4,-8"  class="compass-arm-minor"/>
+                            <polygon points="-22,-22 -8,-8 -4,-4" class="compass-arm-minor"/>
+                            <polygon points="-22,22  -4,4  -8,8"  class="compass-arm-minor"/>
+                            <polygon points="22,22    4,8   8,4"  class="compass-arm-minor"/>
+                            <!-- Center circle -->
+                            <circle cx="0" cy="0" r="5.5" class="compass-center"/>
+                            <!-- N label -->
+                            <text x="0" y="-44" class="compass-n-label">N</text>
+                        </g>
+
+                        <!-- ─── WAX SEAL (bottom-left decorative) ─── -->
+                        <g transform="translate(82,810)" opacity="0.72">
+                            <circle cx="0" cy="0" r="36" fill="#8b1010" class="map-seal-body"/>
+                            <circle cx="0" cy="0" r="36" class="map-seal-ring"/>
+                            <circle cx="0" cy="0" r="28" class="map-seal-ring" style="opacity:0.40"/>
+                            <!-- Inner rune pattern -->
+                            <polygon points="0,-18  17,10 -17,10" fill="none" stroke="#d4a0a0" stroke-width="1.5" opacity="0.55"/>
+                            <circle cx="0" cy="0" r="7"  fill="#c05050" opacity="0.60"/>
+                            <text x="0" y="4" text-anchor="middle" font-family="Cinzel,serif" font-size="8" fill="#f0d0d0" opacity="0.75">AR</text>
+                        </g>
+
+                        <!-- ─── MAP TITLE ─── -->
+                        <text x="700" y="875" text-anchor="middle" font-family="Cinzel,serif" font-size="13" fill="#4a2c00" opacity="0.40" letter-spacing="5">TERRAS DE ARDENMOOR — MAPA IMPERIAL</text>
+
+                        <!-- ─── SCALE BAR ─── -->
+                        <g transform="translate(140,850)">
+                            <line x1="0" y1="0" x2="80" y2="0" class="map-scale-bar"/>
+                            <line x1="0" y1="-5" x2="0"  y2="5"  class="map-scale-bar"/>
+                            <line x1="40" y1="-3" x2="40" y2="3" class="map-scale-bar"/>
+                            <line x1="80" y1="-5" x2="80" y2="5" class="map-scale-bar"/>
+                            <text x="0"  y="16" class="map-scale-text">0</text>
+                            <text x="40" y="16" class="map-scale-text">50 km</text>
+                            <text x="80" y="16" class="map-scale-text">100 km</text>
+                        </g>
+
+                        <!-- ═══════════════════════ REGION NODES ═══════════════════════ -->
+
+                        <!-- 1. Vila de Início — capital, level 1, Easy -->
+                        <g class="map-region unlocked" id="region-town"
+                           data-id="town" data-name="Vila de Início" data-icon="🏘️"
+                           data-type="Cidade Principal" data-level="1" data-difficulty="easy"
+                           data-desc="A cidade onde sua lenda começa. Aqui você pode gerenciar seu personagem, distribuir pontos de atributo e preparar-se para as aventuras que aguardam."
+                           data-link="game.html" data-link-label="Abrir Status">
+                            <circle cx="175" cy="660" r="46" fill="#d4a44c" stroke="#7a4800" stroke-width="2.5"/>
+                            <circle cx="175" cy="660" r="53" class="diff-ring diff-easy"/>
+                            <text x="175" y="668" text-anchor="middle" dominant-baseline="middle" font-size="28">🏘️</text>
+                            <text x="175" y="716" class="region-label">Vila de Início</text>
+                        </g>
+
+                        <!-- 2. Mercado de Artefatos — shop, level 1, Easy -->
+                        <g class="map-region unlocked" id="region-shop"
+                           data-id="shop" data-name="Mercado de Artefatos" data-icon="🛒"
+                           data-type="Loja / Comércio" data-level="1" data-difficulty="easy"
+                           data-desc="O grande mercado de Ardenmoor. Comerciantes de toda o reino se reúnem aqui para vender equipamentos raros, poções e relíquias mágicas."
+                           data-link="shop.html" data-link-label="Ir ao Mercado">
+                            <circle cx="420" cy="720" r="42" fill="#c8904a" stroke="#7a4800" stroke-width="2.5"/>
+                            <circle cx="420" cy="720" r="49" class="diff-ring diff-easy"/>
+                            <text x="420" y="728" text-anchor="middle" dominant-baseline="middle" font-size="26">🛒</text>
+                            <text x="420" y="773" class="region-label">Mercado de Artefatos</text>
+                        </g>
+
+                        <!-- 3. Guilda Escarlate — guild, level 1, Easy -->
+                        <g class="map-region unlocked" id="region-guild"
+                           data-id="guild" data-name="Guilda Escarlate" data-icon="⚔️"
+                           data-type="Guilda" data-level="1" data-difficulty="easy"
+                           data-desc="Sede da lendária Guilda Escarlate. Aqui os aventureiros recebem missões, formam grupos e constroem sua reputação no reino."
+                           data-link="game.html" data-link-label="Ver Status">
+                            <circle cx="155" cy="450" r="42" fill="#c8904a" stroke="#7a4800" stroke-width="2.5"/>
+                            <circle cx="155" cy="450" r="49" class="diff-ring diff-easy"/>
+                            <text x="155" y="458" text-anchor="middle" dominant-baseline="middle" font-size="26">⚔️</text>
+                            <text x="155" y="503" class="region-label">Guilda Escarlate</text>
+                        </g>
+
+                        <!-- 4. Floresta das Sombras — forest, level 5, Medium -->
+                        <g class="map-region" id="region-forest"
+                           data-id="forest" data-name="Floresta das Sombras" data-icon="🌲"
+                           data-type="Floresta / Dungeon" data-level="5" data-difficulty="medium"
+                           data-desc="Uma floresta densa onde criaturas noturnas espreitam entre as árvores. Os aventureiros que sobrevivem colhem recompensas generosas e itens raros."
+                           data-link="battle.html" data-link-label="Explorar Floresta">
+                            <circle cx="510" cy="500" r="50" fill="#3d6b3a" stroke="#1a3318" stroke-width="2.5"/>
+                            <circle cx="510" cy="500" r="57" class="diff-ring diff-medium"/>
+                            <text x="510" y="508" text-anchor="middle" dominant-baseline="middle" font-size="30">🌲</text>
+                            <text x="510" y="562" class="region-label">Floresta das Sombras</text>
+                        </g>
+
+                        <!-- 5. Ruínas de Valdris — ruins, level 8, Medium -->
+                        <g class="map-region" id="region-ruins"
+                           data-id="ruins" data-name="Ruínas de Valdris" data-icon="🏚️"
+                           data-type="Ruínas Antigas" data-level="8" data-difficulty="medium"
+                           data-desc="Os restos de uma civilização perdida. Armadilhas antigas e guardiões de pedra protegem tesouros esquecidos. Apenas os corajosos prosperam aqui."
+                           data-link="battle.html" data-link-label="Explorar Ruínas">
+                            <circle cx="340" cy="295" r="44" fill="#8b7355" stroke="#4a3520" stroke-width="2.5"/>
+                            <circle cx="340" cy="295" r="51" class="diff-ring diff-medium"/>
+                            <text x="340" y="303" text-anchor="middle" dominant-baseline="middle" font-size="26">🏚️</text>
+                            <text x="340" y="352" class="region-label">Ruínas de Valdris</text>
+                        </g>
+
+                        <!-- 6. Dungeon das Sombras — dungeon, level 10, Hard -->
+                        <g class="map-region" id="region-dungeon"
+                           data-id="dungeon" data-name="Dungeon das Sombras" data-icon="🕯️"
+                           data-type="Dungeon" data-level="10" data-difficulty="hard"
+                           data-desc="As catacumbas profundas de Ardenmoor. Monstros poderosos habitam seus corredores escuros. A recompensa para os vencedores é incomparável."
+                           data-link="battle.html" data-link-label="Entrar na Dungeon">
+                            <circle cx="775" cy="390" r="48" fill="#2c1a3a" stroke="#6a11cb" stroke-width="2.5"/>
+                            <circle cx="775" cy="390" r="55" class="diff-ring diff-hard"/>
+                            <text x="775" y="398" text-anchor="middle" dominant-baseline="middle" font-size="28">🕯️</text>
+                            <text x="775" y="452" class="region-label">Dungeon das Sombras</text>
+                        </g>
+
+                        <!-- 7. Castelo Ardenmoor — castle, level 15, Hard -->
+                        <g class="map-region" id="region-castle"
+                           data-id="castle" data-name="Castelo Ardenmoor" data-icon="🏰"
+                           data-type="Castelo Real" data-level="15" data-difficulty="hard"
+                           data-desc="O magnífico Castelo Ardenmoor, sede do Rei Valdric IV. Guerreiros veteranos guardam seus portões. Somente os mais poderosos heróis alcançam sua audiência."
+                           data-link="battle.html" data-link-label="Assaltar o Castelo">
+                            <circle cx="675" cy="195" r="52" fill="#4a3a2a" stroke="#c9a96e" stroke-width="2.5"/>
+                            <circle cx="675" cy="195" r="59" class="diff-ring diff-hard"/>
+                            <text x="675" y="203" text-anchor="middle" dominant-baseline="middle" font-size="32">🏰</text>
+                            <text x="675" y="262" class="region-label">Castelo Ardenmoor</text>
+                        </g>
+
+                        <!-- 8. Arena dos Gladiadores — arena, level 10, Hard -->
+                        <g class="map-region" id="region-arena"
+                           data-id="arena" data-name="Arena dos Gladiadores" data-icon="🏟️"
+                           data-type="Arena PvP" data-level="10" data-difficulty="hard"
+                           data-desc="A grande Arena dos Gladiadores, onde os heróis medem forças em combate mortal. A glória e a desonra são decididas aqui, diante de milhares de espectadores."
+                           data-link="battle.html" data-link-label="Entrar na Arena">
+                            <circle cx="1045" cy="470" r="50" fill="#4a1010" stroke="#c0392b" stroke-width="2.5"/>
+                            <circle cx="1045" cy="470" r="57" class="diff-ring diff-hard"/>
+                            <text x="1045" y="478" text-anchor="middle" dominant-baseline="middle" font-size="30">🏟️</text>
+                            <text x="1045" y="534" class="region-label">Arena dos Gladiadores</text>
+                        </g>
+
+                        <!-- 9. Fortaleza de Ferro — elite, level 25, Elite -->
+                        <g class="map-region" id="region-fortress"
+                           data-id="fortress" data-name="Fortaleza de Ferro" data-icon="🗡️"
+                           data-type="Fortaleza Elite" data-level="25" data-difficulty="elite"
+                           data-desc="A impenetrável Fortaleza de Ferro, reduto do Senhor das Trevas. Apenas os guerreiros mais lendários ousam cruzar seus portões. A destruição ou a glória eterna aguarda."
+                           data-link="battle.html" data-link-label="Desafiar a Fortaleza">
+                            <circle cx="1085" cy="205" r="54" fill="#1a0a2a" stroke="#9b59b6" stroke-width="2.5"/>
+                            <circle cx="1085" cy="205" r="62" class="diff-ring diff-elite"/>
+                            <text x="1085" y="213" text-anchor="middle" dominant-baseline="middle" font-size="32">🗡️</text>
+                            <text x="1085" y="276" class="region-label">Fortaleza de Ferro</text>
+                        </g>
+
+                        <!-- 10. Porto da Névoa — harbor, level 12, Medium -->
+                        <g class="map-region" id="region-port"
+                           data-id="port" data-name="Porto da Névoa" data-icon="⛵"
+                           data-type="Porto / Vila" data-level="12" data-difficulty="medium"
+                           data-desc="Um misterioso porto envolto em névoa eterna. Piratas e mercadores de terras distantes atracam aqui, trazendo mercadorias e segredos do além-mar."
+                           data-link="shop.html" data-link-label="Visitar Porto">
+                            <circle cx="1240" cy="640" r="46" fill="#1a2a4a" stroke="#3498db" stroke-width="2.5"/>
+                            <circle cx="1240" cy="640" r="53" class="diff-ring diff-medium"/>
+                            <text x="1240" y="648" text-anchor="middle" dominant-baseline="middle" font-size="28">⛵</text>
+                            <text x="1240" y="700" class="region-label">Porto da Névoa</text>
+                        </g>
+
+                    </svg>
+                    <!-- End SVG -->
+
+                </div><!-- #map-scene -->
+
+                <!-- Zoom controls -->
+                <div class="map-zoom-controls">
+                    <button class="zoom-btn" id="zoom-in"  title="Aproximar">+</button>
+                    <button class="zoom-btn" id="zoom-out" title="Afastar">−</button>
+                    <button class="zoom-btn" id="zoom-reset" title="Resetar" style="font-size:0.8em;">↺</button>
+                </div>
+
+                <!-- Minimap -->
+                <div id="minimap">
+                    <svg id="minimap-svg" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid meet">
+                        <rect width="1400" height="900" fill="#0e0a04"/>
+                        <path d="M 80 150 Q 250 160 400 320 Q 530 460 600 600 Q 650 700 700 800" fill="none" stroke="#4a7c44" stroke-width="5" opacity="0.4"/>
+                        <circle cx="175" cy="660" r="18" fill="#2ecc71" opacity="0.8"/>
+                        <circle cx="420" cy="720" r="16" fill="#2ecc71" opacity="0.8"/>
+                        <circle cx="155" cy="450" r="16" fill="#2ecc71" opacity="0.8"/>
+                        <circle cx="510" cy="500" r="20" fill="#f39c12" opacity="0.8"/>
+                        <circle cx="340" cy="295" r="17" fill="#f39c12" opacity="0.8"/>
+                        <circle cx="775" cy="390" r="19" fill="#e74c3c" opacity="0.8"/>
+                        <circle cx="675" cy="195" r="20" fill="#e74c3c" opacity="0.8"/>
+                        <circle cx="1045" cy="470" r="20" fill="#e74c3c" opacity="0.8"/>
+                        <circle cx="1085" cy="205" r="22" fill="#9b59b6" opacity="0.8"/>
+                        <circle cx="1240" cy="640" r="18" fill="#f39c12" opacity="0.8"/>
+                        <rect id="minimap-viewport" x="0" y="0" width="400" height="260"/>
+                    </svg>
+                </div>
+
+            </div><!-- .map-viewport -->
+
+            <!-- ═══════════════════════════════════════════════════════════════
+                 REGION DETAIL PANEL (expanded with monsters + rewards)
+                 ═══════════════════════════════════════════════════════════════ -->
+            <div id="region-panel">
+                <button class="rp-close" id="rp-close-btn" title="Fechar">×</button>
+
+                <!-- Hero banner -->
+                <div class="rp-image" id="rp-image">🗺️</div>
+
+                <div class="rp-body">
+                    <!-- Title row -->
+                    <div class="rp-icon-title">
+                        <span class="rp-icon" id="rp-icon">🗺️</span>
+                        <span class="rp-name" id="rp-name">Região</span>
+                    </div>
+                    <div class="rp-type-label" id="rp-type">Tipo</div>
+                    <div class="rp-desc" id="rp-desc">Descrição</div>
+
+                    <!-- Stats grid -->
+                    <div class="rp-stats">
+                        <div class="rp-stat">
+                            <span class="rp-stat-label">Nível Mínimo</span>
+                            <span class="rp-stat-value" id="rp-level">1</span>
+                        </div>
+                        <div class="rp-stat">
+                            <span class="rp-stat-label">Dificuldade</span>
+                            <span class="rp-stat-value" id="rp-diff">—</span>
+                        </div>
+                        <div class="rp-stat">
+                            <span class="rp-stat-label">Status</span>
+                            <span class="rp-stat-value" id="rp-status">—</span>
+                        </div>
+                        <div class="rp-stat">
+                            <span class="rp-stat-label">Tipo</span>
+                            <span class="rp-stat-value" id="rp-type-stat">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Lock note (shown only when locked) -->
+                    <div class="rp-locked-note" id="rp-locked-note" style="display:none;">
+                        <strong>🔒 Região Bloqueada</strong>
+                        <span id="rp-locked-req">Alcance o nível necessário para desbloquear.</span>
+                    </div>
+
+                    <!-- Monsters -->
+                    <div class="rp-section-title">⚔️ Monstros da Região</div>
+                    <div class="rp-monsters-list" id="rp-monsters"></div>
+
+                    <!-- Rewards -->
+                    <div class="rp-section-title">🏆 Recompensas por Vitória</div>
+                    <div class="rp-rewards-grid" id="rp-rewards"></div>
+
+                    <!-- Primary action button -->
+                    <a href="#" id="rp-action-btn" class="rp-action-btn">Explorar</a>
+
+                    <!-- Secondary button -->
+                    <a href="inventory.html" class="rp-secondary-btn" id="rp-secondary-btn">🛠️ Melhorar Equipamento</a>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="js/theme.js"></script>
+    <script>ThemeSystem.initTheme();</script>
+    <script src="js/utils.js"></script>
+    <script>
+        if (!isAuthenticated()) window.location.href = 'index.html';
+
+        /* ================================================================
+           REGION STATIC DATA
+           ================================================================ */
+        const REGIONS = {
+            town:     { minLevel: 1,  difficulty: 'easy'   },
+            shop:     { minLevel: 1,  difficulty: 'easy'   },
+            guild:    { minLevel: 1,  difficulty: 'easy'   },
+            forest:   { minLevel: 5,  difficulty: 'medium' },
+            ruins:    { minLevel: 8,  difficulty: 'medium' },
+            dungeon:  { minLevel: 10, difficulty: 'hard'   },
+            castle:   { minLevel: 15, difficulty: 'hard'   },
+            arena:    { minLevel: 10, difficulty: 'hard'   },
+            fortress: { minLevel: 25, difficulty: 'elite'  },
+            port:     { minLevel: 12, difficulty: 'medium' },
+        };
+
+        /* ----------------------------------------------------------------
+           Per-region: monsters + rewards + action labels
+           ---------------------------------------------------------------- */
+        const REGION_DATA = {
+            town: {
+                monsters: [
+                    { icon: '💂', name: 'Guarda da Vila',   sub: 'Soldado patrulheiro',  qty: '2–4'  },
+                    { icon: '🗡️', name: 'Ladrão de Bolso', sub: 'Criminoso sorrateiro',  qty: '1–3'  },
+                    { icon: '🐀', name: 'Rato das Ruelas',  sub: 'Criatura suburbana',    qty: '4–8'  },
+                ],
+                rewards: {
+                    xp: '40–80 XP', gold: '5–15 🪙',
+                    items: 'Poção Menor', rare: '📜 Pergaminho de Habilidade'
+                },
+                actionLabel: 'Entrar na Vila', actionHref: 'game.html',
+                reqPrev: null
+            },
+            shop: {
+                monsters: [
+                    { icon: '🐀', name: 'Rato de Armazém',   sub: 'Praga dos mercadores',  qty: '3–6'  },
+                    { icon: '👊', name: 'Cambista Corrupto', sub: 'Golpista traidor',        qty: '1–2'  },
+                ],
+                rewards: {
+                    xp: '30–60 XP', gold: '10–20 🪙',
+                    items: 'Desconto no Mercado (+5%)', rare: '💍 Anel do Negociante'
+                },
+                actionLabel: 'Ir ao Mercado', actionHref: 'shop.html',
+                reqPrev: null
+            },
+            guild: {
+                monsters: [
+                    { icon: '🗡️', name: 'Aventureiro Rival',  sub: 'Membro expulso da guilda', qty: '1–3' },
+                    { icon: '🔥', name: 'Elementar de Treinamento', sub: 'Criatura de prática', qty: '2–4' },
+                ],
+                rewards: {
+                    xp: '50–90 XP', gold: '8–18 🪙',
+                    items: 'Insígnia de Aspirante', rare: '📋 Carta de Recomendação'
+                },
+                actionLabel: 'Ver Missões da Guilda', actionHref: 'game.html',
+                reqPrev: null
+            },
+            forest: {
+                monsters: [
+                    { icon: '🐺', name: 'Lobo Sombrio',       sub: 'Predador da floresta',  qty: '3–5' },
+                    { icon: '👹', name: 'Goblin da Floresta',  sub: 'Bando furtivo',         qty: '4–8' },
+                    { icon: '🕷️', name: 'Aranha Gigante',      sub: 'Tecelã de teia mortal', qty: '2–3' },
+                    { icon: '🌑', name: 'Espírito das Sombras', sub: 'Ser etéreo maligno',    qty: '1–2' },
+                ],
+                rewards: {
+                    xp: '180–320 XP', gold: '25–55 🪙',
+                    items: 'Garra de Lobo / Veneno de Aranha', rare: '🪬 Amuleto da Floresta Sombria'
+                },
+                actionLabel: 'Explorar Floresta', actionHref: 'battle.html',
+                reqPrev: 'Alcance o Nível 5 para explorar'
+            },
+            ruins: {
+                monsters: [
+                    { icon: '💀', name: 'Esqueleto Guerreiro', sub: 'Morto-vivo antigo',      qty: '4–7' },
+                    { icon: '🗿', name: 'Guardião de Pedra',   sub: 'Golem ancestral',         qty: '1–2' },
+                    { icon: '🦂', name: 'Escorpião Pétreo',    sub: 'Criatura das ruínas',     qty: '2–4' },
+                    { icon: '👻', name: 'Espíritos de Valdris', sub: 'Almas aprisionadas',      qty: '3–5' },
+                ],
+                rewards: {
+                    xp: '280–480 XP', gold: '40–80 🪙',
+                    items: 'Osso Mágico / Pedra Rúnica', rare: '⚗️ Poção do Esquecimento de Valdris'
+                },
+                actionLabel: 'Explorar Ruínas', actionHref: 'battle.html',
+                reqPrev: 'Alcance o Nível 8 para explorar'
+            },
+            dungeon: {
+                monsters: [
+                    { icon: '🧟', name: 'Zumbi das Catacumbas', sub: 'Morto-vivo corrompido',  qty: '5–9' },
+                    { icon: '🦇', name: 'Morcego Vampírico',    sub: 'Criatura das trevas',    qty: '6–12'},
+                    { icon: '🕯️', name: 'Espectro do Corredor', sub: 'Guardião espiritual',    qty: '2–3' },
+                    { icon: '🐉', name: 'Mini-Dragão das Sombras', sub: 'Chefe de corredor',   qty: '1'   },
+                ],
+                rewards: {
+                    xp: '420–700 XP', gold: '70–130 🪙',
+                    items: 'Fragmento de Sombra / Faca das Catacumbas', rare: '🖤 Cristal da Escuridão'
+                },
+                actionLabel: 'Entrar na Dungeon', actionHref: 'battle.html',
+                reqPrev: 'Alcance o Nível 10 para entrar'
+            },
+            castle: {
+                monsters: [
+                    { icon: '💂', name: 'Cavaleiro Real',       sub: 'Guarda do rei veterano', qty: '3–5' },
+                    { icon: '🧙', name: 'Mago da Corte',        sub: 'Feiticeiro poderoso',    qty: '1–3' },
+                    { icon: '🐴', name: 'Cavaleiro Montado',    sub: 'Élite da cavalaria',     qty: '2–3' },
+                    { icon: '👑', name: 'Lord Guardião',        sub: 'Mini-chefe do castelo',  qty: '1'   },
+                ],
+                rewards: {
+                    xp: '650–1000 XP', gold: '120–200 🪙',
+                    items: 'Armadura Real / Espada do Cavaleiro', rare: '👑 Insígnia de Nobreza'
+                },
+                actionLabel: 'Assaltar o Castelo', actionHref: 'battle.html',
+                reqPrev: 'Alcance o Nível 15 para atacar'
+            },
+            arena: {
+                monsters: [
+                    { icon: '⚔️', name: 'Gladiador Veterano',  sub: 'Campeão da arena',       qty: '1'   },
+                    { icon: '🛡️', name: 'Defensor Blindado',   sub: 'Tanque da arena',        qty: '1–2' },
+                    { icon: '🏹', name: 'Arqueiro da Arena',    sub: 'Atirador de elite',      qty: '1–2' },
+                    { icon: '🔥', name: 'Berserker das Chamas', sub: 'Combatente berserk',     qty: '1'   },
+                ],
+                rewards: {
+                    xp: '380–650 XP', gold: '90–160 🪙',
+                    items: 'Trofeu de Gladiador / Elmo de Arena', rare: '🏆 Título: Campeão da Arena'
+                },
+                actionLabel: 'Lutar na Arena', actionHref: 'battle.html',
+                reqPrev: 'Alcance o Nível 10 para combater'
+            },
+            fortress: {
+                monsters: [
+                    { icon: '👹', name: 'Demônio de Ferro',     sub: 'Guardião infernal',      qty: '3–6' },
+                    { icon: '🐉', name: 'Dragão das Trevas',    sub: 'BOSS: Senhor dos céus',  qty: '1'   },
+                    { icon: '💀', name: 'Lich Comandante',      sub: 'BOSS: Necromante eterno',qty: '1'   },
+                    { icon: '🌑', name: 'Sombra do Vazio',      sub: 'Entidade dimensional',    qty: '4–8' },
+                ],
+                rewards: {
+                    xp: '1200–2000 XP', gold: '300–600 🪙',
+                    items: 'Armadura do Vazio / Lâmina das Almas', rare: '🗡️ Espada Lendária do Senhor das Trevas'
+                },
+                actionLabel: 'Desafiar a Fortaleza', actionHref: 'battle.html',
+                reqPrev: 'Alcance o Nível 25 para entrar'
+            },
+            port: {
+                monsters: [
+                    { icon: '🏴‍☠️', name: 'Pirata da Névoa',    sub: 'Saqueador marítimo',     qty: '4–7' },
+                    { icon: '🐙', name: 'Kraken Jovem',         sub: 'Criatura das profundezas', qty: '1'  },
+                    { icon: '💧', name: 'Elementar das Águas',  sub: 'Espírito do mar',         qty: '2–4' },
+                    { icon: '🧜', name: 'Sereio Corrompido',    sub: 'Guardião das marés',     qty: '1–3' },
+                ],
+                rewards: {
+                    xp: '320–520 XP', gold: '60–110 🪙',
+                    items: 'Pérola da Névoa / Mapa Náutico', rare: '⚓ Âncora de Poder Anciã'
+                },
+                actionLabel: 'Visitar Porto', actionHref: 'shop.html',
+                reqPrev: 'Alcance o Nível 12 para visitar'
+            },
+        };
+
+        const DIFF_LABELS = { easy: 'Fácil', medium: 'Médio', hard: 'Difícil', elite: 'Elite' };
+        const DIFF_COLORS = { easy: '#27ae60', medium: '#e67e22', hard: '#c0392b', elite: '#8e44ad' };
+
+        let playerLevel = 1;
+        let currentScale = 1;
+        let currentX = 0, currentY = 0;
+        let isDragging = false;
+        let dragStart = { x: 0, y: 0 };
+        let selectedRegion = null;
+
+        /* ================================================================
+           LOAD CHARACTER LEVEL
+           ================================================================ */
+        async function loadPlayerLevel() {
+            try {
+                const data = await apiFetch('/character/');
+                playerLevel = data.character.level || 1;
+                document.getElementById('player-level').textContent = playerLevel;
+                applyLockStates();
+            } catch (e) {
+                document.getElementById('player-level').textContent = '?';
+            }
+        }
+
+        function applyLockStates() {
+            document.querySelectorAll('.map-region').forEach(el => {
+                const id = el.dataset.id;
+                const region = REGIONS[id];
+                if (!region) return;
+                el.classList.remove('locked', 'unlocked');
+                el.classList.add(playerLevel >= region.minLevel ? 'unlocked' : 'locked');
+            });
+        }
+
+        /* ================================================================
+           TOOLTIP
+           ================================================================ */
+        const tooltip = document.getElementById('map-tooltip');
+
+        function showTooltip(el, e) {
+            const d = el.dataset, id = d.id;
+            const region = REGIONS[id] || {};
+            const locked = playerLevel < (region.minLevel || 1);
+
+            document.getElementById('tt-icon').textContent  = d.icon;
+            document.getElementById('tt-name').textContent  = d.name;
+            document.getElementById('tt-level').textContent = 'Nível recomendado: ' + d.level;
+            document.getElementById('tt-desc').textContent  = d.desc;
+
+            const diffEl = document.getElementById('tt-diff');
+            diffEl.textContent = DIFF_LABELS[d.difficulty] || d.difficulty;
+            diffEl.className   = 'tt-diff ' + d.difficulty;
+
+            const lockNote = document.getElementById('tt-locked-note');
+            lockNote.style.display = locked ? 'block' : 'none';
+            if (locked) lockNote.textContent = '🔒 Requer nível ' + d.level;
+
+            positionTooltip(e);
+            tooltip.classList.add('visible');
+        }
+
+        function hideTooltip() { tooltip.classList.remove('visible'); }
+
+        function positionTooltip(e) {
+            const vp = document.getElementById('map-viewport').getBoundingClientRect();
+            let x = e.clientX - vp.left + 18;
+            let y = e.clientY - vp.top  + 18;
+            const tw = 256, th = 185;
+            if (x + tw > vp.width  - 10) x = e.clientX - vp.left - tw - 18;
+            if (y + th > vp.height - 10) y = e.clientY - vp.top  - th - 18;
+            tooltip.style.left = x + 'px';
+            tooltip.style.top  = y + 'px';
+        }
+
+        /* ================================================================
+           REGION DETAIL PANEL
+           ================================================================ */
+        function buildMonstersList(monsters) {
+            return monsters.map(m =>
+                '<div class="monster-item">' +
+                  '<span class="monster-icon">' + m.icon + '</span>' +
+                  '<div class="monster-info">' +
+                    '<div class="monster-name">' + m.name + '</div>' +
+                    '<div class="monster-sub">'  + m.sub  + '</div>' +
+                  '</div>' +
+                  '<span class="monster-qty">×' + m.qty + '</span>' +
+                '</div>'
+            ).join('');
+        }
+
+        function buildRewardsGrid(rw) {
+            const xpParts   = rw.xp.split(' ');
+            const goldParts = rw.gold.split(' ');
+            return (
+                '<div class="reward-item">' +
+                  '<span class="reward-icon">✨</span>' +
+                  '<span class="reward-label">Experiência</span>' +
+                  '<span class="reward-value">' + rw.xp + '</span>' +
+                '</div>' +
+                '<div class="reward-item">' +
+                  '<span class="reward-icon">💰</span>' +
+                  '<span class="reward-label">Ouro</span>' +
+                  '<span class="reward-value">' + rw.gold + '</span>' +
+                '</div>' +
+                '<div class="reward-item full-width">' +
+                  '<span class="reward-icon">🎒</span>' +
+                  '<span class="reward-label">Itens Comuns</span>' +
+                  '<span class="reward-value">' + rw.items + '</span>' +
+                '</div>' +
+                '<div class="reward-item rare">' +
+                  '<span class="reward-icon">💎</span>' +
+                  '<span class="reward-label">Drop Raro</span>' +
+                  '<span class="reward-value">' + rw.rare + '</span>' +
+                '</div>'
+            );
+        }
+
+        function openRegionPanel(el) {
+            const d = el.dataset, id = d.id;
+            const region = REGIONS[id] || {};
+            const data   = REGION_DATA[id] || {};
+            const locked = playerLevel < (region.minLevel || 1);
+
+            // Deselect previous
+            if (selectedRegion) selectedRegion.classList.remove('selected');
+            el.classList.add('selected');
+            selectedRegion = el;
+
+            // Hero banner
+            const imgEl = document.getElementById('rp-image');
+            imgEl.textContent = d.icon;
+            imgEl.style.background = locked
+                ? 'linear-gradient(145deg,#1a0505,#2c1010)'
+                : 'linear-gradient(145deg,#0a1205,#152010)';
+
+            // Basics
+            document.getElementById('rp-icon').textContent = d.icon;
+            document.getElementById('rp-name').textContent = d.name;
+            document.getElementById('rp-type').textContent = d.type;
+            document.getElementById('rp-desc').textContent = d.desc;
+            document.getElementById('rp-level').textContent = d.level + '+';
+            document.getElementById('rp-type-stat').textContent = d.type;
+
+            const diffEl = document.getElementById('rp-diff');
+            diffEl.textContent = DIFF_LABELS[d.difficulty] || d.difficulty;
+            diffEl.style.color = DIFF_COLORS[d.difficulty] || '#fff';
+
+            const statusEl = document.getElementById('rp-status');
+            statusEl.textContent = locked ? '🔒 Bloqueado' : '✅ Liberado';
+            statusEl.style.color  = locked ? '#c0392b' : '#27ae60';
+
+            // Lock note
+            const lockNoteEl = document.getElementById('rp-locked-note');
+            const lockReqEl  = document.getElementById('rp-locked-req');
+            if (locked) {
+                lockNoteEl.style.display = 'block';
+                const req = (data.reqPrev) ? data.reqPrev : ('Alcance o Nível ' + d.level + ' para desbloquear.');
+                lockReqEl.textContent = req;
+            } else {
+                lockNoteEl.style.display = 'none';
+            }
+
+            // Monsters
+            const monstersEl = document.getElementById('rp-monsters');
+            if (data.monsters && data.monsters.length) {
+                monstersEl.innerHTML = buildMonstersList(data.monsters);
+            } else {
+                monstersEl.innerHTML = '<div style="font-size:0.78em;color:#5a4820;padding:6px 0;">Nenhum monstro registrado.</div>';
+            }
+
+            // Rewards
+            const rewardsEl = document.getElementById('rp-rewards');
+            if (data.rewards) {
+                rewardsEl.innerHTML = buildRewardsGrid(data.rewards);
+            } else {
+                rewardsEl.innerHTML = '<div style="font-size:0.78em;color:#5a4820;padding:6px 0;">Recompensas não disponíveis.</div>';
+            }
+
+            // Primary action button
+            const btnEl = document.getElementById('rp-action-btn');
+            if (locked) {
+                btnEl.textContent = '🔒 Requer Nível ' + d.level;
+                btnEl.className   = 'rp-action-btn locked-btn';
+                btnEl.removeAttribute('href');
+                btnEl.onclick = null;
+            } else {
+                const label = data.actionLabel || d.linkLabel || 'Explorar';
+                const href  = data.actionHref  || d.link || '#';
+                btnEl.textContent = label;
+                btnEl.className   = 'rp-action-btn';
+                btnEl.href        = href;
+                btnEl.onclick     = null;
+            }
+
+            document.getElementById('region-panel').classList.add('open');
+        }
+
+        document.getElementById('rp-close-btn').addEventListener('click', () => {
+            document.getElementById('region-panel').classList.remove('open');
+            if (selectedRegion) { selectedRegion.classList.remove('selected'); selectedRegion = null; }
+        });
+
+        /* ================================================================
+           REGION EVENT DELEGATION
+           ================================================================ */
+        document.querySelectorAll('.map-region').forEach(el => {
+            el.addEventListener('mouseenter', (e) => showTooltip(el, e));
+            el.addEventListener('mousemove',  (e) => positionTooltip(e));
+            el.addEventListener('mouseleave', ()  => hideTooltip());
+            el.addEventListener('click', (e) => { e.stopPropagation(); hideTooltip(); openRegionPanel(el); });
+            el.addEventListener('touchend', (e) => { e.preventDefault(); hideTooltip(); openRegionPanel(el); });
+        });
+
+        /* ================================================================
+           PAN & ZOOM
+           ================================================================ */
+        const scene    = document.getElementById('map-scene');
+        const viewport = document.getElementById('map-viewport');
+
+        const MAP_W = 1400, MAP_H = 900;
+        const MIN_SCALE = 0.25, MAX_SCALE = 3.0;
+
+        function applyTransform(animate) {
+            scene.style.transition = animate ? 'transform 0.3s ease' : 'none';
+            scene.style.transform  = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+            updateMinimap();
+        }
+
+        /* Clamp pan so the map cannot be dragged beyond its own edges,
+           regardless of whether the scaled map is larger or smaller
+           than the viewport. Works correctly in both directions. */
+        function clampPan() {
+            const vpW = viewport.clientWidth,  vpH = viewport.clientHeight;
+            const scW = MAP_W * currentScale,  scH = MAP_H * currentScale;
+
+            // X axis
+            if (scW >= vpW) {
+                // Map wider than viewport: edges must stay inside viewport
+                currentX = Math.max(vpW - scW, Math.min(0, currentX));
+            } else {
+                // Map narrower: keep it from escaping offscreen
+                // Allow pan so the map stays fully visible within viewport
+                currentX = Math.max(0, Math.min(vpW - scW, currentX));
+            }
+
+            // Y axis
+            if (scH >= vpH) {
+                currentY = Math.max(vpH - scH, Math.min(0, currentY));
+            } else {
+                currentY = Math.max(0, Math.min(vpH - scH, currentY));
+            }
+        }
+
+        viewport.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.map-region')) return;
+            isDragging = true;
+            dragStart  = { x: e.clientX - currentX, y: e.clientY - currentY };
+            viewport.style.cursor = 'grabbing';
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            currentX = e.clientX - dragStart.x;
+            currentY = e.clientY - dragStart.y;
+            clampPan(); applyTransform(false);
+        });
+        window.addEventListener('mouseup', () => { isDragging = false; viewport.style.cursor = 'grab'; });
+
+        let lastTouch = null;
+        viewport.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { lastTouch = e.touches[0]; isDragging = true; } });
+        viewport.addEventListener('touchmove', (e) => {
+            if (!isDragging || e.touches.length !== 1) return;
+            e.preventDefault();
+            const t = e.touches[0];
+            currentX += t.clientX - lastTouch.clientX;
+            currentY += t.clientY - lastTouch.clientY;
+            lastTouch = t; clampPan(); applyTransform(false);
+        }, { passive: false });
+        viewport.addEventListener('touchend', () => { isDragging = false; lastTouch = null; });
+
+        viewport.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            // Smooth stepless zoom: smaller steps at current scale for precision
+            const factor   = e.deltaY > 0 ? 0.92 : 1.08;
+            const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, currentScale * factor));
+            if (newScale === currentScale) return;
+            const rect = viewport.getBoundingClientRect();
+            const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+            // Zoom toward the cursor position
+            currentX = mx - (mx - currentX) * (newScale / currentScale);
+            currentY = my - (my - currentY) * (newScale / currentScale);
+            currentScale = newScale;
+            clampPan(); applyTransform(false);
+        }, { passive: false });
+
+        document.getElementById('zoom-in').addEventListener('click', () => {
+            const vpW = viewport.clientWidth, vpH = viewport.clientHeight;
+            const cx = vpW / 2, cy = vpH / 2;
+            const newScale = Math.min(MAX_SCALE, currentScale * 1.25);
+            currentX = cx - (cx - currentX) * (newScale / currentScale);
+            currentY = cy - (cy - currentY) * (newScale / currentScale);
+            currentScale = newScale;
+            clampPan(); applyTransform(true);
+        });
+        document.getElementById('zoom-out').addEventListener('click', () => {
+            const vpW = viewport.clientWidth, vpH = viewport.clientHeight;
+            const cx = vpW / 2, cy = vpH / 2;
+            const newScale = Math.max(MIN_SCALE, currentScale * 0.8);
+            currentX = cx - (cx - currentX) * (newScale / currentScale);
+            currentY = cy - (cy - currentY) * (newScale / currentScale);
+            currentScale = newScale;
+            clampPan(); applyTransform(true);
+        });
+        document.getElementById('zoom-reset').addEventListener('click', () => {
+            const vpW = viewport.clientWidth, vpH = viewport.clientHeight;
+            // Fit map to viewport while keeping it fully visible
+            currentScale = Math.min(vpW / MAP_W, vpH / MAP_H);
+            currentX = (vpW - MAP_W * currentScale) / 2;
+            currentY = (vpH - MAP_H * currentScale) / 2;
+            applyTransform(true);
+        });
+
+        /* ================================================================
+           MINIMAP
+           ================================================================ */
+        function updateMinimap() {
+            const mm = document.getElementById('minimap');
+            if (!mm.offsetParent) return;
+            const mmW = mm.clientWidth, mmH = mm.clientHeight;
+            const scX = mmW / 1400,    scY = mmH / 900;
+            const vpW = viewport.clientWidth, vpH = viewport.clientHeight;
+            const vx = -currentX / currentScale, vy = -currentY / currentScale;
+            const vw =  vpW / currentScale,       vh =  vpH / currentScale;
+            const rect = document.getElementById('minimap-viewport');
+            rect.setAttribute('x',      Math.max(0, vx * scX));
+            rect.setAttribute('y',      Math.max(0, vy * scY));
+            rect.setAttribute('width',  Math.min(mmW, vw * scX));
+            rect.setAttribute('height', Math.min(mmH, vh * scY));
+        }
+
+        /* ================================================================
+           CLOSE PANEL when clicking outside
+           ================================================================ */
+        viewport.addEventListener('click', (e) => {
+            if (!e.target.closest('.map-region') && !e.target.closest('#region-panel')) {
+                document.getElementById('region-panel').classList.remove('open');
+                if (selectedRegion) { selectedRegion.classList.remove('selected'); selectedRegion = null; }
+            }
+        });
+
+        function logout() { removeToken(); window.location.href = 'index.html'; }
+
+        /* ================================================================
+           INIT
+           ================================================================ */
+        window.addEventListener('load', () => {
+            loadPlayerLevel();
+            const vpW = viewport.clientWidth, vpH = viewport.clientHeight;
+            // Fit map to viewport on load (never exceed 1:1 initially)
+            currentScale = Math.min(vpW / MAP_W, vpH / MAP_H, 1);
+            currentX = Math.max(0, (vpW - MAP_W * currentScale) / 2);
+            currentY = Math.max(0, (vpH - MAP_H * currentScale) / 2);
+            applyTransform(false);
+            updateMinimap();
+        });
+    </script>
+</body>
+</html>

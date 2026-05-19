@@ -104,3 +104,31 @@ CREATE TABLE IF NOT EXISTS hall_of_fame (
 INSERT INTO leaderboard_seasons (name, started_at, is_active)
 SELECT 'Temporada de Maio 2026', NOW(), true
 WHERE NOT EXISTS (SELECT 1 FROM leaderboard_seasons WHERE is_active = true);
+
+-- ============================================================
+
+-- Funcionalidade 3: Sistema de Temas Visuais
+-- Adiciona coluna 'theme' na tabela users
+-- Temas válidos: default, dark, light, forest, cave, snow, volcano, shadow
+-- ============================================================
+ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS theme VARCHAR(20) NOT NULL DEFAULT 'default';
+
+-- Altera o DEFAULT da coluna para o novo tema padrão neutro
+ALTER TABLE users ALTER COLUMN theme SET DEFAULT 'default';
+
+-- Garante que valores fora do conjunto válido sejam rejeitados
+DO $$
+BEGIN
+    -- Remove constraint antiga (sem 'default') se existir
+    IF EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE constraint_name = 'users_theme_check'
+    ) THEN
+        ALTER TABLE users DROP CONSTRAINT users_theme_check;
+    END IF;
+
+    ALTER TABLE users
+        ADD CONSTRAINT users_theme_check
+        CHECK (theme IN ('default','dark','light','forest','cave','snow','volcano','shadow'));
+END$$;

@@ -1,0 +1,848 @@
+﻿/* ================================================================
+   THEMES.CSS v2 — RPG-TCC Immersive Visual Theme System
+   Each theme has unique SVG patterns, pseudo-element overlays and
+   CSS animations.  Apply data-theme="<id>" on <html>.
+   ================================================================ */
+
+body { position: relative; overflow-x: hidden; }
+
+/* ================================================================
+   PADRÃO (default)
+   Tema neutro sem dinâmica nem animações — usado na tela de Login
+   e como fallback de primeiro acesso.
+   ================================================================ */
+[data-theme="default"] {
+    --bg-body:           #12100e;
+    --bg-body-img:       none;
+    --bg-container:      rgba(28,24,18,0.97);
+    --bg-sidebar:        linear-gradient(180deg,#1e1a14,#12100e);
+    --bg-card:           linear-gradient(135deg,#1e1a14,#0e0c0a);
+    --bg-input:          #0e0c0a;
+    --bg-overlay:        rgba(0,0,0,0.70);
+    --border-primary:    #a07828;
+    --border-secondary:  #3a2a10;
+    --border-input:      #3a2a10;
+    --border-width-main: 3px;
+    --accent-primary:    #c8973a;
+    --accent-secondary:  #8a6420;
+    --accent-hover:      #f0c060;
+    --text-primary:      #d8c8a0;
+    --text-heading:      #c8973a;
+    --text-secondary:    #907848;
+    --text-muted:        #3a2e18;
+    --text-on-accent:    #12100e;
+    --btn-bg:            linear-gradient(135deg,#3a2a10,#24180a);
+    --btn-bg-hover:      linear-gradient(135deg,#7a5820,#3a2a10);
+    --btn-border:        #c8973a;
+    --btn-color:         #d8c8a0;
+    --color-success:     #6dbd7a;
+    --color-error:       #e07070;
+    --color-warning:     #e0b050;
+    --color-info:        #70a8d0;
+    --shadow-main:       0 6px 30px rgba(180,120,20,0.25);
+    --radius-main:       10px;
+    --radius-btn:        6px;
+    --scrollbar-thumb:   #8a6420;
+    --scrollbar-track:   #0e0c0a;
+    --menu-active-bg:     rgba(200,151,58,0.10);
+    --menu-active-border: #c8973a;
+    --theme-preview: linear-gradient(135deg,#12100e,#24180a,#8a6420,#c8973a);
+}
+/* Sem body::before / body::after — sem animações de fundo */
+
+/* ================================================================
+   ESCURIDAO (dark, default)
+   Identity: void, absolute darkness, golden star-glimmers
+   ================================================================ */
+:root {
+    --bg-body:           #12100e;
+    --bg-body-img:       none;
+    --bg-container:      rgba(28,24,18,0.97);
+    --bg-sidebar:        linear-gradient(180deg,#1e1a14,#12100e);
+    --bg-card:           linear-gradient(135deg,#1e1a14,#0e0c0a);
+    --bg-input:          #0e0c0a;
+    --bg-overlay:        rgba(0,0,0,0.70);
+    --border-primary:    #a07828;
+    --border-secondary:  #3a2a10;
+    --border-input:      #3a2a10;
+    --border-width-main: 3px;
+    --accent-primary:    #c8973a;
+    --accent-secondary:  #8a6420;
+    --accent-hover:      #f0c060;
+    --text-primary:      #d8c8a0;
+    --text-heading:      #c8973a;
+    --text-secondary:    #907848;
+    --text-muted:        #3a2e18;
+    --text-on-accent:    #12100e;
+    --btn-bg:            linear-gradient(135deg,#3a2a10,#24180a);
+    --btn-bg-hover:      linear-gradient(135deg,#7a5820,#3a2a10);
+    --btn-border:        #c8973a;
+    --btn-color:         #d8c8a0;
+    --color-success:     #6dbd7a;
+    --color-error:       #e07070;
+    --color-warning:     #e0b050;
+    --color-info:        #70a8d0;
+    --shadow-main:       0 6px 30px rgba(180,120,20,0.25);
+    --radius-main:       10px;
+    --radius-btn:        6px;
+    --scrollbar-thumb:   #8a6420;
+    --scrollbar-track:   #0e0c0a;
+    --menu-active-bg:     rgba(200,151,58,0.10);
+    --menu-active-border: #c8973a;
+    --theme-preview: linear-gradient(135deg,#12100e,#24180a,#8a6420,#c8973a);
+}
+[data-theme="dark"] {
+    --bg-body:        #07030f;
+    --bg-body-img:    none;
+    --bg-container:   rgba(12,6,24,0.96);
+    --bg-sidebar:     linear-gradient(180deg,#140a28,#07030f);
+    --bg-card:        linear-gradient(135deg,#1a0d32,#0c061c);
+    --bg-input:       #0c061c;
+    --bg-overlay:     rgba(0,0,0,0.75);
+    --border-primary:   #7c3fff;
+    --border-secondary: #2a1044;
+    --border-input:     #2a1044;
+    --border-width-main: 4px;
+    --accent-primary:   #b07aff;
+    --accent-secondary: #7c3fff;
+    --accent-hover:     #d0aaff;
+    --text-primary:    #d8c8f0;
+    --text-heading:    #b07aff;
+    --text-secondary:  #8060b0;
+    --text-muted:      #3a205a;
+    --text-on-accent:  #07030f;
+    --btn-bg:          linear-gradient(135deg,#4a1a90,#28086a);
+    --btn-bg-hover:    linear-gradient(135deg,#7c3fff,#4a1a90);
+    --btn-border:      #b07aff;
+    --btn-color:       #d8c8f0;
+    --color-success:   #55efc4;
+    --color-error:     #ff7675;
+    --color-warning:   #fdcb6e;
+    --color-info:      #74b9ff;
+    --shadow-main:     0 8px 40px rgba(60,0,140,0.6);
+    --radius-main:     12px;
+    --radius-btn:      8px;
+    --scrollbar-thumb: #7c3fff;
+    --scrollbar-track: #0c061c;
+    --menu-active-bg:     rgba(176,122,255,0.12);
+    --menu-active-border: #b07aff;
+    --theme-preview: linear-gradient(135deg,#07030f,#140a28,#4a1a90,#b07aff);
+}
+/* ---- Dark theme: hover gradient overlay (bottom purple → black, bottom-to-top) ---- */
+[data-theme="dark"] body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background:
+        radial-gradient(ellipse 110% 55% at 50%   0%, #0e051c 0%, #07030f 60%, #030108 100%),
+        radial-gradient(ellipse  60% 40% at  0%  50%, rgba(18,4,40,0.7)  0%,transparent 100%),
+        radial-gradient(ellipse  60% 40% at 100% 50%, rgba(18,4,40,0.7)  0%,transparent 100%),
+        radial-gradient(ellipse  90% 35% at 50% 100%, rgba(0,0,0,0.95)   0%,transparent 100%);
+}
+[data-theme="dark"] body::after {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background:
+        radial-gradient(ellipse 55% 30% at 72% 16%, rgba(80,20,180,0.12) 0%,transparent 70%),
+        radial-gradient(ellipse 70% 40% at 50% 85%, rgba(20,4,50,0.55)   0%,transparent 100%);
+    animation: darkNightPulse 9s ease-in-out infinite alternate;
+}
+/* Hover overlay: dark purple-to-black gradient rising from the bottom */
+[data-theme="dark"] #dark-hover-glow {
+    position:fixed; inset:0; pointer-events:none; z-index:1;
+    background: linear-gradient(to top, rgba(40,0,80,0.72) 0%, rgba(20,0,50,0.45) 40%, transparent 100%);
+    opacity:0;
+    transition: opacity 1.4s ease;
+}
+[data-theme="dark"] body:hover #dark-hover-glow {
+    opacity:1;
+    transition: opacity 1.4s ease;
+}
+[data-theme="dark"] body:not(:hover) #dark-hover-glow {
+    opacity:0;
+    transition: opacity 2.2s ease;
+}
+@keyframes darkNightPulse {
+    0%   { opacity:0.6; }
+    100% { opacity:1;   }
+}
+
+/* ================================================================
+   PERGAMINHO (light)
+   Identity: aged parchment, ink stains, candle warmth
+   ================================================================ */
+[data-theme="light"] {
+    --bg-body:        #d6ba80;
+    --bg-body-img:    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3C!-- horizontal paper fibres --%3E%3Cline x1='0' y1='18'  x2='320' y2='17'  stroke='%23a07428' stroke-width='0.6' opacity='0.13'/%3E%3Cline x1='0' y1='36'  x2='320' y2='35'  stroke='%23906218' stroke-width='0.5' opacity='0.10'/%3E%3Cline x1='0' y1='53'  x2='320' y2='54'  stroke='%23a07428' stroke-width='0.7' opacity='0.12'/%3E%3Cline x1='0' y1='71'  x2='320' y2='70'  stroke='%23906218' stroke-width='0.4' opacity='0.09'/%3E%3Cline x1='0' y1='88'  x2='320' y2='89'  stroke='%23a07428' stroke-width='0.6' opacity='0.11'/%3E%3Cline x1='0' y1='105' x2='320' y2='104' stroke='%23906218' stroke-width='0.5' opacity='0.09'/%3E%3Cline x1='0' y1='122' x2='320' y2='123' stroke='%23a07428' stroke-width='0.6' opacity='0.10'/%3E%3Cline x1='0' y1='140' x2='320' y2='139' stroke='%23906218' stroke-width='0.4' opacity='0.08'/%3E%3Cline x1='0' y1='157' x2='320' y2='158' stroke='%23a07428' stroke-width='0.5' opacity='0.11'/%3E%3Cline x1='0' y1='174' x2='320' y2='173' stroke='%23906218' stroke-width='0.6' opacity='0.09'/%3E%3Cline x1='0' y1='191' x2='320' y2='192' stroke='%23a07428' stroke-width='0.4' opacity='0.10'/%3E%3Cline x1='0' y1='209' x2='320' y2='208' stroke='%23906218' stroke-width='0.5' opacity='0.08'/%3E%3Cline x1='0' y1='226' x2='320' y2='227' stroke='%23a07428' stroke-width='0.6' opacity='0.11'/%3E%3Cline x1='0' y1='243' x2='320' y2='242' stroke='%23906218' stroke-width='0.4' opacity='0.09'/%3E%3Cline x1='0' y1='261' x2='320' y2='262' stroke='%23a07428' stroke-width='0.5' opacity='0.10'/%3E%3Cline x1='0' y1='278' x2='320' y2='277' stroke='%23906218' stroke-width='0.6' opacity='0.08'/%3E%3Cline x1='0' y1='295' x2='320' y2='296' stroke='%23a07428' stroke-width='0.4' opacity='0.11'/%3E%3C!-- faint vertical fibres --%3E%3Cline x1='40'  y1='0' x2='39'  y2='320' stroke='%23906218' stroke-width='0.3' opacity='0.07'/%3E%3Cline x1='110' y1='0' x2='111' y2='320' stroke='%23a07428' stroke-width='0.3' opacity='0.06'/%3E%3Cline x1='195' y1='0' x2='194' y2='320' stroke='%23906218' stroke-width='0.3' opacity='0.07'/%3E%3Cline x1='265' y1='0' x2='266' y2='320' stroke='%23a07428' stroke-width='0.3' opacity='0.06'/%3E%3C!-- ink bleed stains, no symmetry --%3E%3Cellipse cx='58'  cy='47'  rx='9'  ry='5'  fill='%23805010' opacity='0.04' transform='rotate(-8 58 47)'/%3E%3Cellipse cx='210' cy='130' rx='14' ry='6'  fill='%23603010' opacity='0.04' transform='rotate(5 210 130)'/%3E%3Cellipse cx='290' cy='255' rx='8'  ry='4'  fill='%23805010' opacity='0.03' transform='rotate(-12 290 255)'/%3E%3Cellipse cx='88'  cy='215' rx='11' ry='5'  fill='%23603010' opacity='0.04' transform='rotate(7 88 215)'/%3E%3Cellipse cx='165' cy='310' rx='10' ry='4'  fill='%23805010' opacity='0.03' transform='rotate(-4 165 310)'/%3E%3C!-- tiny isolated ink dots, asymmetric --%3E%3Ccircle cx='23'  cy='94'  r='1.2' fill='%23602808' opacity='0.30'/%3E%3Ccircle cx='147' cy='38'  r='1'   fill='%23602808' opacity='0.25'/%3E%3Ccircle cx='302' cy='181' r='1.4' fill='%23602808' opacity='0.28'/%3E%3Ccircle cx='74'  cy='270' r='1'   fill='%23602808' opacity='0.22'/%3E%3Ccircle cx='238' cy='75'  r='1.2' fill='%23602808' opacity='0.26'/%3E%3Ccircle cx='185' cy='195' r='0.9' fill='%23602808' opacity='0.20'/%3E%3Ccircle cx='312' cy='305' r='1.1' fill='%23602808' opacity='0.24'/%3E%3C/svg%3E");
+    --bg-container:   rgba(242,228,185,0.97);
+    --bg-sidebar:     linear-gradient(180deg,#c4a060,#a8804a);
+    --bg-card:        linear-gradient(135deg,#e8d4a0,#d4c080);
+    --bg-input:       #f0e4c0;
+    --bg-overlay:     rgba(80,50,10,0.35);
+    --border-primary:   #6b4a10;
+    --border-secondary: #b09050;
+    --border-input:     #b09050;
+    --border-width-main: 3px;
+    --accent-primary:   #5a3800;
+    --accent-secondary: #8b6020;
+    --accent-hover:     #3a2200;
+    --text-primary:    #1e0e00;
+    --text-heading:    #3a2200;
+    --text-secondary:  #3a2800;
+    --text-muted:      #7a6040;
+    --text-on-accent:  #f0e4c0;
+    --btn-bg:          linear-gradient(135deg,#8b6020,#5a3800);
+    --btn-bg-hover:    linear-gradient(135deg,#a07830,#4a2800);
+    --btn-border:      #3a2200;
+    --btn-color:       #f0e4c0;
+    --color-success:   #1a6b35;
+    --color-error:     #8b1a10;
+    --color-warning:   #9b5010;
+    --color-info:      #1a3a6b;
+    --shadow-main:     0 4px 24px rgba(60,30,0,0.35);
+    --scrollbar-thumb: #8b6020;
+    --scrollbar-track: #d4c080;
+    --menu-active-bg:     rgba(90,56,0,0.12);
+    --menu-active-border: #5a3800;
+    --theme-preview: linear-gradient(135deg,#d4b483,#e8d4a0,#c4a060);
+}
+[data-theme="light"] body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background:
+        radial-gradient(ellipse 40% 55% at   0%   0%, rgba(70,30,0,0.35) 0%,transparent 100%),
+        radial-gradient(ellipse 40% 55% at 100%   0%, rgba(70,30,0,0.30) 0%,transparent 100%),
+        radial-gradient(ellipse 40% 55% at   0% 100%, rgba(50,20,0,0.38) 0%,transparent 100%),
+        radial-gradient(ellipse 40% 55% at 100% 100%, rgba(50,20,0,0.35) 0%,transparent 100%),
+        radial-gradient(ellipse 10% 100% at   0%  50%, rgba(60,25,0,0.22) 0%,transparent 100%),
+        radial-gradient(ellipse 10% 100% at 100%  50%, rgba(60,25,0,0.22) 0%,transparent 100%);
+}
+[data-theme="light"] body::after {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background: radial-gradient(ellipse 70% 55% at 50% 35%, rgba(255,210,100,0.22) 0%,transparent 70%);
+    animation: candleFlicker 6s ease-in-out infinite alternate;
+}
+@keyframes candleFlicker {
+    0%   { opacity:0.65; transform:scale(1,1)    translate(0,0);  }
+    20%  { opacity:0.95; transform:scale(1.02,1) translate(1px,0); }
+    45%  { opacity:0.78; transform:scale(0.98,1) translate(-1px,0);}
+    70%  { opacity:1;    transform:scale(1.01,1) translate(0.5px,0);}
+    100% { opacity:0.88; transform:scale(1,1)    translate(0,0);  }
+}
+/* ================================================================
+   FLORESTA (forest)
+   Identity: dense jungle canopy, SVG pine trees, damp earth
+   ================================================================ */
+[data-theme="forest"] {
+    --bg-body:        #050e05;
+    --bg-body-img:    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='160'%3E%3Cpolygon points='30,5 12,42 20,42 6,72 15,72 0,100 18,100 8,130 52,130 42,100 60,100 45,72 54,72 40,42 48,42' fill='%231a5c20' opacity='0.5'/%3E%3Crect x='26' y='128' width='8' height='8' fill='%23301808' opacity='0.6'/%3E%3Cpolygon points='95,15 80,48 87,48 74,74 83,74 68,100 86,100 78,118 112,118 104,100 122,100 107,74 116,74 103,48 110,48' fill='%23124818' opacity='0.45'/%3E%3Crect x='91' y='116' width='7' height='9' fill='%23281408' opacity='0.55'/%3E%3Ccircle cx='60' cy='148' r='5' fill='%231a5c20' opacity='0.25'/%3E%3Ccircle cx='18' cy='150' r='3' fill='%23124818' opacity='0.2'/%3E%3Ccircle cx='102' cy='152' r='4' fill='%231a5c20' opacity='0.22'/%3E%3C/svg%3E");
+    --bg-container:   rgba(5,16,5,0.95);
+    --bg-sidebar:     linear-gradient(180deg,#0a1e0a,#050e05);
+    --bg-card:        linear-gradient(135deg,#0f2a10,#081808);
+    --bg-input:       #081808;
+    --bg-overlay:     rgba(0,10,0,0.7);
+    --border-primary:   #3a9c40;
+    --border-secondary: #1a4020;
+    --border-input:     #1a4020;
+    --border-width-main: 4px;
+    --accent-primary:   #6dcf70;
+    --accent-secondary: #3a9c40;
+    --accent-hover:     #9de89e;
+    --text-primary:    #c8e8c0;
+    --text-heading:    #6dcf70;
+    --text-secondary:  #90c890;
+    --text-muted:      #3a6c3a;
+    --text-on-accent:  #050e05;
+    --btn-bg:          linear-gradient(135deg,#1f6b22,#0f3a10);
+    --btn-bg-hover:    linear-gradient(135deg,#3a9c40,#1f6b22);
+    --btn-border:      #6dcf70;
+    --btn-color:       #c8e8c0;
+    --color-success:   #adf7b0;
+    --color-error:     #ff8a80;
+    --color-warning:   #ffe082;
+    --color-info:      #80cbc4;
+    --shadow-main:     0 8px 40px rgba(0,30,0,0.7);
+    --scrollbar-thumb: #3a9c40;
+    --scrollbar-track: #081808;
+    --menu-active-bg:     rgba(109,207,112,0.12);
+    --menu-active-border: #6dcf70;
+    --theme-preview: linear-gradient(135deg,#050e05,#1a5c20,#0a1e0a);
+}
+[data-theme="forest"] body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background:
+        radial-gradient(ellipse 100% 50% at 50% 100%, rgba(0,40,0,0.9)  0%,transparent 80%),
+        radial-gradient(ellipse  40% 80% at  0%  60%, rgba(0,30,0,0.8)  0%,transparent 100%),
+        radial-gradient(ellipse  40% 80% at 100% 60%, rgba(0,30,0,0.8)  0%,transparent 100%),
+        radial-gradient(ellipse  80% 30% at 50%   0%, rgba(0,20,0,0.95) 0%,transparent 100%);
+}
+[data-theme="forest"] body::after {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(20,80,20,0.15) 0%,transparent 70%);
+    animation: forestBreeze 8s ease-in-out infinite alternate;
+}
+@keyframes forestBreeze {
+    0%   { opacity:0.5; transform:translateX(-5px); }
+    100% { opacity:1;   transform:translateX(5px);  }
+}
+
+/* ================================================================
+   CAVERNA (cave)
+   Identity: gray granite, wet rock, cracked stone, torchlight
+   ================================================================ */
+[data-theme="cave"] {
+    --bg-body:        #2c3038;
+    --bg-body-img:    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%232c3038'/%3E%3C!-- stone 1 top-left --%3E%3Cpolygon points='2,2 50,0 52,44 48,48 0,46 0,4' fill='%23505760' stroke='%231a1c20' stroke-width='2'/%3E%3Cline x1='10' y1='15' x2='40' y2='12' stroke='%23676e78' stroke-width='1.2' opacity='0.8'/%3E%3Cline x1='8' y1='28' x2='44' y2='30' stroke='%233a3e45' stroke-width='1' opacity='0.7'/%3E%3C!-- stone 2 top-right --%3E%3Cpolygon points='54,0 120,2 118,42 114,46 56,48 52,44 50,0' fill='%23464d55' stroke='%231a1c20' stroke-width='2'/%3E%3Cline x1='62' y1='14' x2='108' y2='11' stroke='%235c636c' stroke-width='1.2' opacity='0.8'/%3E%3Cline x1='60' y1='32' x2='112' y2='35' stroke='%23333840' stroke-width='1' opacity='0.7'/%3E%3C!-- stone 3 bottom-left --%3E%3Cpolygon points='0,50 48,48 52,56 54,118 0,120' fill='%234a5058' stroke='%231a1c20' stroke-width='2'/%3E%3Cline x1='6' y1='68' x2='46' y2='64' stroke='%23626970' stroke-width='1.2' opacity='0.8'/%3E%3Cline x1='4' y1='88' x2='48' y2='92' stroke='%23383d44' stroke-width='1' opacity='0.7'/%3E%3Cline x1='8' y1='106' x2='44' y2='110' stroke='%235a6068' stroke-width='0.9' opacity='0.6'/%3E%3C!-- stone 4 bottom-right --%3E%3Cpolygon points='56,48 114,46 120,50 120,120 58,118 54,118 52,56' fill='%23404750' stroke='%231a1c20' stroke-width='2'/%3E%3Cline x1='64' y1='62' x2='112' y2='60' stroke='%23565d66' stroke-width='1.2' opacity='0.8'/%3E%3Cline x1='62' y1='82' x2='116' y2='86' stroke='%232e3338' stroke-width='1' opacity='0.7'/%3E%3Cline x1='66' y1='104' x2='114' y2='100' stroke='%234e555e' stroke-width='0.9' opacity='0.6'/%3E%3C!-- mortar joints --%3E%3Ccircle cx='52' cy='48' r='2.5' fill='%2315171a' opacity='0.95'/%3E%3Ccircle cx='30' cy='22' r='2' fill='%2370787f' opacity='0.5'/%3E%3Ccircle cx='85' cy='18' r='2' fill='%2368707a' opacity='0.45'/%3E%3Ccircle cx='24' cy='80' r='2' fill='%2370787f' opacity='0.45'/%3E%3Ccircle cx='88' cy='76' r='1.8' fill='%23656c74' opacity='0.5'/%3E%3C/svg%3E");
+    --bg-container:   rgba(50,55,62,0.97);
+    --bg-sidebar:     linear-gradient(180deg,#464d55,#30363e);
+    --bg-card:        linear-gradient(135deg,#525860,#3a4048);
+    --bg-input:       #3c4248;
+    --bg-overlay:     rgba(0,0,0,0.65);
+    --border-primary:   #c8a055;
+    --border-secondary: #5a5550;
+    --border-input:     #5a5550;
+    --border-width-main: 4px;
+    --accent-primary:   #d4a855;
+    --accent-secondary: #8a7055;
+    --accent-hover:     #f0c870;
+    --text-primary:    #ddd8cc;
+    --text-heading:    #f0c060;
+    --text-secondary:  #b8b0a0;
+    --text-muted:      #7a7268;
+    --text-on-accent:  #1a1a1a;
+    --btn-bg:          linear-gradient(135deg,#5a4530,#3a2e20);
+    --btn-bg-hover:    linear-gradient(135deg,#8a6840,#5a4530);
+    --btn-border:      #d4a855;
+    --btn-color:       #e8d8b0;
+    --color-success:   #88d498;
+    --color-error:     #e06060;
+    --color-warning:   #d4a040;
+    --color-info:      #70a8c8;
+    --shadow-main:     0 8px 40px rgba(0,0,0,0.85);
+    --scrollbar-thumb: #5a4530;
+    --scrollbar-track: #1a1a1a;
+    --menu-active-bg:     rgba(212,168,85,0.1);
+    --menu-active-border: #d4a855;
+    --theme-preview: linear-gradient(135deg,#1a1a1a,#2e2a22,#8a7055,#d4a855);
+}
+[data-theme="cave"] body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    /* Visible gray stone stalactites — lighter fill against dark ceiling */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='100'%3E%3Crect width='300' height='100' fill='%2318191c'/%3E%3Cpolygon points='0,0 18,0 9,80'       fill='%23686e78' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='14,0 28,0 20,62'      fill='%235a6068' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='34,0 50,0 42,90'      fill='%237a8088' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='48,0 60,0 54,66'      fill='%23626870' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='66,0 82,0 74,84'      fill='%23707880' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='80,0 92,0 86,58'      fill='%23585e66' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='98,0 114,0 106,76'    fill='%236a7078' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='112,0 124,0 118,52'   fill='%235e6470' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='130,0 148,0 139,88'   fill='%237c8288' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='146,0 158,0 152,64'   fill='%235c6268' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='164,0 180,0 172,82'   fill='%23727880' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='178,0 190,0 184,60'   fill='%23646a74' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='196,0 212,0 204,78'   fill='%236c7278' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='210,0 222,0 216,56'   fill='%23585e68' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='228,0 244,0 236,86'   fill='%237e8490' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='242,0 254,0 248,62'   fill='%23707880' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='260,0 276,0 268,80'   fill='%236a7078' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='274,0 286,0 280,58'   fill='%235c6268' stroke='%2310111a' stroke-width='1.5'/%3E%3Cpolygon points='292,0 300,0 300,72'   fill='%23646a74' stroke='%2310111a' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat:   repeat-x;
+    background-position: top;
+    background-size:     300px 100px;
+}
+[data-theme="cave"] body::after {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    /* Torch warm glow pools at lower corners, deep shadow at top */
+    background:
+        radial-gradient(ellipse 45% 40% at  10%  85%, rgba(200,120,30,0.20) 0%,transparent 100%),
+        radial-gradient(ellipse 45% 40% at  90%  80%, rgba(200,100,20,0.18) 0%,transparent 100%),
+        radial-gradient(ellipse 80% 25% at  50% 100%, rgba(80,50,20,0.55)   0%,transparent 100%),
+        radial-gradient(ellipse 80% 30% at  50%   0%, rgba(0,0,0,0.92)      0%,transparent 100%);
+    animation: torchFlicker 5s ease-in-out infinite alternate;
+}
+@keyframes torchFlicker {
+    0%   { opacity:0.75; }
+    25%  { opacity:1;    }
+    55%  { opacity:0.85; }
+    80%  { opacity:1;    }
+    100% { opacity:0.8;  }
+}
+/* ================================================================
+   NEVE (snow)
+   Identity: winter mountains, ice blue, animated snowfall
+   ================================================================ */
+[data-theme="snow"] {
+    --bg-body:        #c8dff0;
+    --bg-body-img:    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='40' cy='40' r='1.5' fill='white' opacity='0.5'/%3E%3Ccircle cx='15' cy='55' r='1'   fill='white' opacity='0.4'/%3E%3Ccircle cx='65' cy='20' r='1.2' fill='white' opacity='0.45'/%3E%3Ccircle cx='70' cy='65' r='0.8' fill='white' opacity='0.35'/%3E%3Ccircle cx='10' cy='15' r='1'   fill='white' opacity='0.4'/%3E%3C/svg%3E");
+    --bg-container:   rgba(235,248,255,0.97);
+    --bg-sidebar:     linear-gradient(180deg,#b0d0e8,#8ab8d4);
+    --bg-card:        linear-gradient(135deg,#d0e8f8,#b8d8ee);
+    --bg-input:       #eef8ff;
+    --bg-overlay:     rgba(180,220,240,0.4);
+    --border-primary:   #1a7abf;
+    --border-secondary: #80b8d8;
+    --border-input:     #80b8d8;
+    --border-width-main: 3px;
+    --accent-primary:   #0a5a9c;
+    --accent-secondary: #1a7abf;
+    --accent-hover:     #084480;
+    --text-primary:    #060e1a;
+    --text-heading:    #084480;
+    --text-secondary:  #0a2a4a;
+    --text-muted:      #4a7090;
+    --text-on-accent:  #eef8ff;
+    --btn-bg:          linear-gradient(135deg,#0a5a9c,#064480);
+    --btn-bg-hover:    linear-gradient(135deg,#1a7abf,#0a5a9c);
+    --btn-border:      #0a5a9c;
+    --btn-color:       #eef8ff;
+    --color-success:   #00b050;
+    --color-error:     #c0281c;
+    --color-warning:   #d07000;
+    --color-info:      #0a5a9c;
+    --shadow-main:     0 4px 24px rgba(0,60,120,0.2);
+    --scrollbar-thumb: #1a7abf;
+    --scrollbar-track: #b0d0e8;
+    --menu-active-bg:     rgba(10,90,156,0.1);
+    --menu-active-border: #0a5a9c;
+    --theme-preview: linear-gradient(135deg,#c8dff0,#eef8ff,#b0d0e8);
+}
+[data-theme="snow"] body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120'%3E%3Cpolygon points='0,120 60,30 120,120'    fill='%23a0c0e0' opacity='0.5'/%3E%3Cpolygon points='70,120 140,15 210,120'   fill='%23b0cce8' opacity='0.45'/%3E%3Cpolygon points='160,120 220,40 280,120'  fill='%23a8c8e8' opacity='0.5'/%3E%3Cpolygon points='250,120 310,20 370,120'  fill='%23b0cce8' opacity='0.45'/%3E%3Cpolygon points='340,120 380,50 400,120'  fill='%23a0c0e0' opacity='0.4'/%3E%3Cpolygon points='60,30 50,55 70,55'      fill='white' opacity='0.7'/%3E%3Cpolygon points='140,15 128,48 152,48'   fill='white' opacity='0.7'/%3E%3Cpolygon points='220,40 210,65 230,65'   fill='white' opacity='0.7'/%3E%3Cpolygon points='310,20 298,52 322,52'   fill='white' opacity='0.7'/%3E%3Cpolygon points='380,50 370,70 390,70'   fill='white' opacity='0.6'/%3E%3C/svg%3E");
+    background-repeat:   repeat-x;
+    background-position: bottom;
+    background-size:     400px 120px;
+}
+[data-theme="snow"] body::after {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image:
+        radial-gradient(circle,rgba(255,255,255,0.95) 1.5px,transparent 1.5px),
+        radial-gradient(circle,rgba(220,240,255,0.80) 1px,  transparent 1px),
+        radial-gradient(circle,rgba(255,255,255,0.70) 1px,  transparent 1px);
+    background-size:     200px 200px, 350px 350px, 130px 130px;
+    background-position: 0 0, 100px 100px, 50px 50px;
+    animation: cssSnowfall 12s linear infinite;
+}
+@keyframes cssSnowfall {
+    from { background-position: 0 -200px, 100px -350px, 50px -130px; }
+    to   { background-position: 0  200px, 100px  350px, 50px  130px; }
+}
+
+/* ================================================================
+   VULCAO (volcano)
+   Identity: cracked magma, ember glow, ash sky
+   ================================================================ */
+[data-theme="volcano"] {
+    --bg-body:        #0a0200;
+    --bg-body-img:    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100' height='100' fill='%230a0200'/%3E%3Cpath d='M5,95 L25,60 L18,50 L48,28 L38,16 L70,0'   stroke='%23cc3300' stroke-width='2'   fill='none' opacity='0.5'/%3E%3Cpath d='M95,100 L72,65 L82,52 L55,30 L66,12'       stroke='%23ff5500' stroke-width='1.5' fill='none' opacity='0.45'/%3E%3Cpath d='M0,55 L22,48 L16,32 L44,22'               stroke='%23aa2200' stroke-width='1'   fill='none' opacity='0.4'/%3E%3Cpath d='M50,100 L58,78 L45,65 L65,48 L52,30'      stroke='%23dd4400' stroke-width='1.5' fill='none' opacity='0.4'/%3E%3Ccircle cx='25' cy='62' r='3'   fill='%23ff6600' opacity='0.5'/%3E%3Ccircle cx='72' cy='65' r='2'   fill='%23ff4400' opacity='0.45'/%3E%3Ccircle cx='48' cy='30' r='2.5' fill='%23ff8800' opacity='0.4'/%3E%3C/svg%3E");
+    --bg-container:   rgba(18,5,0,0.97);
+    --bg-sidebar:     linear-gradient(180deg,#1e0800,#0a0200);
+    --bg-card:        linear-gradient(135deg,#2a0e00,#140500);
+    --bg-input:       #140500;
+    --bg-overlay:     rgba(0,0,0,0.75);
+    --border-primary:   #cc4400;
+    --border-secondary: #4a1400;
+    --border-input:     #4a1400;
+    --border-width-main: 4px;
+    --accent-primary:   #ff8800;
+    --accent-secondary: #cc4400;
+    --accent-hover:     #ffaa00;
+    --text-primary:    #ffe0a0;
+    --text-heading:    #ff8800;
+    --text-secondary:  #ffaa60;
+    --text-muted:      #803800;
+    --text-on-accent:  #0a0200;
+    --btn-bg:          linear-gradient(135deg,#aa3300,#7a1800);
+    --btn-bg-hover:    linear-gradient(135deg,#cc4400,#aa3300);
+    --btn-border:      #ff8800;
+    --btn-color:       #ffe0a0;
+    --color-success:   #69f0ae;
+    --color-error:     #ff1744;
+    --color-warning:   #ffc400;
+    --color-info:      #40c4ff;
+    --shadow-main:     0 8px 50px rgba(180,60,0,0.5);
+    --scrollbar-thumb: #cc4400;
+    --scrollbar-track: #140500;
+    --menu-active-bg:     rgba(255,136,0,0.12);
+    --menu-active-border: #ff8800;
+    --theme-preview: linear-gradient(135deg,#0a0200,#4a1400,#cc4400,#ff8800);
+}
+[data-theme="volcano"] body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background:
+        radial-gradient(ellipse 100% 30% at 50%  100%, rgba(200,60,0,0.7)  0%,transparent 100%),
+        radial-gradient(ellipse  30% 15% at 20%  100%, rgba(255,100,0,0.5) 0%,transparent 100%),
+        radial-gradient(ellipse  30% 15% at 80%  100%, rgba(255,80,0,0.45) 0%,transparent 100%),
+        radial-gradient(ellipse  80% 20% at 50%    0%, rgba(20,5,0,0.9)    0%,transparent 100%),
+        radial-gradient(ellipse  40% 60% at  0%   50%, rgba(10,0,0,0.6)    0%,transparent 100%),
+        radial-gradient(ellipse  40% 60% at 100%  50%, rgba(10,0,0,0.6)    0%,transparent 100%);
+    animation: lavaGlow 3s ease-in-out infinite alternate;
+}
+@keyframes lavaGlow {
+    from { opacity:0.7; }
+    to   { opacity:1;   }
+}
+[data-theme="volcano"] body::after {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background:
+        radial-gradient(ellipse 60% 30% at 30% 0%, rgba(30,15,5,0.8) 0%,transparent 100%),
+        radial-gradient(ellipse 60% 30% at 70% 0%, rgba(20,10,5,0.7) 0%,transparent 100%);
+    animation: ashCloud 7s ease-in-out infinite alternate;
+}
+@keyframes ashCloud {
+    0%   { opacity:0.6; transform:translateX(-8px); }
+    100% { opacity:1;   transform:translateX(8px);  }
+}
+
+/* ================================================================
+   REINO SOMBRIO (shadow)
+   Identity: necromancy, skull pattern, deep purple void
+   ================================================================ */
+[data-theme="shadow"] {
+    --bg-body:        #1a0e32;
+    --bg-body-img:    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='110'%3E%3Cg opacity='0.55'%3E%3Ccircle cx='50' cy='32' r='22' fill='%23621090'/%3E%3Cellipse cx='40' cy='32' rx='6' ry='7' fill='%230e001a'/%3E%3Cellipse cx='60' cy='32' rx='6' ry='7' fill='%230e001a'/%3E%3Cpath d='M43,46 Q50,43 57,46 L56,55 L44,55 Z' fill='%230e001a'/%3E%3Crect x='43' y='55' width='5' height='7'  fill='%23621090'/%3E%3Crect x='50' y='55' width='4' height='8'  fill='%23621090'/%3E%3Crect x='56' y='55' width='5' height='6'  fill='%23621090'/%3E%3C/g%3E%3C/svg%3E");
+    --bg-container:   rgba(28,10,52,0.97);
+    --bg-sidebar:     linear-gradient(180deg,#2a1248,#1a0e32);
+    --bg-card:        linear-gradient(135deg,#301458,#1e0840);
+    --bg-input:       #240c44;
+    --bg-overlay:     rgba(0,0,0,0.65);
+    --border-primary:   #a040e8;
+    --border-secondary: #3c0e58;
+    --border-input:     #3c0e58;
+    --border-width-main: 4px;
+    --accent-primary:   #d870ff;
+    --accent-secondary: #a040e8;
+    --accent-hover:     #eea8ff;
+    --text-primary:    #ecd4ff;
+    --text-heading:    #d870ff;
+    --text-secondary:  #c090e8;
+    --text-muted:      #7840b8;
+    --text-on-accent:  #1a0e32;
+    --btn-bg:          linear-gradient(135deg,#7020b8,#4c0e90);
+    --btn-bg-hover:    linear-gradient(135deg,#a040e8,#7020b8);
+    --btn-border:      #d870ff;
+    --btn-color:       #ecd4ff;
+    --color-success:   #69f0ae;
+    --color-error:     #ff5252;
+    --color-warning:   #ffd740;
+    --color-info:      #80d8ff;
+    --shadow-main:     0 8px 50px rgba(140,0,220,0.5);
+    --scrollbar-thumb: #a040e8;
+    --scrollbar-track: #240c44;
+    --menu-active-bg:     rgba(216,112,255,0.14);
+    --menu-active-border: #d870ff;
+    --theme-preview: linear-gradient(135deg,#1a0e32,#3a1268,#a040e8,#d870ff);
+}
+[data-theme="shadow"] body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background:
+        radial-gradient(ellipse 50% 40% at  15% 100%, rgba(130,0,200,0.30) 0%,transparent 100%),
+        radial-gradient(ellipse 50% 40% at  85% 100%, rgba(100,0,170,0.25) 0%,transparent 100%),
+        radial-gradient(ellipse 80% 30% at  50%   0%, rgba(8,0,22,0.92)    0%,transparent 100%),
+        radial-gradient(ellipse 40% 60% at   0%  50%, rgba(14,0,28,0.6)    0%,transparent 100%),
+        radial-gradient(ellipse 40% 60% at 100%  50%, rgba(14,0,28,0.6)    0%,transparent 100%);
+}
+[data-theme="shadow"] body::after {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background: radial-gradient(ellipse 70% 60% at 50% 60%, rgba(100,0,160,0.18) 0%,transparent 70%);
+    animation: shadowMist 6s ease-in-out infinite alternate;
+}
+@keyframes shadowMist {
+    0%   { opacity:0.5; transform:scale(1);    }
+    100% { opacity:1;   transform:scale(1.05); }
+}
+
+/* ================================================================
+   FX OVERLAY — snow/ember effects injected by theme.js
+   ================================================================ */
+#__rpg_fx__ {
+    position:fixed; inset:0; pointer-events:none; z-index:1; overflow:hidden;
+}
+#__rpg_fx__ .fx-snow {
+    position:absolute; top:-20px; color:rgba(255,255,255,0.85); font-size:14px;
+    user-select:none; animation:fxSnowFall linear infinite;
+}
+@keyframes fxSnowFall {
+    0%   { transform:translateY(-20px)  translateX(0px)   rotate(0deg);   opacity:0; }
+    10%  { opacity:1; }
+    90%  { opacity:0.85; }
+    100% { transform:translateY(110vh)  translateX(30px)  rotate(360deg); opacity:0; }
+}
+#__rpg_fx__ .fx-ember {
+    position:absolute; bottom:-10px; width:4px; height:4px; border-radius:50%;
+    background:#ff6600; box-shadow:0 0 6px 2px rgba(255,100,0,0.8);
+    animation:fxEmberRise ease-in infinite;
+}
+@keyframes fxEmberRise {
+    0%   { transform:translateY(0)      translateX(0px);  opacity:1;   }
+    50%  { transform:translateY(-40vh)  translateX(20px); opacity:0.8; }
+    100% { transform:translateY(-100vh) translateX(-10px);opacity:0;   }
+}
+/* falling rocks — cave theme */
+#__rpg_fx__ .fx-rock {
+    position:absolute; top:-30px;
+    background:#8a9098;
+    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.55), inset 3px 3px 6px rgba(180,190,200,0.35), 0 4px 12px rgba(0,0,0,0.6);
+    animation: fxRockFall linear forwards;
+}
+@keyframes fxRockFall {
+    0%   { transform: translateY(-30px)  translateX(0px)    rotate(0deg);   opacity:0; }
+    8%   { opacity:1; }
+    70%  { opacity:0.9; }
+    90%  { opacity:0.5; }
+    100% { transform: translateY(105vh) translateX(var(--rock-drift,20px)) rotate(var(--rock-spin,280deg)); opacity:0; }
+}
+
+/* forest falling leaves */
+#__rpg_fx__ .fx-leaf {
+    position:absolute; top:-20px; border-radius:50% 8% 50% 8%;
+    animation: fxLeafFall linear forwards;
+}
+@keyframes fxLeafFall {
+    0%   { transform:translateY(-20px) translateX(0) rotate(0deg);   opacity:0; }
+    7%   { opacity:0.9; }
+    88%  { opacity:0.7; }
+    100% { transform:translateY(110vh) translateX(var(--leaf-drift,60px)) rotate(var(--leaf-spin,420deg)); opacity:0; }
+}
+/* moon — single circle, glow via box-shadow + ::after */
+#__rpg_fx__ .fx-moon {
+    position:fixed;
+    pointer-events:none;
+    z-index:0;
+    background: transparent;
+}
+#__rpg_fx__ .fx-moon-body {
+    position:absolute; inset:0; border-radius:50%;
+    background: radial-gradient(circle at 38% 36%, #f5f0e8 0%, #ddd4b8 45%, #c4b890 100%);
+    box-shadow: 0 0 18px 6px rgba(230,200,100,0.55);
+}
+#__rpg_fx__ .fx-moon-body::after {
+    content:''; position:absolute; inset:-60%; border-radius:50%;
+    background: transparent;
+    box-shadow:
+        0 0  30px 14px rgba(210,170, 60,0.22),
+        0 0  70px 30px rgba(200,150, 40,0.14),
+        0 0 130px 60px rgba(180,120, 20,0.07);
+    pointer-events:none;
+    animation: moonHaloPulse 5s ease-in-out infinite alternate;
+    z-index:-1;
+}
+/* hide the old separate halo div if it still exists */
+#__rpg_fx__ .fx-moon-halo { display:none; }
+@keyframes moonHaloPulse {
+    0%   { opacity:0.55; transform:scale(1);    }
+    100% { opacity:1;    transform:scale(1.04); }
+}
+
+/* ---- Dark theme: purple moon overrides ---- */
+[data-theme="dark"] #__rpg_fx__ .fx-moon-body {
+    background:
+        radial-gradient(circle at 38% 36%, #200840 0%, #140428 45%, #08021a 100%);
+    box-shadow:
+        inset  8px  6px 14px rgba(0,0,0,0.90),
+        inset -4px -4px  8px rgba(160,80,255,0.06);
+    animation: moonBodyPulse 4s ease-in-out infinite alternate;
+}
+[data-theme="dark"] #__rpg_fx__ .fx-moon-body::after {
+    box-shadow:
+        0 0  28px 12px rgba(120, 40,255,0.40),
+        0 0  65px 28px rgba( 80, 20,200,0.22),
+        0 0 130px 58px rgba( 40,  5,120,0.12);
+    animation: moonHaloDarkPulse 7s ease-in-out infinite alternate;
+}
+@keyframes moonBodyPulse {
+    0%   { transform:scale(1);    }
+    100% { transform:scale(1.03); }
+}
+/* purple stars for dark theme */
+[data-theme="dark"] #__rpg_fx__ .fx-star {
+    background: #9a60ff;
+    box-shadow: 0 0 4px 2px rgba(140,70,255,0.65);
+}
+/* purple dust particles for dark theme */
+[data-theme="dark"] #__rpg_fx__ .fx-golddust {
+    background: #7030ee;
+    box-shadow: 0 0 4px 2px rgba(110,40,240,0.55);
+}
+@keyframes moonHaloDarkPulse {
+    0%   { opacity:0.4; transform:scale(1);    }
+    100% { opacity:0.8; transform:scale(1.03); }
+}
+
+/* ---- Dark theme: mountain scene ---- */
+[data-theme="dark"] #__rpg_fx__ .fx-darkscene {
+    position:fixed;
+    bottom:0; left:0;
+    width:100%; height:160px;
+    pointer-events:none;
+    z-index:-1;
+    overflow:hidden;
+}
+/* stars — shadow theme */
+#__rpg_fx__ .fx-star {
+    position:fixed; border-radius:50%; pointer-events:none; z-index:0;
+    background:#f5e8a0;
+    box-shadow: 0 0 4px 2px rgba(245,230,120,0.7);
+    animation: starPulse ease-in-out infinite alternate;
+}
+@keyframes starPulse {
+    0%   { opacity:var(--star-op-lo, 0.3); transform:scale(0.85); }
+    100% { opacity:var(--star-op-hi, 0.9); transform:scale(1.2);  }
+}
+/* dark mist wisps — shadow theme */
+#__rpg_fx__ .fx-nightmist {
+    position:fixed; border-radius:50%; pointer-events:none; z-index:0;
+    background: radial-gradient(ellipse, rgba(18,6,48,0.55) 0%, transparent 70%);
+    animation: nightMistDrift linear infinite;
+}
+@keyframes nightMistDrift {
+    0%   { transform:translateX(-12vw) scaleX(0.85); opacity:0;   }
+    12%  { opacity:1; }
+    88%  { opacity:0.7; }
+    100% { transform:translateX(18vw)  scaleX(1.15); opacity:0;   }
+}
+/* golden dust particles — shadow theme */
+#__rpg_fx__ .fx-golddust {
+    position:fixed; border-radius:50%; pointer-events:none; z-index:0;
+    background:#f0c830;
+    box-shadow:0 0 4px 2px rgba(240,180,20,0.55);
+    animation: goldDustFall linear forwards;
+}
+@keyframes goldDustFall {
+    0%   { transform:translateY(0)      translateX(0px);  opacity:0;   }
+    8%   { opacity:1; }
+    85%  { opacity:0.6; }
+    100% { transform:translateY(var(--gd-dy,80vh)) translateX(var(--gd-dx,12px)); opacity:0; }
+}
+/* bats — shadow theme */
+#__rpg_fx__ .fx-bat {
+    position:absolute;
+    clip-path: polygon(0% 68%, 18% 22%, 34% 58%, 50% 4%, 66% 58%, 82% 22%, 100% 68%, 82% 100%, 64% 74%, 50% 94%, 36% 74%, 18% 100%);
+    animation: fxBatFly linear forwards;
+}
+@keyframes fxBatFly {
+    0%   { opacity:0; }
+    6%   { opacity:0.88; }
+    90%  { opacity:0.8; }
+    100% { transform:translateX(var(--bat-dx,80vw)) translateY(var(--bat-dy,0px)); opacity:0; }
+}
+/* lightning flash — shadow theme */
+#__rpg_fx__ .fx-lightning {
+    position:absolute; top:0; width:3px; height:100vh;
+    background:linear-gradient(180deg,transparent 0%,rgba(190,100,255,0.9) 15%,rgba(240,200,255,1) 50%,rgba(190,100,255,0.9) 85%,transparent 100%);
+    box-shadow:0 0 14px 5px rgba(170,60,255,0.8), 0 0 35px 10px rgba(130,30,210,0.4);
+    border-radius:2px;
+    animation: fxLightFlash linear forwards;
+}
+@keyframes fxLightFlash {
+    0%   { opacity:0; }
+    8%   { opacity:1; }
+    28%  { opacity:0.25; }
+    42%  { opacity:0.95; }
+    58%  { opacity:0; }
+    100% { opacity:0; }
+}
+/* castle — shadow theme */
+#__rpg_castle_L__ { overflow:hidden; opacity:0.88; }
+
+/* ================================================================
+   PERGAMINHO FX — grain overlay, quill lines, trail dots
+   ================================================================ */
+/* Static parchment noise grain */
+.fx-parchment-grain {
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='0.07'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    opacity: 0.55;
+    mix-blend-mode: multiply;
+    animation: parchmentDrift 40s linear infinite;
+}
+@keyframes parchmentDrift {
+    0%   { background-position: 0 0; }
+    100% { background-position: 200px 200px; }
+}
+/* Quill-written ancient text lines */
+#__rpg_fx__ .fx-quill-line {
+    font-family: 'Palatino Linotype', Georgia, serif;
+    writing-mode: horizontal-tb;
+    user-select: none;
+}
+/* Blinking cursor while typing */
+#__rpg_fx__ .fx-quill-line::after {
+    content: '|';
+    display: inline-block;
+    animation: quillBlink 0.85s step-end infinite;
+    color: rgba(88,42,0,0.52);
+    margin-left: 1px;
+}
+@keyframes quillBlink {
+    0%, 100% { opacity:1; }
+    50%       { opacity:0; }
+}
+/* Size-specific tweaks */
+#__rpg_fx__ .fx-quill-xxl { font-weight: 600; }
+#__rpg_fx__ .fx-quill-xl  { font-style: italic; }
+/* Footstep / trail dots */
+#__rpg_fx__ .fx-trail-dot {
+    font-family: serif;
+    user-select: none;
+    animation: trailPulse 3.5s ease-in-out infinite alternate;
+}
+@keyframes trailPulse {
+    0%   { transform: scale(1) rotate(0deg);     }
+    100% { transform: scale(1.4) rotate(8deg);   }
+}
+/* SVG dashed path that draws itself */
+.fx-path-draw {
+    animation: pathReveal linear forwards;
+}
+@keyframes pathReveal {
+    to { stroke-dashoffset: 0; }
+}
+/* Waypoint dots — fade in one by one via nth-child delay */
+.fx-path-node {
+    opacity: 0;
+    animation: nodeAppear 0.4s ease forwards;
+}
+.fx-path-node:nth-child(2)  { animation-delay: 0.8s;  }
+.fx-path-node:nth-child(3)  { animation-delay: 1.8s;  }
+.fx-path-node:nth-child(4)  { animation-delay: 2.8s;  }
+.fx-path-node:nth-child(5)  { animation-delay: 3.9s;  }
+.fx-path-node:nth-child(6)  { animation-delay: 5.0s;  }
+.fx-path-node:nth-child(7)  { animation-delay: 6.2s;  }
+.fx-path-node:nth-child(8)  { animation-delay: 7.4s;  }
+.fx-path-node:nth-child(9)  { animation-delay: 8.6s;  }
+.fx-path-node:nth-child(10) { animation-delay: 9.8s;  }
+.fx-path-node:nth-child(11) { animation-delay: 11.0s; }
+.fx-path-node:nth-child(12) { animation-delay: 12.2s; }
+@keyframes nodeAppear {
+    from { opacity: 0; transform: scale(0.4); }
+    to   { opacity: 1; transform: scale(1);   }
+}
+
+/* ================================================================
+   GLOBAL TRANSITIONS (no animation/transform to avoid conflicts)
+   ================================================================ */
+* { transition: background-color 0.35s ease, color 0.25s ease, border-color 0.3s ease, box-shadow 0.3s ease; }
+*::before, *::after { transition: opacity 0.4s ease; }
+
+/* ================================================================
+   SCROLLBAR
+   ================================================================ */
+::-webkit-scrollbar            { width:8px; height:8px; }
+::-webkit-scrollbar-track      { background:var(--scrollbar-track); }
+::-webkit-scrollbar-thumb      { background:var(--scrollbar-thumb); border-radius:4px; }
+::-webkit-scrollbar-thumb:hover{ opacity:0.8; }
+
+/* ================================================================
+   PROFILE PAGE THEME PICKER CARDS — rich gradient previews
+   ================================================================ */
+.theme-card[data-id="dark"]    { background:linear-gradient(135deg,#060608,#1a1520,#0d0c00); }
+.theme-card[data-id="light"]   { background:linear-gradient(135deg,#d4b483,#e8d4a0,#c4a060); }
+.theme-card[data-id="forest"]  { background:linear-gradient(135deg,#050e05,#1a5c20,#0a1e0a); }
+.theme-card[data-id="cave"]    { background:linear-gradient(135deg,#070710,#2a1a4a,#6a3dcc); }
+.theme-card[data-id="snow"]    { background:linear-gradient(135deg,#c8dff0,#eef8ff,#b0d0e8); }
+.theme-card[data-id="volcano"] { background:linear-gradient(135deg,#0a0200,#4a1400,#cc4400,#ff8800); }
+.theme-card[data-id="shadow"]  { background:linear-gradient(135deg,#030006,#200838,#8020bc,#c050f0); }
+
+.theme-card .theme-card-name { color:#fff !important; text-shadow:0 1px 4px rgba(0,0,0,0.8); }
+.theme-card .theme-card-desc { color:rgba(255,255,255,0.7) !important; }
+.theme-card[data-id="light"] .theme-card-name { color:#3a2200 !important; text-shadow:none; }
+.theme-card[data-id="light"] .theme-card-desc { color:rgba(58,34,0,0.6) !important; }
+.theme-card[data-id="snow"]  .theme-card-name { color:#084480 !important; text-shadow:none; }
+.theme-card[data-id="snow"]  .theme-card-desc { color:rgba(8,68,128,0.7) !important; }
+
+/* Toast notification */
+#__rpg_toast__ {
+    position:fixed; bottom:80px; right:22px; z-index:999999;
+    background:var(--bg-container,rgba(10,12,18,0.97));
+    border:1px solid var(--accent-primary,#f1c40f);
+    border-radius:10px; padding:10px 18px;
+    font-family:'Cinzel',serif; font-size:0.78em;
+    color:var(--text-heading,#f1c40f);
+    box-shadow:0 4px 20px rgba(0,0,0,0.6);
+    animation:toastIn 0.25s ease, toastOut 0.35s ease 2.2s forwards;
+    pointer-events:none;
+}
+@keyframes toastIn  { from { opacity:0; transform:translateY(10px) scale(0.95); }
+                      to   { opacity:1; transform:translateY(0)     scale(1);    } }
+@keyframes toastOut { from { opacity:1; } to { opacity:0; transform:translateY(-6px); } }

@@ -1,0 +1,660 @@
+﻿/* ============================================================
+   RPG World Map — Parchment / Fantasy Style  (v2 — Enhanced)
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap');
+
+/* ---------- Map panel layout ---------- */
+.map-panel {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+}
+
+.map-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 2px solid #3d2a0a;
+    background: linear-gradient(90deg, #0f1620, #1c2a3a);
+    flex-shrink: 0;
+    gap: 12px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+}
+
+.map-topbar-title {
+    font-family: 'Cinzel', serif;
+    color: #f1c40f;
+    font-size: 1.5em;
+    text-shadow: 0 0 14px rgba(241,196,15,0.45);
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+}
+
+.map-legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78em;
+    color: #bdc3c7;
+    font-family: 'Cinzel', serif;
+}
+
+.legend-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.3);
+    flex-shrink: 0;
+}
+.legend-dot.easy   { background: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
+.legend-dot.medium { background: #f39c12; box-shadow: 0 0 5px #f39c12; }
+.legend-dot.hard   { background: #e74c3c; box-shadow: 0 0 5px #e74c3c; }
+.legend-dot.elite  { background: #9b59b6; box-shadow: 0 0 5px #9b59b6; }
+
+/* ---------- Player level badge ---------- */
+.map-player-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(241,196,15,0.1);
+    border: 1px solid #b8860b;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.82em;
+    color: #f1c40f;
+    white-space: nowrap;
+}
+
+/* ============================================================
+   PARCHMENT VIEWPORT — Enhanced aged paper texture
+   ============================================================ */
+.map-viewport {
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+    cursor: grab;
+    user-select: none;
+    background-color: #c8a046;
+    background-image:
+        radial-gradient(ellipse at   0%   0%, rgba(80, 42,  4, 0.62) 0%, transparent 48%),
+        radial-gradient(ellipse at 100%   0%, rgba(80, 42,  4, 0.55) 0%, transparent 48%),
+        radial-gradient(ellipse at   0% 100%, rgba(70, 38,  4, 0.70) 0%, transparent 50%),
+        radial-gradient(ellipse at 100% 100%, rgba(72, 40,  4, 0.62) 0%, transparent 50%),
+        radial-gradient(ellipse at  50%  45%, rgba(248,215,155,0.60) 0%, transparent 62%),
+        radial-gradient(circle at  13%  37%, rgba(130, 78, 18, 0.12) 0%, transparent 15%),
+        radial-gradient(circle at  78%  70%, rgba(110, 64, 12, 0.10) 0%, transparent 13%),
+        radial-gradient(circle at  58%  18%, rgba(140, 85, 22, 0.08) 0%, transparent 11%),
+        radial-gradient(circle at  36%  84%, rgba(118, 66, 10, 0.09) 0%, transparent 12%),
+        url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+    background-size: cover, cover, cover, cover, cover, cover, cover, cover, cover, auto;
+    background-blend-mode:
+        multiply, multiply, multiply, multiply,
+        screen,
+        multiply, multiply, multiply, multiply,
+        multiply;
+    filter: sepia(0.08) contrast(1.04) brightness(1.02);
+    box-shadow: inset 0 0 80px rgba(60,30,0,0.25);
+}
+.map-viewport::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(50,25,0,0.18) 100%);
+    mix-blend-mode: multiply;
+}
+.map-viewport:active { cursor: grabbing; }
+
+/* The pannable/zoomable inner container */
+#map-scene {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1400px;
+    height: 900px;
+    transform-origin: 0 0;
+    transition: none;
+}
+
+/* ---------- SVG map base ---------- */
+#map-svg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0; left: 0;
+}
+
+/* ---------- Region nodes ---------- */
+.map-region {
+    cursor: pointer;
+    transition: filter 0.25s ease, transform 0.25s ease;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+.map-region:hover {
+    filter: brightness(1.4) drop-shadow(0 0 12px rgba(241,196,15,0.85));
+    transform: scale(1.09);
+}
+.map-region.locked {
+    filter: grayscale(0.85) brightness(0.50) sepia(0.2);
+    cursor: not-allowed;
+}
+.map-region.locked:hover {
+    filter: grayscale(0.7) brightness(0.65) drop-shadow(0 0 8px rgba(200,50,50,0.5));
+    transform: scale(1.04);
+}
+.map-region.selected {
+    filter: brightness(1.55) drop-shadow(0 0 18px rgba(241,196,15,1.0));
+    transform: scale(1.13);
+}
+
+/* Pulsing glow on unlocked regions */
+@keyframes region-pulse {
+    0%, 100% { filter: brightness(1.0) drop-shadow(0 0 4px rgba(241,196,15,0.25)); }
+    50%       { filter: brightness(1.18) drop-shadow(0 0 14px rgba(241,196,15,0.7)); }
+}
+.map-region.unlocked { animation: region-pulse 3.5s ease-in-out infinite; }
+.map-region.unlocked:hover,
+.map-region.unlocked.selected { animation: none; }
+
+/* Region name labels */
+.region-label {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    fill: #2c1600;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+    font-weight: 700;
+    paint-order: stroke;
+    stroke: rgba(220,185,100,0.85);
+    stroke-width: 4px;
+    letter-spacing: 0.02em;
+}
+
+/* Difficulty ring colours */
+.diff-ring   { stroke-width: 3.5; fill: none; }
+.diff-easy   { stroke: #27ae60; }
+.diff-medium { stroke: #e67e22; }
+.diff-hard   { stroke: #c0392b; }
+.diff-elite  { stroke: #8e44ad; }
+
+/* ── Decorative map elements ─────────────────────────────── */
+.map-road {
+    fill: none;
+    stroke: #6b4e12;
+    stroke-width: 3.5;
+    stroke-dasharray: 10 6;
+    stroke-linecap: round;
+    opacity: 0.50;
+}
+.map-river {
+    fill: none;
+    stroke: #2980b9;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.55;
+}
+.map-river-inner {
+    fill: none;
+    stroke: #aed6f1;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    opacity: 0.38;
+}
+/* Mountain styles */
+.map-mountain        { fill: #8b7040; opacity: 0.55; }
+.map-mountain-shadow { fill: #5c4020; opacity: 0.22; }
+.map-mountain-body   { fill: #8b7040; opacity: 0.60; }
+.map-mountain-peak   { fill: #e8dcca; opacity: 0.50; }
+/* Forest */
+.map-forest-patch { fill: #3d6b30; opacity: 0.40; }
+.map-forest-tree  { fill: #2f5424; opacity: 0.60; stroke: #1a3012; stroke-width: 1; }
+/* Borders */
+.map-border {
+    fill: none;
+    stroke: #5c3a00;
+    stroke-width: 6;
+    opacity: 0.35;
+}
+.map-border-outer {
+    fill: none;
+    stroke: #3d2000;
+    stroke-width: 8;
+    opacity: 0.55;
+}
+.map-border-inner {
+    fill: none;
+    stroke: #6b4010;
+    stroke-width: 2.5;
+    opacity: 0.38;
+}
+/* Compass rose */
+.compass-arm-major { fill: #4a2c0c; opacity: 0.80; }
+.compass-arm-minor { fill: #7a5020; opacity: 0.60; }
+.compass-center    { fill: #c9a040; opacity: 0.85; stroke: #4a2c0c; stroke-width: 1; }
+.compass-n-label   {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    fill: #3a1c00;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    font-weight: 700;
+    opacity: 0.85;
+}
+/* Scale bar */
+.map-scale-bar  { stroke: #4a2c0c; stroke-width: 2; opacity: 0.55; }
+.map-scale-text { font-family: 'Cinzel', serif; font-size: 9px; fill: #3a1c00; text-anchor: middle; opacity: 0.60; }
+/* Wax seal */
+.map-seal-ring  { fill: none; stroke: #8b1a1a; stroke-width: 2; opacity: 0.70; }
+.map-seal-body  { opacity: 0.65; }
+.map-seal-glyph { fill: #d4a0a0; opacity: 0.55; pointer-events: none; }
+
+/* ══════════════════════════════════════════════════════════
+   TOOLTIP
+   ══════════════════════════════════════════════════════════ */
+#map-tooltip {
+    position: absolute;
+    z-index: 500;
+    width: 248px;
+    background: linear-gradient(158deg, #130e06 0%, #1e1608 60%, #120c04 100%);
+    border: 2px solid #9c7010;
+    border-radius: 10px;
+    padding: 14px 16px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.75), 0 0 25px rgba(184,134,11,0.18),
+                inset 0 1px 0 rgba(241,196,15,0.07);
+}
+#map-tooltip.visible { opacity: 1; transform: translateY(0) scale(1); }
+#map-tooltip::before,
+#map-tooltip::after {
+    content: '';
+    position: absolute;
+    width: 12px; height: 12px;
+    border: 1.5px solid #d4a017;
+}
+#map-tooltip::before { top: -4px; left: -4px; border-right: none; border-bottom: none; border-radius: 2px 0 0 0; }
+#map-tooltip::after  { bottom: -4px; right: -4px; border-left: none; border-top: none; border-radius: 0 0 2px 0; }
+
+.tt-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.tt-icon   { font-size: 1.6em; flex-shrink: 0; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6)); }
+.tt-name   { font-family: 'Cinzel', serif; color: #f1c40f; font-size: 0.96em; font-weight: 700; line-height: 1.3; }
+.tt-level  { font-size: 0.70em; color: #8d7a55; margin-top: 2px; }
+.tt-desc   {
+    font-size: 0.77em;
+    color: #c0b090;
+    line-height: 1.58;
+    margin-bottom: 8px;
+    border-top: 1px solid #2e2010;
+    padding-top: 8px;
+}
+.tt-diff {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.68em;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+}
+.tt-diff.easy   { background: rgba(39,174,96,0.15);  color: #27ae60; border: 1px solid #27ae60; }
+.tt-diff.medium { background: rgba(230,126,34,0.15);  color: #e67e22; border: 1px solid #e67e22; }
+.tt-diff.hard   { background: rgba(192,57,43,0.15);   color: #c0392b; border: 1px solid #c0392b; }
+.tt-diff.elite  { background: rgba(142,68,173,0.15);  color: #8e44ad; border: 1px solid #8e44ad; }
+.tt-locked-note {
+    font-size: 0.70em;
+    color: #c0392b;
+    margin-top: 7px;
+    font-style: italic;
+    padding: 4px 8px;
+    background: rgba(192,57,43,0.07);
+    border-radius: 4px;
+    border-left: 2px solid #c0392b;
+}
+
+/* ══════════════════════════════════════════════════════════
+   REGION DETAIL PANEL  (side drawer — expanded)
+   ══════════════════════════════════════════════════════════ */
+#region-panel {
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 320px;
+    background: linear-gradient(175deg, #0f1208 0%, #1a1a0e 40%, #12100a 100%);
+    border-left: 2px solid #9c7010;
+    z-index: 400;
+    transform: translateX(100%);
+    transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -10px 0 40px rgba(0,0,0,0.7);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #4a3010 #0f1208;
+}
+#region-panel::-webkit-scrollbar { width: 5px; }
+#region-panel::-webkit-scrollbar-track { background: #0f1208; }
+#region-panel::-webkit-scrollbar-thumb { background: #4a3010; border-radius: 3px; }
+#region-panel.open { transform: translateX(0); }
+
+.rp-close {
+    position: absolute;
+    top: 10px; right: 12px;
+    background: transparent;
+    border: none;
+    color: #5a4820;
+    font-size: 1.4em;
+    cursor: pointer;
+    line-height: 1;
+    z-index: 10;
+    transition: color 0.2s, transform 0.2s;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+}
+.rp-close:hover { color: #e74c3c; transform: rotate(90deg); }
+
+.rp-image {
+    width: 100%;
+    height: 130px;
+    border-bottom: 2px solid #9c7010;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4.2em;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+.rp-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.45) 100%);
+    pointer-events: none;
+}
+
+.rp-body { padding: 16px 18px 22px; flex-grow: 1; }
+
+.rp-section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72em;
+    color: #b8860b;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 16px 0 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(184,134,11,0.25);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rp-icon-title { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.rp-icon { font-size: 2.1em; }
+.rp-name {
+    font-family: 'Cinzel', serif;
+    color: #f1c40f;
+    font-size: 1.15em;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(241,196,15,0.35);
+    line-height: 1.3;
+}
+.rp-type-label { font-size: 0.75em; color: #7a6838; font-style: italic; margin-bottom: 10px; }
+.rp-desc {
+    font-size: 0.82em;
+    color: #bdb090;
+    line-height: 1.72;
+    margin-bottom: 12px;
+    border-left: 2px solid #9c7010;
+    padding-left: 10px;
+    font-style: italic;
+}
+
+.rp-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-bottom: 6px;
+}
+.rp-stat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid #1e1808;
+    border-radius: 6px;
+    padding: 8px 10px;
+    text-align: center;
+}
+.rp-stat-label { font-size: 0.65em; color: #5a4820; display: block; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+.rp-stat-value { font-size: 0.90em; color: #e0cfa0; font-weight: bold; display: block; }
+
+/* Locked requirement note */
+.rp-locked-note {
+    background: rgba(192,57,43,0.08);
+    border: 1px solid rgba(192,57,43,0.35);
+    border-radius: 7px;
+    padding: 10px 14px;
+    margin: 10px 0 4px;
+    text-align: center;
+}
+.rp-locked-note strong {
+    display: block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.80em;
+    color: #e74c3c;
+    margin-bottom: 3px;
+    letter-spacing: 0.05em;
+}
+.rp-locked-note span { font-size: 0.72em; color: #a05040; }
+
+/* Monster list */
+.rp-monsters-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px; }
+.monster-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(20,14,4,0.55);
+    border: 1px solid #2a1e08;
+    border-radius: 7px;
+    padding: 8px 10px;
+    transition: border-color 0.2s;
+}
+.monster-item:hover { border-color: #4a3010; }
+.monster-icon { font-size: 1.5em; flex-shrink: 0; line-height: 1; }
+.monster-info { flex-grow: 1; min-width: 0; }
+.monster-name { font-size: 0.80em; color: #d8c8a0; font-weight: 600; }
+.monster-sub  { font-size: 0.65em; color: #6a5830; margin-top: 1px; }
+.monster-qty  {
+    font-size: 0.68em;
+    color: #9a8040;
+    white-space: nowrap;
+    font-family: 'Cinzel', serif;
+    background: rgba(241,196,15,0.07);
+    border: 1px solid rgba(241,196,15,0.15);
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+
+/* Rewards grid */
+.rp-rewards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-bottom: 4px;
+}
+.reward-item {
+    background: rgba(241,196,15,0.05);
+    border: 1px solid #2c2008;
+    border-radius: 7px;
+    padding: 8px 10px;
+    text-align: center;
+    transition: border-color 0.2s, background 0.2s;
+}
+.reward-item:hover { border-color: #6a5010; background: rgba(241,196,15,0.08); }
+.reward-icon  { font-size: 1.3em; display: block; margin-bottom: 3px; }
+.reward-label { font-size: 0.60em; color: #5a4820; display: block; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+.reward-value { font-size: 0.80em; color: #e0b840; font-weight: bold; display: block; }
+.reward-item.full-width { grid-column: 1 / -1; }
+.reward-item.rare {
+    grid-column: 1 / -1;
+    background: rgba(142,68,173,0.07);
+    border-color: rgba(142,68,173,0.30);
+}
+.reward-item.rare .reward-value { color: #9b59b6; }
+.reward-item.rare .reward-label { color: #6a3880; }
+
+/* Action buttons */
+.rp-action-btn {
+    width: 100%;
+    padding: 12px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.86em;
+    font-weight: bold;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid;
+    transition: all 0.22s ease;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    margin-top: 14px;
+    background: linear-gradient(145deg, #9c7010, #c8920a);
+    border-color: #f1c40f;
+    color: #fff8e0;
+    box-shadow: 0 0 14px rgba(241,196,15,0.22), 0 3px 8px rgba(0,0,0,0.4);
+}
+.rp-action-btn:hover {
+    background: linear-gradient(145deg, #d4a017, #f1c40f);
+    color: #1a0c00;
+    box-shadow: 0 0 24px rgba(241,196,15,0.55), 0 4px 12px rgba(0,0,0,0.4);
+    transform: translateY(-1px);
+}
+.rp-action-btn.locked-btn {
+    background: linear-gradient(145deg, #1a1208, #241808);
+    border-color: #8b2020;
+    color: #c0392b;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+.rp-action-btn.locked-btn:hover {
+    background: linear-gradient(145deg, #1a1208, #241808);
+    color: #c0392b;
+    box-shadow: 0 0 10px rgba(192,57,43,0.2);
+    transform: none;
+}
+
+.rp-secondary-btn {
+    width: 100%;
+    padding: 10px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.78em;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid #3a2808;
+    transition: all 0.22s ease;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    margin-top: 8px;
+    background: linear-gradient(145deg, #0e0a04, #1a1208);
+    color: #9a7830;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.rp-secondary-btn:hover {
+    background: linear-gradient(145deg, #1a1208, #2e2010);
+    border-color: #9c7010;
+    color: #e0b040;
+    box-shadow: 0 0 14px rgba(184,134,11,0.28);
+    transform: translateY(-1px);
+}
+
+/* ---------- Zoom controls ---------- */
+.map-zoom-controls {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 300;
+}
+.zoom-btn {
+    width: 38px;
+    height: 38px;
+    background: rgba(10,8,4,0.88);
+    border: 2px solid #7a5808;
+    border-radius: 7px;
+    color: #d4a017;
+    font-size: 1.25em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-weight: bold;
+    line-height: 1;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+}
+.zoom-btn:hover {
+    background: rgba(184,134,11,0.18);
+    border-color: #d4a017;
+    box-shadow: 0 0 10px rgba(212,160,23,0.35);
+}
+
+/* ---------- Minimap ---------- */
+#minimap {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 165px;
+    height: 106px;
+    background: rgba(8,6,2,0.88);
+    border: 2px solid #7a5808;
+    border-radius: 7px;
+    z-index: 300;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.65);
+}
+#minimap-svg { width: 100%; height: 100%; }
+#minimap-viewport {
+    fill: rgba(241,196,15,0.10);
+    stroke: #f1c40f;
+    stroke-width: 1.5;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+    #map-scene { width: 900px; height: 580px; }
+    #region-panel { width: 280px; }
+    #minimap { display: none; }
+    .map-topbar-title { font-size: 1.1em; }
+}
+@media (max-width: 600px) {
+    #region-panel {
+        width: 100%; bottom: 0; top: auto; height: 70%;
+        transform: translateY(100%);
+        border-left: none; border-top: 2px solid #9c7010;
+    }
+    #region-panel.open { transform: translateY(0); }
+    .map-legend { display: none; }
+    .rp-rewards-grid { grid-template-columns: 1fr 1fr 1fr; }
+}

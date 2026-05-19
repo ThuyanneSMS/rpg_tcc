@@ -1,9 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPG Web - Cadastro</title>
+    <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
         .auth-nav { text-align: center; margin-bottom: 20px; font-family: 'Cinzel', serif;}
@@ -62,6 +63,8 @@
         </form>
     </div>
 
+    <script src="js/theme.js"></script>
+    <script>ThemeSystem.initLoginPage();</script>
     <script src="js/utils.js"></script>
     <script>
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
@@ -84,6 +87,10 @@
                     method: 'POST',
                     body: JSON.stringify(payload)
                 });
+
+                // Limpa sessão anterior para garantir tema padrão no novo login
+                localStorage.removeItem('rpg_token');
+                localStorage.removeItem('rpg_theme');
 
                 msgBox.className = 'success-msg';
                 msgBox.textContent = 'Aliança Forjada! Os portões se abrem...';

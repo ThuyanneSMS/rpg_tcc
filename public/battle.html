@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <title>RPG Web - Combate</title>
+    <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
         .battle-arena {
@@ -143,6 +144,8 @@
         <button class="btn success" style="width: 200px;" onclick="window.location.href='game.html'">Voltar a Guilda</button>
     </div>
 
+    <script src="js/theme.js"></script>
+    <script>ThemeSystem.initTheme();</script>
     <script src="js/utils.js"></script>
     <script>
         if (!isAuthenticated()) window.location.href = 'index.html';

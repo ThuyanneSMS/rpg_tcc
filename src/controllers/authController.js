@@ -62,7 +62,7 @@ exports.login = async (req, res) => {
             { expiresIn: '24h' }
         );
 
-        res.json({ message: 'Login realizado com sucesso!', token });
+        res.json({ message: 'Login realizado com sucesso!', token, theme: user.theme || 'default' });
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: 'Erro no servidor durante o login.' });
@@ -88,6 +88,36 @@ exports.updateProfile = async (req, res) => {
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: 'Erro no servidor ao atualizar perfil.' });
+    }
+};
+
+// Obter tema visual do usuário
+exports.getTheme = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const result = await db.query('SELECT theme FROM users WHERE id = $1', [userId]);
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Usuário não encontrado.' });
+        res.json({ theme: result.rows[0].theme || 'default' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Erro ao buscar tema.' });
+    }
+};
+
+// Atualizar tema visual do usuário
+exports.updateTheme = async (req, res) => {
+    const VALID_THEMES = ['default', 'dark', 'light', 'forest', 'cave', 'snow', 'volcano', 'shadow'];
+    try {
+        const userId = req.user.id;
+        const { theme } = req.body;
+        if (!VALID_THEMES.includes(theme)) {
+            return res.status(400).json({ error: 'Tema inválido.' });
+        }
+        await db.query('UPDATE users SET theme = $1 WHERE id = $2', [theme, userId]);
+        res.json({ message: 'Tema atualizado com sucesso!', theme });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Erro ao salvar tema.' });
     }
 };
 

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPG Web - Inventario</title>
+    <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
         /* Abas de navegação */
@@ -157,6 +158,7 @@
                 <li class="menu-item active"><a href="inventory.html">&#x1F392; Inventario</a></li>
                 <li class="menu-item"><a href="shop.html">&#x1F6D2; Mercador</a></li>
                 <li class="menu-item"><a href="battle.html">&#x2694;&#xFE0F; Missões</a></li>
+                <li class="menu-item"><a href="map.html">&#x1F5FA;&#xFE0F; Mapa</a></li>
                 <li class="menu-item"><a href="ranking.html">&#x1F3C6; Ranking</a></li>
                 <li class="menu-item"><a href="profile.html">&#x1F4CB; Meus Dados</a></li>
             </ul>
@@ -234,6 +236,8 @@
         </main>
     </div>
 
+    <script src="js/theme.js"></script>
+    <script>ThemeSystem.initTheme();</script>
     <script src="js/utils.js"></script>
     <script>
         if (!isAuthenticated()) window.location.href = 'index.html';

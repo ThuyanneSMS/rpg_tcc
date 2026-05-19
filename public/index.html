@@ -1,9 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPG Web - Login</title>
+    <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
         .auth-nav { text-align: center; margin-bottom: 20px; font-family: 'Cinzel', serif;}
@@ -35,6 +36,8 @@
         </form>
     </div>
 
+    <script src="js/theme.js"></script>
+    <script>ThemeSystem.initLoginPage();</script>
     <script src="js/utils.js"></script>
     <script>
         // Redirect if already logged in
@@ -54,8 +57,11 @@
                     body: JSON.stringify({ email, password })
                 });
 
-                // Salva token e redireciona
+                // Salva token; semeia o tema do perfil no localStorage antes de redirecionar
                 saveToken(data.token);
+                if (data.theme) {
+                    localStorage.setItem('rpg_theme', data.theme);
+                }
                 window.location.href = 'game.html';
 
             } catch (error) {

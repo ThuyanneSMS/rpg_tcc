@@ -1,0 +1,449 @@
+/* ============================================================
+   RPG Tutorial / Onboarding System — Medieval Fantasy Style
+   ============================================================ */
+
+/* ---------- Overlay ---------- */
+#tutorial-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    pointer-events: none;         /* spotlight SVG handles visuals, clicks pass through to mask */
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+#tutorial-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* SVG that draws the dark mask with a transparent "hole" */
+#tutorial-mask-svg {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9001;
+    pointer-events: none;
+}
+
+/* The dark mask rect */
+#tutorial-mask-rect {
+    fill: rgba(5, 8, 12, 0.82);
+    transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Spotlight "hole" — a glowing cutout */
+#tutorial-spotlight {
+    fill: transparent;
+    filter: url(#tutorial-glow-filter);
+    transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    rx: 10;
+    ry: 10;
+}
+
+/* ---------- Balloon / Tooltip ---------- */
+#tutorial-balloon {
+    position: fixed;
+    z-index: 9100;
+    width: min(420px, 92vw);
+    background: linear-gradient(145deg, #0f1620 0%, #1c2a3a 60%, #0a1018 100%);
+    border: 2px solid #b8860b;
+    border-radius: 12px;
+    padding: 28px 26px 22px;
+    box-shadow:
+        0 0 0 1px rgba(241, 196, 15, 0.15),
+        0 0 30px rgba(0, 0, 0, 0.8),
+        0 0 60px rgba(184, 134, 11, 0.15),
+        inset 0 0 20px rgba(241, 196, 15, 0.04);
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+    transition:
+        opacity 0.35s ease,
+        transform 0.35s ease,
+        top 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+        left 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: all;
+}
+
+#tutorial-balloon.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Decorative corner runes */
+#tutorial-balloon::before,
+#tutorial-balloon::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f1c40f;
+}
+#tutorial-balloon::before { top: -6px; left: -6px; border-right: none; border-bottom: none; }
+#tutorial-balloon::after  { bottom: -6px; right: -6px; border-left: none; border-top: none; }
+
+/* Arrow pointer on the balloon */
+#tutorial-balloon .balloon-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+    transition: all 0.35s ease;
+}
+#tutorial-balloon .balloon-arrow.arrow-left {
+    left: -20px; top: 50%; transform: translateY(-50%);
+    border-right-color: #b8860b;
+}
+#tutorial-balloon .balloon-arrow.arrow-right {
+    right: -20px; top: 50%; transform: translateY(-50%);
+    border-left-color: #b8860b;
+}
+#tutorial-balloon .balloon-arrow.arrow-top {
+    top: -20px; left: 50%; transform: translateX(-50%);
+    border-bottom-color: #b8860b;
+}
+#tutorial-balloon .balloon-arrow.arrow-bottom {
+    bottom: -20px; left: 50%; transform: translateX(-50%);
+    border-top-color: #b8860b;
+}
+
+/* Step badge */
+#tutorial-balloon .tutorial-step-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(#b8860b, #d4a017);
+    border: 1px solid #f1c40f;
+    border-radius: 20px;
+    padding: 3px 14px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.7em;
+    color: #fff;
+    white-space: nowrap;
+    letter-spacing: 0.08em;
+    box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
+}
+
+/* Icon */
+#tutorial-balloon .tutorial-step-icon {
+    font-size: 2.2em;
+    text-align: center;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 6px rgba(241, 196, 15, 0.5));
+    animation: tut-float 2.5s ease-in-out infinite;
+}
+
+/* Title */
+#tutorial-balloon .tutorial-title {
+    font-family: 'Cinzel', serif;
+    color: #f1c40f;
+    font-size: 1.15em;
+    margin-bottom: 10px;
+    text-align: center;
+    text-shadow: 0 0 12px rgba(241, 196, 15, 0.5);
+    letter-spacing: 0.05em;
+}
+
+/* Description */
+#tutorial-balloon .tutorial-desc {
+    font-family: 'Merriweather', serif;
+    color: #c8d0d8;
+    font-size: 0.88em;
+    line-height: 1.65;
+    text-align: center;
+    margin-bottom: 20px;
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+/* ---------- Progress bar ---------- */
+.tutorial-progress-wrap {
+    margin: 0 0 18px;
+}
+
+.tutorial-progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7em;
+    color: #7f8c8d;
+    margin-bottom: 5px;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.05em;
+}
+
+.tutorial-progress-track {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(184, 134, 11, 0.25);
+}
+
+.tutorial-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #b8860b, #f1c40f, #e67e22);
+    border-radius: 10px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 8px rgba(241, 196, 15, 0.6);
+    position: relative;
+    overflow: hidden;
+}
+
+.tutorial-progress-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+    animation: tut-shimmer 1.8s infinite;
+}
+
+/* ---------- Buttons ---------- */
+.tutorial-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.tut-btn {
+    flex: 1;
+    padding: 10px 14px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8em;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    text-transform: uppercase;
+    border: 2px solid;
+    position: relative;
+    overflow: hidden;
+}
+
+.tut-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background 0.2s;
+}
+.tut-btn:hover::after { background: rgba(255,255,255,0.06); }
+
+.tut-btn-prev {
+    background: linear-gradient(145deg, #1c2a3a, #2c3e50);
+    border-color: #55667a;
+    color: #aab4be;
+    flex: 0.7;
+}
+.tut-btn-prev:hover { border-color: #b8860b; color: #f1c40f; }
+.tut-btn-prev:disabled { opacity: 0.3; pointer-events: none; }
+
+.tut-btn-next {
+    background: linear-gradient(145deg, #b8860b, #d4a017);
+    border-color: #f1c40f;
+    color: #fff;
+    box-shadow: 0 0 12px rgba(241, 196, 15, 0.3);
+}
+.tut-btn-next:hover {
+    background: linear-gradient(145deg, #f1c40f, #e67e22);
+    color: #000;
+    box-shadow: 0 0 20px rgba(241, 196, 15, 0.6);
+    transform: translateY(-1px);
+}
+
+.tut-btn-finish {
+    background: linear-gradient(145deg, #27ae60, #1e8449);
+    border-color: #2ecc71;
+    color: #fff;
+    box-shadow: 0 0 12px rgba(46, 204, 113, 0.3);
+}
+.tut-btn-finish:hover {
+    background: linear-gradient(145deg, #2ecc71, #27ae60);
+    box-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
+    transform: translateY(-1px);
+}
+
+.tut-btn-skip {
+    flex: 0;
+    background: transparent;
+    border-color: transparent;
+    color: #55667a;
+    font-size: 0.72em;
+    padding: 10px 6px;
+    flex-shrink: 0;
+}
+.tut-btn-skip:hover { color: #e74c3c; border-color: transparent; }
+
+/* ---------- Spotlight glow ring around highlighted element ---------- */
+.tutorial-highlight {
+    outline: none !important;
+    z-index: 9050 !important;
+    position: relative !important;
+    animation: tut-pulse-border 1.5s ease-in-out infinite !important;
+}
+
+/* Pointer pulse on the balloon for "look here" affordance */
+.tutorial-pointer {
+    position: fixed;
+    z-index: 9200;
+    width: 36px;
+    height: 36px;
+    pointer-events: none;
+    animation: tut-pointer-pulse 1.2s ease-in-out infinite;
+    font-size: 1.4em;
+    display: none;
+}
+.tutorial-pointer.visible { display: block; }
+
+/* ---------- Welcome / Finish screens ---------- */
+#tutorial-welcome,
+#tutorial-finish {
+    position: fixed;
+    inset: 0;
+    z-index: 9500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(5, 8, 12, 0.92);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+#tutorial-welcome.active,
+#tutorial-finish.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.tutorial-card {
+    background: linear-gradient(145deg, #0f1620, #1c2a3a);
+    border: 2px solid #b8860b;
+    border-radius: 16px;
+    padding: 46px 42px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(184, 134, 11, 0.25), inset 0 0 30px rgba(241, 196, 15, 0.04);
+    position: relative;
+    animation: tut-card-in 0.5s ease;
+}
+
+.tutorial-card::before,
+.tutorial-card::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f1c40f;
+}
+.tutorial-card::before { top: -7px; left: -7px; border-right: none; border-bottom: none; }
+.tutorial-card::after  { bottom: -7px; right: -7px; border-left: none; border-top: none; }
+
+.tutorial-card .big-icon {
+    font-size: 3.5em;
+    margin-bottom: 16px;
+    display: block;
+    filter: drop-shadow(0 0 12px rgba(241, 196, 15, 0.6));
+    animation: tut-float 3s ease-in-out infinite;
+}
+
+.tutorial-card h2 {
+    font-family: 'Cinzel', serif;
+    color: #f1c40f;
+    font-size: 1.7em;
+    margin-bottom: 14px;
+    text-shadow: 0 0 16px rgba(241, 196, 15, 0.5);
+    letter-spacing: 0.06em;
+}
+
+.tutorial-card p {
+    color: #c8d0d8;
+    font-size: 0.92em;
+    line-height: 1.75;
+    margin-bottom: 28px;
+}
+
+.tutorial-card .tut-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tut-card-btn {
+    width: 100%;
+    padding: 13px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.9em;
+    font-weight: bold;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 7px;
+    cursor: pointer;
+    border: 2px solid;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.tut-card-btn-primary {
+    background: linear-gradient(145deg, #b8860b, #d4a017);
+    border-color: #f1c40f;
+    color: #fff;
+    box-shadow: 0 0 16px rgba(241, 196, 15, 0.3);
+}
+.tut-card-btn-primary:hover {
+    background: linear-gradient(145deg, #f1c40f, #e67e22);
+    color: #000;
+    box-shadow: 0 0 28px rgba(241, 196, 15, 0.7);
+    transform: translateY(-2px);
+}
+
+.tut-card-btn-secondary {
+    background: transparent;
+    border-color: #55667a;
+    color: #7f8c8d;
+}
+.tut-card-btn-secondary:hover { border-color: #e74c3c; color: #e74c3c; }
+
+/* ---------- Animations ---------- */
+@keyframes tut-float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-6px); }
+}
+
+@keyframes tut-shimmer {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+}
+
+@keyframes tut-pulse-border {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(241, 196, 15, 0.5), 0 0 20px rgba(241, 196, 15, 0.2); }
+    50%       { box-shadow: 0 0 0 6px rgba(241, 196, 15, 0.2), 0 0 35px rgba(241, 196, 15, 0.4); }
+}
+
+@keyframes tut-card-in {
+    from { transform: scale(0.9) translateY(20px); opacity: 0; }
+    to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes tut-pointer-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%       { transform: scale(1.3); opacity: 0.7; }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+    #tutorial-balloon {
+        width: calc(100vw - 24px);
+        left: 12px !important;
+        right: 12px;
+    }
+
+    .tutorial-card {
+        padding: 32px 22px;
+    }
+
+    .tutorial-card h2 { font-size: 1.3em; }
+}

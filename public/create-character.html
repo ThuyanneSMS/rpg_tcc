@@ -4,8 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPG Web - Criar Heroi</title>
+    <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
+        /* ---- Gear FX ---- */
+        #gear-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .fx-gear-wrap {
+            position: absolute;
+            transform-origin: center center;
+        }
+        @keyframes gearCW  { from { transform: rotate(0deg);    } to { transform: rotate(360deg);  } }
+        @keyframes gearCCW { from { transform: rotate(0deg);    } to { transform: rotate(-360deg); } }
+        @keyframes gearFade {
+            0%, 100% { opacity: var(--op-lo); }
+            50%      { opacity: var(--op-hi); }
+        }
+        /* ---- Page styles ---- */
         .gender-selector {
             display: flex;
             gap: 20px;
@@ -22,13 +42,13 @@
             width: 140px;
         }
         .gender-option:hover {
-            border-color: #f1c40f;
-            box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+            border-color: var(--accent-primary, #c8973a);
+            box-shadow: 0 0 10px rgba(200, 151, 58, 0.3);
         }
         .gender-option.selected {
-            border-color: #f1c40f;
-            background: rgba(241, 196, 15, 0.1);
-            box-shadow: 0 0 15px rgba(241, 196, 15, 0.4);
+            border-color: var(--accent-primary, #c8973a);
+            background: rgba(200, 151, 58, 0.1);
+            box-shadow: 0 0 15px rgba(200, 151, 58, 0.4);
         }
         .gender-option img {
             width: 100px;
@@ -39,7 +59,7 @@
             margin-bottom: 8px;
         }
         .gender-option.selected img {
-            border-color: #f1c40f;
+            border-color: var(--accent-primary, #c8973a);
         }
         .gender-label {
             font-weight: bold;
@@ -49,6 +69,9 @@
     </style>
 </head>
 <body>
+    <!-- Gear FX background layer -->
+    <div id="gear-layer"></div>
+
     <div class="container fade-in">
         <h2 style="margin-bottom: 5px;">Salao de Criacao</h2>
         <p class="text-center" style="color: #bdc3c7; margin-bottom: 20px; font-style: italic;">Forje aqui o seu destino...</p>
@@ -86,6 +109,85 @@
         </form>
     </div>
 
+    <script src="js/theme.js"></script>
+    <script>ThemeSystem.initLoginPage();</script>
+    <script>
+        // ---- Gear FX ----
+        // Cores do tema padrão (ouro/bronze)
+        const GEAR_FILL_COLOR   = '#c8973a';
+        const GEAR_STROKE_COLOR = '#8a6420';
+
+        // Gera o atributo "d" de um SVG path para uma engrenagem
+        function gearPath(size, teeth) {
+            const cx = size / 2, cy = size / 2;
+            const rOut  = size * 0.46;
+            const rIn   = size * 0.34;
+            const rHub  = size * 0.12;
+            const seg   = (2 * Math.PI) / teeth;
+            let d = '';
+            for (let i = 0; i < teeth; i++) {
+                const a0 = seg * i - Math.PI / 2;
+                const pt = (r, a) => `${cx + r * Math.cos(a)} ${cy + r * Math.sin(a)}`;
+                const a1 = a0 + seg * 0.20, a2 = a0 + seg * 0.30;
+                const a3 = a0 + seg * 0.70, a4 = a0 + seg * 0.80;
+                const aN = a0 + seg;
+                if (i === 0) d += `M ${pt(rIn, a0)} `;
+                d += `L ${pt(rIn, a1)} L ${pt(rOut, a2)} L ${pt(rOut, a3)} L ${pt(rIn, a4)} A ${rIn} ${rIn} 0 0 1 ${pt(rIn, aN)} `;
+            }
+            d += 'Z ';
+            // furo central
+            d += `M ${cx + rHub} ${cy} A ${rHub} ${rHub} 0 1 0 ${cx - rHub} ${cy} A ${rHub} ${rHub} 0 1 0 ${cx + rHub} ${cy} Z`;
+            return d;
+        }
+
+        // [size, teeth, top%, left%, sentidoCW, durRotacao, durFade, opMin, opMax, atrasoFade]
+        const GEAR_CONFIG = [
+            [200, 14,  -8,  -8,   true,  40, 10, 0.35, 0.70,  0],
+            [140, 10,  -5,  52,  false,  24,  8, 0.28, 0.60,  2],
+            [170, 12,  -6,  76,   true,  32, 13, 0.30, 0.65,  5],
+            [160, 11,  58,  -6,  false,  30,  9, 0.28, 0.62,  1],
+            [220, 15,  54,  70,   true,  44, 12, 0.40, 0.72,  3],
+            [100,  8,  26,  -2,   true,  18,  7, 0.25, 0.55,  4],
+            [ 90,  7,  20,  88,  false,  15,  6, 0.22, 0.50,  6],
+            [120,  9,  70,  36,   true,  22, 10, 0.28, 0.58,  2],
+            [130, 10,  40,  -5,  false,  26,  8, 0.30, 0.60,  7],
+            [110,  9,  75,  82,   true,  20, 11, 0.25, 0.55,  3],
+        ];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const layer = document.getElementById('gear-layer');
+            const NS = 'http://www.w3.org/2000/svg';
+
+            GEAR_CONFIG.forEach(function([sz, teeth, top, left, cw, durR, durF, opLo, opHi, delay]) {
+                const svg = document.createElementNS(NS, 'svg');
+                svg.setAttribute('width',   sz);
+                svg.setAttribute('height',  sz);
+                svg.setAttribute('viewBox', `0 0 ${sz} ${sz}`);
+
+                const path = document.createElementNS(NS, 'path');
+                path.setAttribute('d',           gearPath(sz, teeth));
+                path.setAttribute('fill',        GEAR_FILL_COLOR);
+                path.setAttribute('fill-rule',   'evenodd');
+                path.setAttribute('stroke',      GEAR_STROKE_COLOR);
+                path.setAttribute('stroke-width','1.8');
+                svg.appendChild(path);
+
+                const wrap = document.createElement('div');
+                wrap.className = 'fx-gear-wrap';
+                const rotKf  = cw ? 'gearCW' : 'gearCCW';
+                wrap.style.cssText = [
+                    `top:${top}%`,
+                    `left:${left}%`,
+                    `--op-lo:${opLo}`,
+                    `--op-hi:${opHi}`,
+                    `opacity:${opLo}`,
+                    `animation:${rotKf} ${durR}s linear infinite, gearFade ${durF}s ease-in-out ${delay}s infinite`
+                ].join(';') + ';';
+                wrap.appendChild(svg);
+                layer.appendChild(wrap);
+            });
+        });
+    </script>
     <script src="js/utils.js"></script>
     <script>
         if (!isAuthenticated()) window.location.href = 'index.html';

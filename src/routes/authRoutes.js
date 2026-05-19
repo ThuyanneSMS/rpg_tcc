@@ -11,4 +11,8 @@ router.post('/login', authController.login);
 router.get('/profile', authenticateToken, authController.getProfile);
 router.put('/profile', authenticateToken, authController.updateProfile);
 
+// Theme routes
+router.get('/theme', authenticateToken, authController.getTheme);
+router.put('/theme', authenticateToken, authController.updateTheme);
+
 module.exports = router;

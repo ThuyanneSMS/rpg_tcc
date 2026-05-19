@@ -11,6 +11,7 @@ function getToken() {
 
 function removeToken() {
     localStorage.removeItem('rpg_token');
+    localStorage.removeItem('rpg_theme');
 }
 
 function isAuthenticated() {

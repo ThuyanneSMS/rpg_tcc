@@ -1,10 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPG Web - Aventura</title>
+    <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/tutorial.css">
     <style>
         .char-card {
             background: linear-gradient(to right, #2c3e50, #1a252f);
@@ -297,15 +299,16 @@
                 <div>⚔️ Guilda Escarlate</div>
             </div>
             <ul class="menu-list">
-                <li class="menu-item active"><a href="game.html">&#x1F464; Status</a></li>
-                <li class="menu-item"><a href="inventory.html">&#x1F392; Inventario</a></li>
-                <li class="menu-item"><a href="shop.html">&#x1F6D2; Mercador</a></li>
-                <li class="menu-item"><a href="battle.html">&#x2694;&#xFE0F; Missões</a></li>
-                <li class="menu-item"><a href="ranking.html">&#x1F3C6; Ranking</a></li>
-                <li class="menu-item"><a href="profile.html">&#x1F4CB; Meus Dados</a></li>
+                <li class="menu-item active" id="menu-status"><a href="game.html">&#x1F464; Status</a></li>
+                <li class="menu-item" id="menu-inventory"><a href="inventory.html">&#x1F392; Inventario</a></li>
+                <li class="menu-item" id="menu-shop"><a href="shop.html">&#x1F6D2; Mercador</a></li>
+                <li class="menu-item" id="menu-battle"><a href="battle.html">&#x2694;&#xFE0F; Missões</a></li>
+                <li class="menu-item" id="menu-map"><a href="map.html">&#x1F5FA;&#xFE0F; Mapa</a></li>
+                <li class="menu-item" id="menu-ranking"><a href="ranking.html">&#x1F3C6; Ranking</a></li>
+                <li class="menu-item" id="menu-profile"><a href="profile.html">&#x1F4CB; Meus Dados</a></li>
             </ul>
             <div style="margin-top: auto">
-                <a class="rpg-btn" style="display: block; font-size: 0.8em; background: #c0392b; border-color: #e74c3c;" onclick="logout()">Sair</a>
+                <a class="rpg-btn btn-logout" onclick="logout()">Sair</a>
             </div>
         </aside>
 
@@ -435,7 +438,7 @@
 
                 <div class="bottom-actions">
                     <button class="rpg-btn" onclick="window.location.href='battle.html'">Modo Batalha</button>
-                    <button class="rpg-btn" style="background: linear-gradient(#27ae60, #1e8449); border-color: #2ecc71;" onclick="heal()">Estalagem</button>
+                    <button class="rpg-btn" id="btn-inn" style="background: linear-gradient(#27ae60, #1e8449); border-color: #2ecc71;" onclick="heal()">Estalagem</button>
                     <button class="rpg-btn" style="background: linear-gradient(#8e44ad, #6c3483); border-color: #9b59b6;" onclick="changeAppearance()">Trocar Aparência</button>
                 </div>
             </div>
@@ -443,7 +446,10 @@
         </main>
     </div>
 
+    <script src="js/theme.js"></script>
+    <script>ThemeSystem.initTheme();</script>
     <script src="js/utils.js"></script>
+    <script src="js/tutorial.js"></script>
     <script>
         if (!isAuthenticated()) window.location.href = 'index.html';
 
@@ -615,7 +621,11 @@
             }
         }
 
-        window.onload = loadCharacter;
+        window.onload = async function () {
+            await loadCharacter();
+            const forceRedirect = new URLSearchParams(window.location.search).get('tutorial') === '1';
+            RPGTutorial.init(forceRedirect);
+        };
     </script>
 </body>
 </html>

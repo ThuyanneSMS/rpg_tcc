@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Merriweather&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Merriweather&display=swap');
 
 /* Base Styles */
 * {
@@ -9,8 +9,8 @@
 }
 
 body {
-    background: #111 url('https://www.transparenttextures.com/patterns/dark-matter.png');
-    color: #ecf0f1;
+    background: var(--bg-body) var(--bg-body-img);
+    color: var(--text-primary);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -21,83 +21,83 @@ body {
 /* Typography Overrides */
 h1, h2, h3, h4, .cinzel {
     font-family: 'Cinzel', serif;
-    color: #f1c40f;
+    color: var(--text-heading);
     text-shadow: 1px 1px 3px #000;
 }
 
 /* Global RPG Container for standalone pages (login, register, create-char) */
 .container {
-    background: rgba(15, 20, 25, 0.95);
-    border: 4px solid #b8860b;
-    border-radius: 12px;
-    box-shadow: 0 0 20px #000, inset 0 0 15px rgba(255, 215, 0, 0.2);
+    background: var(--bg-container);
+    border: var(--border-width-main) solid var(--border-primary);
+    border-radius: var(--radius-main);
+    box-shadow: var(--shadow-main), inset 0 0 15px rgba(255,215,0,0.08);
     padding: 40px;
     width: 90%;
     max-width: 500px;
     position: relative;
+    z-index: 1;
     margin: 20px;
 }
 
-/* Decorative Corners for Containers */
-.container::before, .container::after, .rpg-container::before, .rpg-container::after {
-    content: ''; position: absolute; width: 20px; height: 20px; border: 4px solid #f1c40f; pointer-events: none;
+/* Decorative Corners */
+.container::before, .container::after,
+.rpg-container::before, .rpg-container::after {
+    content: ''; position: absolute; width: 20px; height: 20px;
+    border: 4px solid var(--accent-primary); pointer-events: none;
 }
 .container::before, .rpg-container::before { top: -8px; left: -8px; border-right: none; border-bottom: none; }
-.container::after, .rpg-container::after { bottom: -8px; right: -8px; border-left: none; border-top: none; }
+.container::after,  .rpg-container::after  { bottom: -8px; right: -8px; border-left: none; border-top: none; }
 
 .container h2 {
     text-align: center;
     font-size: 2em;
     margin-bottom: 25px;
-    border-bottom: 2px solid #555;
+    border-bottom: 2px solid var(--border-secondary);
     padding-bottom: 10px;
 }
 
-header {
-    display: none; /* We hide the old top banners in favor of the integrated layout */
-}
+header { display: none; }
 
-/* App Layout Container (Inventory, Game, Shop, Battle, Profile) */
+/* App Layout Container */
 .rpg-container {
     display: flex;
     width: 90%;
     max-width: 1100px;
     height: 85vh;
-    background: rgba(15, 20, 25, 0.95);
-    border: 4px solid #b8860b;
-    border-radius: 12px;
-    box-shadow: 0 0 20px #000, inset 0 0 15px rgba(255, 215, 0, 0.2);
+    background: var(--bg-container);
+    border: var(--border-width-main) solid var(--border-primary);
+    border-radius: var(--radius-main);
+    box-shadow: var(--shadow-main), inset 0 0 15px rgba(255,215,0,0.08);
     position: relative;
+    z-index: 1;
 }
 
-/* Sidebar Layout */
+/* Sidebar */
 .sidebar {
     width: 250px;
-    border-right: 2px solid #555;
-    background: linear-gradient(180deg, #1c232c, #111);
+    border-right: 2px solid var(--border-secondary);
+    background: var(--bg-sidebar);
     padding: 20px;
     display: flex;
     flex-direction: column;
     border-top-left-radius: 8px;
     border-bottom-left-radius: 8px;
+    position: relative;
+    z-index: 1;
 }
 
 .sidebar-header {
     font-family: 'Cinzel', serif;
-    color: #f1c40f;
+    color: var(--text-heading);
     text-align: center;
     font-size: 1.5em;
     margin-bottom: 30px;
-    border-bottom: 1px solid #555;
+    border-bottom: 1px solid var(--border-secondary);
     padding-bottom: 15px;
     text-shadow: 1px 1px 3px #000;
 }
 
-.menu-list {
-    list-style: none;
-    padding: 0;
-    flex-grow: 1;
-}
+.menu-list { list-style: none; padding: 0; flex-grow: 1; }
 
 .menu-item {
     margin-bottom: 15px;
@@ -111,20 +111,14 @@ header {
     align-items: center;
     gap: 10px;
 }
-
 .menu-item:hover, .menu-item.active {
-    background: rgba(241, 196, 15, 0.1);
-    border-color: #f1c40f;
-    box-shadow: inset 0 0 10px rgba(241, 196, 15, 0.2);
-    color: #f1c40f;
+    background: var(--menu-active-bg);
+    border-color: var(--menu-active-border);
+    box-shadow: inset 0 0 10px rgba(241,196,15,0.15);
+    color: var(--text-heading);
     text-decoration: none;
 }
-.menu-item a {
-    color: inherit;
-    text-decoration: none;
-    display: block;
-    width: 100%;
-}
+.menu-item a { color: inherit; text-decoration: none; display: block; width: 100%; }
 
 .main-panel {
     flex-grow: 1;
@@ -137,10 +131,10 @@ header {
 
 .section-title {
     font-family: 'Cinzel', serif;
-    color: #f1c40f;
+    color: var(--text-heading);
     font-size: 2em;
     margin-bottom: 20px;
-    border-bottom: 2px solid #555;
+    border-bottom: 2px solid var(--border-secondary);
     padding-bottom: 10px;
 }
 
@@ -149,35 +143,35 @@ header {
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    color: #bdc3c7;
+    color: var(--text-secondary);
     font-family: 'Cinzel', serif;
 }
 .form-group input, .form-group select {
     width: 100%;
     padding: 12px;
     border-radius: 5px;
-    border: 1px solid #555;
-    background-color: #1a252f;
-    color: #f1c40f;
+    border: 1px solid var(--border-input);
+    background-color: var(--bg-input);
+    color: var(--accent-primary);
     font-family: 'Merriweather', serif;
 }
 .form-group input:focus, .form-group select:focus {
     outline: none;
-    border-color: #b8860b;
-    box-shadow: 0 0 8px rgba(241, 196, 15, 0.4);
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 8px rgba(241,196,15,0.3);
 }
 
 /* Buttons */
 .btn, .rpg-btn {
     width: 100%;
-    background: linear-gradient(#b8860b, #d35400);
-    border: 2px solid #f1c40f;
-    color: #fff;
+    background: var(--btn-bg);
+    border: 2px solid var(--btn-border);
+    color: var(--btn-color);
     padding: 12px 20px;
     font-family: 'Cinzel', serif;
     font-weight: bold;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: var(--radius-btn);
     transition: 0.3s;
     text-transform: uppercase;
     text-decoration: none;
@@ -187,26 +181,41 @@ header {
     box-sizing: border-box;
 }
 .btn:hover, .rpg-btn:hover {
-    background: linear-gradient(#f1c40f, #e67e22);
-    color: #000;
-    box-shadow: 0 0 10px #f1c40f;
+    background: var(--btn-bg-hover);
+    color: var(--text-on-accent);
+    box-shadow: 0 0 10px var(--accent-primary);
 }
-.btn.danger { background: linear-gradient(#c0392b, #922b21); border-color: #e74c3c; }
-.btn.danger:hover { background: linear-gradient(#e74c3c, #c0392b); color: #fff; box-shadow: 0 0 10px #e74c3c;}
-.btn.success { background: linear-gradient(#27ae60, #1e8449); border-color: #2ecc71; }
-.btn.success:hover { background: linear-gradient(#2ecc71, #27ae60); color: #fff; box-shadow: 0 0 10px #2ecc71;}
+.btn.danger { background: linear-gradient(#c0392b,#922b21); border-color: #e74c3c; }
+.btn.danger:hover { background: linear-gradient(#e74c3c,#c0392b); color:#fff; box-shadow:0 0 10px #e74c3c; }
 
-/* Feedback msgs */
+/* Botão Sair — acompanha o tema atual */
+.btn-logout {
+    display: block;
+    font-size: 0.8em;
+    background: transparent;
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    opacity: 0.85;
+}
+.btn-logout:hover {
+    background: var(--accent-primary) !important;
+    color: var(--bg-body, #111) !important;
+    box-shadow: 0 0 10px var(--accent-primary) !important;
+    opacity: 1;
+}
+.btn.success { background: linear-gradient(#27ae60,#1e8449); border-color: #2ecc71; }
+.btn.success:hover { background: linear-gradient(#2ecc71,#27ae60); color:#fff; box-shadow:0 0 10px #2ecc71; }
+
+/* Feedback messages */
 .error-msg {
-    color: #ff7675;
+    color: var(--color-error);
     text-align: center;
     margin-bottom: 15px;
     min-height: 20px;
     font-weight: bold;
 }
-
 .success-msg {
-    color: #55efc4;
+    color: var(--color-success);
     text-align: center;
     margin-bottom: 15px;
     min-height: 20px;
@@ -217,25 +226,25 @@ header {
 /* Layout Grid Utilities */
 .rpg-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
     gap: 15px;
 }
 
 .rpg-box {
-    background: linear-gradient(to right, #2c3e50, #1a252f);
-    border: 2px solid #b8860b;
+    background: var(--bg-card);
+    border: 2px solid var(--border-primary);
     border-radius: 8px;
     padding: 15px;
     transition: transform 0.2s;
 }
 
 /* Animations */
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 .fade-in { animation: fadeIn 0.5s ease-in; }
 
-/* Responsive adjustments */
+/* Responsive */
 @media (max-width: 768px) {
-    .rpg-container { flex-direction: column; height: auto; display: block;}
-    .sidebar { width: 100%; border-right: none; border-bottom: 2px solid #555; }
+    .rpg-container { flex-direction: column; height: auto; display: block; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--border-secondary); }
     .main-panel { padding: 15px; }
 }
