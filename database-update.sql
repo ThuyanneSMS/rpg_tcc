@@ -132,3 +132,20 @@ BEGIN
         ADD CONSTRAINT users_theme_check
         CHECK (theme IN ('default','dark','light','forest','cave','snow','volcano','shadow'));
 END$$;
+
+-- ============================================================
+-- SISTEMA DE MISSÕES DIÁRIAS
+-- Cada personagem recebe 3 missões aleatórias por dia.
+-- Progresso é atualizado automaticamente ao vencer batalhas.
+-- Recompensa de ouro e XP é resgatada manualmente pelo jogador.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS character_daily_quests (
+    id            SERIAL PRIMARY KEY,
+    character_id  INT  REFERENCES characters(id) ON DELETE CASCADE,
+    quest_key     VARCHAR(30) NOT NULL,
+    quest_date    DATE NOT NULL DEFAULT CURRENT_DATE,
+    progress      INT  NOT NULL DEFAULT 0,
+    completed     BOOLEAN NOT NULL DEFAULT false,
+    claimed       BOOLEAN NOT NULL DEFAULT false,
+    UNIQUE(character_id, quest_key, quest_date)
+);

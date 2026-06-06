@@ -1,6 +1,48 @@
 const db = require('../config/db');
 const { checkLevelUp, calcDamage } = require('../utils/gameLogic');
 const { checkAndUnlockAchievements } = require('../utils/achievements');
+const { getQuestByKey } = require('../utils/quests');
+
+/**
+ * Atualiza o progresso das missões diárias após uma vitória em batalha.
+ * @param {number} characterId
+ * @param {string} monsterName  — nome do monstro derrotado
+ * @param {number} goldEarned   — ouro ganho na batalha
+ */
+async function updateQuestProgress(characterId, monsterName, goldEarned) {
+    try {
+        const today = new Date().toISOString().slice(0, 10);
+        const rows = await db.query(
+            `SELECT * FROM character_daily_quests
+             WHERE character_id = $1 AND quest_date = $2 AND completed = false`,
+            [characterId, today]
+        );
+        for (const row of rows.rows) {
+            const meta = getQuestByKey(row.quest_key);
+            if (!meta) continue;
+            let newProgress = row.progress;
+            if (meta.type === 'kill') {
+                newProgress += 1;
+            } else if (meta.type === 'earn_gold') {
+                newProgress += goldEarned;
+            } else if (meta.type === 'kill_boss' && meta.boss_name === monsterName) {
+                newProgress += 1;
+            }
+            if (newProgress !== row.progress) {
+                const isDone = newProgress >= meta.target;
+                await db.query(
+                    `UPDATE character_daily_quests
+                     SET progress = $1, completed = $2
+                     WHERE id = $3`,
+                    [Math.min(newProgress, meta.target), isDone, row.id]
+                );
+            }
+        }
+    } catch (err) {
+        // Não interrompe o fluxo principal em caso de erro nas missões
+        console.error('Erro ao atualizar progresso de missões:', err.message);
+    }
+}
 
 // =============================================================
 // POOL DE MONSTROS POR TIER (calibrados para os stats dos heróis)
@@ -207,6 +249,9 @@ exports.battleAction = async (req, res) => {
 
             // Verificar conquistas desbloqueadas
             const unlockedAchievements = await checkAndUnlockAchievements(character);
+
+            // Atualizar progresso das missões diárias
+            await updateQuestProgress(character.id, battle.monster_name, battle.monster_gold);
 
             return res.json({
                 status: 'won',

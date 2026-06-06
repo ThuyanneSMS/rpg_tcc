@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Web - Missões Diárias</title>
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .quests-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .quests-header h1 {
+            font-family: 'Cinzel', serif;
+            color: #f1c40f;
+            margin: 0;
+        }
+
+        .quests-reset-info {
+            font-size: 0.85em;
+            color: #95a5a6;
+            margin-left: auto;
+        }
+
+        /* Grid de missões */
+        .quests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* Card de missão */
+        .quest-card {
+            background: linear-gradient(135deg, #1a2332, #1c2a3a);
+            border: 2px solid #34495e;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: box-shadow 0.2s, border-color 0.2s;
+            position: relative;
+        }
+
+        .quest-card.completed {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #1a2e1a, #1a2e22);
+        }
+
+        .quest-card.claimed {
+            border-color: #555;
+            opacity: 0.55;
+        }
+
+        .quest-card:not(.claimed):hover {
+            box-shadow: 0 0 18px rgba(241, 196, 15, 0.2);
+        }
+
+        .quest-card-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .quest-icon {
+            font-size: 2.2em;
+            flex-shrink: 0;
+        }
+
+        .quest-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1em;
+            color: #fff;
+            margin: 0 0 3px 0;
+        }
+
+        .quest-desc {
+            font-size: 0.88em;
+            color: #95a5a6;
+            margin: 0;
+        }
+
+        /* Barra de progresso */
+        .quest-progress-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .quest-progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #bdc3c7;
+        }
+
+        .quest-progress-bar-bg {
+            background: #2c3e50;
+            border-radius: 6px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .quest-progress-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            background: linear-gradient(to right, #27ae60, #2ecc71);
+            transition: width 0.5s ease;
+        }
+
+        .quest-card.claimed .quest-progress-bar-fill {
+            background: #555;
+        }
+
+        /* Recompensas */
+        .quest-rewards {
+            display: flex;
+            gap: 15px;
+            font-size: 0.88em;
+            color: #bdc3c7;
+        }
+
+        .quest-reward-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .quest-reward-item span.value {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+
+        /* Botão de resgate */
+        .btn-claim {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.95em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s, transform 0.1s;
+            text-align: center;
+        }
+
+        .btn-claim.ready {
+            background: linear-gradient(to right, #f39c12, #f1c40f);
+            color: #1a2332;
+        }
+
+        .btn-claim.ready:hover {
+            background: linear-gradient(to right, #e67e22, #f39c12);
+            transform: translateY(-1px);
+        }
+
+        .btn-claim.disabled {
+            background: #2c3e50;
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        .btn-claim.done {
+            background: #1e3a1e;
+            color: #27ae60;
+            cursor: default;
+        }
+
+        /* Badge no topo direito do card */
+        .quest-status-badge {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            font-size: 0.72em;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .quest-status-badge.em-andamento { background: #2c3e50; color: #95a5a6; }
+        .quest-status-badge.concluida    { background: #1e6e3e; color: #2ecc71; }
+        .quest-status-badge.resgatada    { background: #2c2c2c; color: #555;    }
+
+        /* Estado de carregamento */
+        .loading-msg {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 60px;
+            font-size: 1.1em;
+        }
+
+        /* Feedback toast */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #27ae60;
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.95em;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        #toast.error { background: #e74c3c; }
+        #toast.show  { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="rpg-container fade-in">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div>⚔️ Guilda Escarlate</div>
+            </div>
+            <ul class="menu-list">
+                <li class="menu-item"><a href="game.html">&#x1F464; Status</a></li>
+                <li class="menu-item"><a href="inventory.html">&#x1F392; Inventario</a></li>
+                <li class="menu-item"><a href="shop.html">&#x1F6D2; Mercador</a></li>
+                <li class="menu-item"><a href="battle.html">&#x2694;&#xFE0F; Batalha</a></li>
+                <li class="menu-item"><a href="map.html">&#x1F5FA;&#xFE0F; Mapa</a></li>
+                <li class="menu-item active"><a href="quests.html">&#x1F4DC; Missões Diárias</a></li>
+                <li class="menu-item"><a href="ranking.html">&#x1F3C6; Ranking</a></li>
+                <li class="menu-item"><a href="profile.html">&#x1F4CB; Meus Dados</a></li>
+            </ul>
+            <div style="margin-top: auto">
+                <a class="rpg-btn btn-logout" onclick="logout()">Sair</a>
+            </div>
+        </aside>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-panel">
+            <div class="quests-header">
+                <h1>📜 Missões Diárias</h1>
+                <span class="quests-reset-info" id="reset-info"></span>
+            </div>
+
+            <p style="color:#95a5a6; margin-bottom:20px; font-size:0.92em;">
+                Complete as missões do dia para ganhar ouro e experiência extras.
+                As missões renovam à meia-noite.
+            </p>
+
+            <div id="quests-container">
+                <p class="loading-msg">Carregando missões...</p>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="js/theme.js"></script>
+    <script>ThemeSystem.initTheme();</script>
+    <script src="js/utils.js"></script>
+    <script>
+        if (!isAuthenticated()) window.location.href = 'index.html';
+
+        // ─── Helpers ────────────────────────────────────────────────────────
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = isError ? 'error show' : 'show';
+            setTimeout(() => { t.className = t.className.replace('show', '').trim(); }, 3000);
+        }
+
+        function buildProgressBar(progress, target) {
+            const pct = Math.min(100, Math.round((progress / target) * 100));
+            return `
+                <div class="quest-progress-wrap">
+                    <div class="quest-progress-label">
+                        <span>Progresso</span>
+                        <span>${progress} / ${target}</span>
+                    </div>
+                    <div class="quest-progress-bar-bg">
+                        <div class="quest-progress-bar-fill" style="width:${pct}%"></div>
+                    </div>
+                </div>`;
+        }
+
+        function buildQuestCard(q) {
+            let statusClass, statusLabel, btnHtml;
+
+            if (q.claimed) {
+                statusClass = 'resgatada';
+                statusLabel = '✔ Resgatada';
+                btnHtml = `<button class="btn-claim done" disabled>Recompensa Resgatada</button>`;
+            } else if (q.completed) {
+                statusClass = 'concluida';
+                statusLabel = '⭐ Concluída';
+                btnHtml = `<button class="btn-claim ready" onclick="claimQuest(${q.id}, this)">🎁 Resgatar Recompensa</button>`;
+            } else {
+                statusClass = 'em-andamento';
+                statusLabel = '⏳ Em andamento';
+                btnHtml = `<button class="btn-claim disabled" disabled>Complete para Resgatar</button>`;
+            }
+
+            const cardClass = q.claimed ? 'quest-card claimed' : q.completed ? 'quest-card completed' : 'quest-card';
+
+            return `
+            <div class="${cardClass}" data-quest-id="${q.id}">
+                <span class="quest-status-badge ${statusClass}">${statusLabel}</span>
+                <div class="quest-card-top">
+                    <div class="quest-icon">${q.icon}</div>
+                    <div>
+                        <p class="quest-title">${q.title}</p>
+                        <p class="quest-desc">${q.description}</p>
+                    </div>
+                </div>
+                ${buildProgressBar(q.progress, q.target)}
+                <div class="quest-rewards">
+                    <div class="quest-reward-item">💰 Ouro: <span class="value">+${q.reward_gold}</span></div>
+                    <div class="quest-reward-item">⭐ XP: <span class="value">+${q.reward_xp}</span></div>
+                </div>
+                ${btnHtml}
+            </div>`;
+        }
+
+        // ─── Carregar missões ────────────────────────────────────────────────
+        async function loadQuests() {
+            try {
+                const data = await apiFetch('/quests');
+                const container = document.getElementById('quests-container');
+
+                if (!data.quests || data.quests.length === 0) {
+                    container.innerHTML = '<p class="loading-msg">Nenhuma missão disponível.</p>';
+                    return;
+                }
+
+                // Info de reset
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(0, 0, 0, 0);
+                const diffMs  = tomorrow - Date.now();
+                const diffH   = Math.floor(diffMs / 3600000);
+                const diffM   = Math.floor((diffMs % 3600000) / 60000);
+                document.getElementById('reset-info').textContent =
+                    `Renovação em ${diffH}h ${diffM}min`;
+
+                container.innerHTML = `<div class="quests-grid">${data.quests.map(buildQuestCard).join('')}</div>`;
+            } catch (err) {
+                document.getElementById('quests-container').innerHTML =
+                    '<p class="loading-msg" style="color:#e74c3c;">Erro ao carregar missões.</p>';
+            }
+        }
+
+        // ─── Resgatar recompensa ─────────────────────────────────────────────
+        async function claimQuest(questId, btn) {
+            btn.disabled = true;
+            btn.textContent = 'Resgatando...';
+            try {
+                const data = await apiFetch('/quests/claim', {
+                    method: 'POST',
+                    body: JSON.stringify({ questId }),
+                });
+                showToast(`🎁 ${data.message} (+${data.reward.gold} ouro, +${data.reward.xp} XP)`);
+                // Re-renderiza os cards para refletir o novo estado
+                await loadQuests();
+            } catch (err) {
+                showToast(err.message || 'Erro ao resgatar recompensa.', true);
+                btn.disabled = false;
+                btn.textContent = '🎁 Resgatar Recompensa';
+            }
+        }
+
+        function logout() {
+            removeToken();
+            window.location.href = 'index.html';
+        }
+
+        // Inicializar
+        loadQuests();
+    </script>
+</body>
+</html>

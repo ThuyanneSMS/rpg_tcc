@@ -155,36 +155,20 @@
             <feColorMatrix type="matrix" values="1 0.8 0 0 0  0.8 0.6 0 0 0  0 0 0 0 0  0 0 0 1.5 0" result="colored"/>
             <feMerge><feMergeNode in="colored"/><feMergeNode in="SourceGraphic"/></feMerge>`;
 
-        // Clip path
-        const clipPath = document.createElementNS(svgNS, 'clipPath');
-        clipPath.id = 'tutorial-clip';
-        const clipRect = document.createElementNS(svgNS, 'rect');
-        clipRect.id = 'tutorial-clip-rect';
-        clipRect.setAttribute('x', '0');
-        clipRect.setAttribute('y', '0');
-        clipRect.setAttribute('width', '0');
-        clipRect.setAttribute('height', '0');
-        clipRect.setAttribute('rx', '10');
-        clipPath.appendChild(clipRect);
+        // SVG Mask: white = mostra overlay escuro / black = faz buraco (transparente)
+        const mask = document.createElementNS(svgNS, 'mask');
+        mask.id = 'tut-spotlight-mask';
 
-        defs.appendChild(filter);
-        defs.appendChild(clipPath);
-        svg.appendChild(defs);
+        // Fundo branco = overlay escuro visível em toda a tela
+        const maskBg = document.createElementNS(svgNS, 'rect');
+        maskBg.setAttribute('x', '0');
+        maskBg.setAttribute('y', '0');
+        maskBg.setAttribute('width', '100%');
+        maskBg.setAttribute('height', '100%');
+        maskBg.setAttribute('fill', 'white');
+        mask.appendChild(maskBg);
 
-        // Full-screen dark rect with a "hole"
-        const maskGroup = document.createElementNS(svgNS, 'g');
-
-        // Outer dark rect
-        const darkRect = document.createElementNS(svgNS, 'rect');
-        darkRect.id = 'tut-dark-rect';
-        darkRect.setAttribute('x', '0');
-        darkRect.setAttribute('y', '0');
-        darkRect.setAttribute('width', '100%');
-        darkRect.setAttribute('height', '100%');
-        darkRect.setAttribute('fill', 'rgba(5,8,12,0.82)');
-        maskGroup.appendChild(darkRect);
-
-        // "Eraser" rect — same position as spotlight, uses destination-out
+        // Retângulo preto = "buraco" transparente onde o elemento está destacado
         const eraseRect = document.createElementNS(svgNS, 'rect');
         eraseRect.id = 'tut-erase-rect';
         eraseRect.setAttribute('x', '-999');
@@ -192,10 +176,23 @@
         eraseRect.setAttribute('width', '0');
         eraseRect.setAttribute('height', '0');
         eraseRect.setAttribute('rx', '12');
-        eraseRect.setAttribute('fill', 'rgba(5,8,12,0.82)');
-        maskGroup.appendChild(eraseRect);
+        eraseRect.setAttribute('fill', 'black');
+        mask.appendChild(eraseRect);
 
-        svg.appendChild(maskGroup);
+        defs.appendChild(filter);
+        defs.appendChild(mask);
+        svg.appendChild(defs);
+
+        // Overlay escuro com máscara — a área do spotlight fica transparente
+        const darkRect = document.createElementNS(svgNS, 'rect');
+        darkRect.id = 'tut-dark-rect';
+        darkRect.setAttribute('x', '0');
+        darkRect.setAttribute('y', '0');
+        darkRect.setAttribute('width', '100%');
+        darkRect.setAttribute('height', '100%');
+        darkRect.setAttribute('fill', 'rgba(5,8,12,0.82)');
+        darkRect.setAttribute('mask', 'url(#tut-spotlight-mask)');
+        svg.appendChild(darkRect);
 
         // Glow border rect (decorative)
         const glowRect = document.createElementNS(svgNS, 'rect');
@@ -564,7 +561,16 @@
         const welcome = document.getElementById('tutorial-welcome');
         if (welcome) welcome.classList.remove('active');
 
-        // Skipping does NOT persist any preference — tutorial shows again next login.
+        // Skipping during the tour (✕ Pular) only closes for this session.
+        closeTutorial();
+    }
+
+    function skipPermanently() {
+        // "Pular, já conheço o sistema" — salva 'never' para não exibir mais.
+        localStorage.setItem(STORAGE_PREF_KEY, 'never');
+        localStorage.removeItem(STORAGE_STEP_KEY);
+        const welcome = document.getElementById('tutorial-welcome');
+        if (welcome) welcome.classList.remove('active');
         closeTutorial();
     }
 
@@ -673,7 +679,7 @@
     function bindEvents() {
         // Welcome screen
         document.getElementById('tut-welcome-start').addEventListener('click', () => startTutorial(0));
-        document.getElementById('tut-welcome-skip').addEventListener('click', skipTutorial);
+        document.getElementById('tut-welcome-skip').addEventListener('click', skipPermanently);
 
         // Balloon buttons
         document.getElementById('tut-btn-prev').addEventListener('click', prevStep);

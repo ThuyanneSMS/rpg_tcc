@@ -234,7 +234,7 @@
             position: fixed;
             inset: 0;
             background: rgba(0,0,0,0.65);
-            z-index: 1000;
+            z-index: 100000;
             align-items: center;
             justify-content: center;
         }
@@ -304,6 +304,7 @@
                 <li class="menu-item" id="menu-shop"><a href="shop.html">&#x1F6D2; Mercador</a></li>
                 <li class="menu-item" id="menu-battle"><a href="battle.html">&#x2694;&#xFE0F; Missões</a></li>
                 <li class="menu-item" id="menu-map"><a href="map.html">&#x1F5FA;&#xFE0F; Mapa</a></li>
+                <li class="menu-item" id="menu-quests"><a href="quests.html">&#x1F4DC; Missões Diárias</a></li>
                 <li class="menu-item" id="menu-ranking"><a href="ranking.html">&#x1F3C6; Ranking</a></li>
                 <li class="menu-item" id="menu-profile"><a href="profile.html">&#x1F4CB; Meus Dados</a></li>
             </ul>
@@ -311,26 +312,6 @@
                 <a class="rpg-btn btn-logout" onclick="logout()">Sair</a>
             </div>
         </aside>
-
-        <!-- Modal Estalagem -->
-        <div class="inn-overlay" id="innOverlay">
-            <div class="inn-modal">
-                <h3>🏡 Estalagem</h3>
-                <p>Descanse e recupere toda a sua vida.</p>
-                <div class="inn-cost" id="innCostBox">
-                    <div class="stat-row"><span>HP atual</span><span id="innHpCurrent">-</span></div>
-                    <div class="stat-row"><span>HP máximo</span><span id="innHpMax">-</span></div>
-                    <div class="stat-row"><span>HP a recuperar</span><span id="innHpMissing">-</span></div>
-                    <div class="stat-row" style="margin-top:8px; border-top:1px solid #27ae60; padding-top:8px">
-                        <span>Custo</span><span id="innCost">- ouro</span>
-                    </div>
-                </div>
-                <div class="inn-buttons">
-                    <button class="btn-inn-confirm" onclick="confirmHeal()">Descansar</button>
-                    <button class="btn-inn-cancel"  onclick="closeInn()">Cancelar</button>
-                </div>
-            </div>
-        </div>
 
         <!-- Main Panel -->
         <main class="main-panel">
@@ -444,6 +425,26 @@
             </div>
 
         </main>
+    </div>
+
+    <!-- Modal Estalagem — fora do sidebar para evitar conflito de stacking context -->
+    <div class="inn-overlay" id="innOverlay" onclick="closeInn()">
+        <div class="inn-modal" onclick="event.stopPropagation()">
+            <h3>🏡 Estalagem</h3>
+            <p>Descanse e recupere toda a sua vida.</p>
+            <div class="inn-cost" id="innCostBox">
+                <div class="stat-row"><span>HP atual</span><span id="innHpCurrent">-</span></div>
+                <div class="stat-row"><span>HP máximo</span><span id="innHpMax">-</span></div>
+                <div class="stat-row"><span>HP a recuperar</span><span id="innHpMissing">-</span></div>
+                <div class="stat-row" style="margin-top:8px; border-top:1px solid #27ae60; padding-top:8px">
+                    <span>Custo</span><span id="innCost">- ouro</span>
+                </div>
+            </div>
+            <div class="inn-buttons">
+                <button class="btn-inn-confirm" onclick="confirmHeal()">Descansar</button>
+                <button class="btn-inn-cancel"  onclick="closeInn()">Cancelar</button>
+            </div>
+        </div>
     </div>
 
     <script src="js/theme.js"></script>

@@ -20,6 +20,7 @@ const battleRoutes = require('./routes/battleRoutes');
 const shopRoutes = require('./routes/shopRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const rankingRoutes = require('./routes/rankingRoutes');
+const questRoutes  = require('./routes/questRoutes');
 
 // Uso das rotas principais
 app.use('/api/auth', authRoutes);
@@ -28,6 +29,7 @@ app.use('/api/battle', battleRoutes);
 app.use('/api/shop', shopRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/ranking', rankingRoutes);
+app.use('/api/quests', questRoutes);
 
 // Rota raiz (Verificação simples)
 app.get('/', (req, res) => {

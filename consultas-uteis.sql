@@ -306,3 +306,122 @@ FROM character_achievements;
 -- DELETE FROM character_achievements
 -- WHERE character_id  = (SELECT id FROM characters WHERE name = 'NOME_DO_HEROI')
 --   AND achievement_id = (SELECT id FROM achievements WHERE key = 'CHAVE_DA_CONQUISTA');
+
+
+-- ==========================================
+-- CONSULTAS DE MISSÕES DIÁRIAS (character_daily_quests)
+-- ==========================================
+
+-- 29. Ver as missões do dia atual de todos os personagens
+SELECT
+    c.name          AS personagem,
+    u.nickname      AS jogador,
+    q.quest_key,
+    q.quest_date,
+    q.progress,
+    q.completed,
+    q.claimed
+FROM character_daily_quests q
+JOIN characters c ON q.character_id = c.id
+JOIN users u      ON c.user_id      = u.id
+WHERE q.quest_date = CURRENT_DATE
+ORDER BY c.name, q.id;
+
+
+-- 30. Ver as missões do dia atual de um Personagem Específico (Mude o nome)
+SELECT
+    q.id,
+    q.quest_key,
+    q.progress,
+    q.completed,
+    q.claimed,
+    q.quest_date
+FROM character_daily_quests q
+JOIN characters c ON q.character_id = c.id
+WHERE c.name = 'NOME_DO_PERSONAGEM'
+  AND q.quest_date = CURRENT_DATE
+ORDER BY q.id;
+
+
+-- 31. Ver missões concluídas mas ainda não resgatadas (recompensas pendentes)
+SELECT
+    c.name          AS personagem,
+    u.nickname      AS jogador,
+    q.quest_key,
+    q.progress,
+    q.quest_date
+FROM character_daily_quests q
+JOIN characters c ON q.character_id = c.id
+JOIN users u      ON c.user_id      = u.id
+WHERE q.completed = true
+  AND q.claimed   = false
+ORDER BY q.quest_date DESC, c.name;
+
+
+-- 32. Histórico completo de missões de um Personagem (todos os dias)
+SELECT
+    q.quest_date,
+    q.quest_key,
+    q.progress,
+    q.completed,
+    q.claimed
+FROM character_daily_quests q
+JOIN characters c ON q.character_id = c.id
+WHERE c.name = 'NOME_DO_PERSONAGEM'
+ORDER BY q.quest_date DESC, q.id;
+
+
+-- 33. Contagem de missões completadas e resgatadas por Personagem (todos os tempos)
+SELECT
+    c.name          AS personagem,
+    u.nickname      AS jogador,
+    COUNT(*)                                            AS total_missoes,
+    COUNT(CASE WHEN q.completed = true  THEN 1 END)    AS concluidas,
+    COUNT(CASE WHEN q.claimed   = true  THEN 1 END)    AS recompensas_resgatadas,
+    COUNT(CASE WHEN q.completed = true AND q.claimed = false THEN 1 END) AS pendentes_de_resgate
+FROM character_daily_quests q
+JOIN characters c ON q.character_id = c.id
+JOIN users u      ON c.user_id      = u.id
+GROUP BY c.name, u.nickname
+ORDER BY concluidas DESC;
+
+
+-- 34. Ver quais missões são mais concluídas (Popularidade por quest_key)
+SELECT
+    quest_key,
+    COUNT(*)                                         AS vezes_gerada,
+    COUNT(CASE WHEN completed = true THEN 1 END)     AS vezes_concluida,
+    COUNT(CASE WHEN claimed   = true THEN 1 END)     AS vezes_resgatada,
+    ROUND(
+        COUNT(CASE WHEN completed = true THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0), 1
+    ) AS taxa_conclusao_pct
+FROM character_daily_quests
+GROUP BY quest_key
+ORDER BY taxa_conclusao_pct DESC;
+
+
+-- 35. Diagnóstico rápido da tabela de missões diárias
+SELECT
+    COUNT(*)                                                AS total_registros,
+    COUNT(DISTINCT character_id)                            AS personagens_com_missoes,
+    COUNT(DISTINCT quest_date)                              AS dias_com_missoes,
+    MIN(quest_date)                                         AS primeiro_dia,
+    MAX(quest_date)                                         AS ultimo_dia,
+    COUNT(CASE WHEN completed = true THEN 1 END)            AS total_concluidas,
+    COUNT(CASE WHEN claimed   = true THEN 1 END)            AS total_resgatadas
+FROM character_daily_quests;
+
+
+-- 36. [OPCIONAL / CHEAT] Forçar conclusão de todas as missões do dia para um Personagem
+-- UPDATE character_daily_quests
+-- SET progress = 999, completed = true
+-- WHERE character_id = (SELECT id FROM characters WHERE name = 'NOME_DO_HEROI')
+--   AND quest_date = CURRENT_DATE;
+
+-- 37. [OPCIONAL / CHEAT] Limpar as missões do dia de um Personagem (para regenerar)
+-- DELETE FROM character_daily_quests
+-- WHERE character_id = (SELECT id FROM characters WHERE name = 'NOME_DO_HEROI')
+--   AND quest_date = CURRENT_DATE;
+
+-- 38. [OPCIONAL / CHEAT] Limpar TODAS as missões do banco (reset total)
+-- DELETE FROM character_daily_quests;
